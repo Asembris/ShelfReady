@@ -1,0 +1,7 @@
+@import "tailwindcss";
+body { background:#f7f8fa; color:#162334; font-family:system-ui,sans-serif; }
+button { background:#174f44; color:white; padding:.6rem 1rem; border-radius:.3rem; cursor:pointer; }
+button:disabled { opacity:.5; cursor:default; }
+input,select { margin:.4rem; } select { display:block; border:1px solid #999; padding:.3rem; }
+pre { white-space:pre-wrap; overflow-wrap:anywhere; background:white; padding:1rem; }
+a { text-decoration:underline; color:#174f44; } [role=alert] { color:#9a1c1c; }
