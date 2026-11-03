@@ -38,6 +38,9 @@ def summarize(path):
                    "transform_seconds": sum(r["transform_seconds"] for r in records),
                    "model_attempts": sum(len(r["attempts"]) for r in records),
                    "rejected_candidates": sum(r["rejected_candidates"] for r in records),
+                   "incorrect_candidate_rows": (sum(r["incorrect_candidate_rows"] for r in records)
+                                                if all("incorrect_candidate_rows" in r for r in records)
+                                                else None),
                    "tokens": sum(a.get("usage", {}).get("total_tokens", 0)
                                  for r in records for a in r["attempts"])}
         for record in records:

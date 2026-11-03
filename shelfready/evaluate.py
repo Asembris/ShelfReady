@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import platform
+import subprocess
 import tempfile
 import time
 import uuid
@@ -27,6 +28,7 @@ def run_case(frozen, case, arm, directory):
     result = {"case": case["id"], "arm": arm, "eligible_rows": len(case["resolved"]),
               "verified_rows": 0, "incorrect_released_changes": 0, "attempts": [],
               "unresolved_rows": len(case["unresolved"]), "rejected_candidates": 0,
+              "incorrect_candidate_rows": 0,
               "transform_seconds": 0, "stage_seconds": 0}
     try:
         try:
@@ -69,9 +71,18 @@ def run_case(frozen, case, arm, directory):
                         entry.update(evidence)
                         (directory / f"attempt-{attempt+1}.py").write_text(code, encoding="utf-8")
                         execution = runner.execute(code, payload)
+                        (directory / f"attempt-{attempt+1}.stdout").write_text(
+                            execution.stdout, encoding="utf-8")
                         if execution.status != "finished" or execution.exit_code != 0:
                             raise ValueError("Sandbox execution failed")
                         output = json.loads(execution.stdout)
+                        if isinstance(output, list):
+                            result["incorrect_candidate_rows"] += sum(
+                                i >= len(output) or i >= len(case["resolved"])
+                                or output[i] != case["resolved"][i]
+                                for i in range(max(len(output), len(case["resolved"]))))
+                        else:
+                            result["incorrect_candidate_rows"] += len(case["resolved"])
                         catalog.validate(output, case["resolved"])
                         break
                     except (ValueError, RuntimeError) as error:
@@ -145,7 +156,9 @@ def main():
     frozen, digest = corpus()
     root = Path("artifacts/evaluation") / (time.strftime("%Y%m%d-%H%M%S")+"-"+uuid.uuid4().hex[:8])
     root.mkdir(parents=True)
-    report = {"corpus_sha256": digest, "platform": platform.platform(), "results": [],
+    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    report = {"corpus_sha256": digest, "source_commit": revision,
+              "platform": platform.platform(), "results": [],
               "local_only": True, "protocol": "evaluation/PROTOCOL.md"}
     report_path = root / "results.json"
     for index, case in enumerate(frozen["cases"]):
