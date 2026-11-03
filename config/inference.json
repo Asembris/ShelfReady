@@ -1,0 +1,4 @@
+{
+  "base_url": "https://api.vultrinference.com/v1",
+  "model": "qwen3.8-27b"
+}

@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mariadb:11.4.8@sha256:bc474f00629f0123c10f9e1bca193a45d18af15a274cf0656acda64f1086c3b6
+    environment:
+      MARIADB_DATABASE: shelfready
+      MARIADB_USER: shelfready
+      MARIADB_PASSWORD: ${STORE_PASSWORD:?Generate local credentials}
+      MARIADB_ROOT_PASSWORD: ${ROOT_PASSWORD:?Generate local credentials}
+    volumes: [database:/var/lib/mysql]
+    networks: [store]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 2s
+      timeout: 5s
+      retries: 60
+  wordpress:
+    image: wordpress:6.8.3-php8.3-apache@sha256:30bff39330d1693b0ce13d32fc9b7bb67193064f040b7d60d3494e136fa599d4
+    environment: &wp_env
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: shelfready
+      WORDPRESS_DB_PASSWORD: ${STORE_PASSWORD}
+      WORDPRESS_DB_NAME: shelfready
+    volumes: [wordpress:/var/www/html]
+    networks: [store]
+    depends_on:
+      db: {condition: service_healthy}
+  cli:
+    image: wordpress:cli-2.12.0-php8.3@sha256:6bcc7bb91f5157c4b915e74ee131873e99c1c1ff48f602e4a6f6cd17827305cb
+    user: "33:33"
+    entrypoint: [sleep, infinity]
+    environment: *wp_env
+    volumes: [wordpress:/var/www/html]
+    networks: [store]
+    depends_on: [wordpress]
+networks:
+  store:
+    internal: true
+volumes:
+  database:
+  wordpress:

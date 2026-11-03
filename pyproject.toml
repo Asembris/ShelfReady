@@ -1,0 +1,12 @@
+[project]
+name = "shelfready"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = ["openai==2.7.1", "python-dotenv==1.2.1"]
+
+[dependency-groups]
+dev = ["pytest==8.4.2", "ruff==0.14.3"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+markers = ["live: requires a running Docker engine and downloaded images"]
