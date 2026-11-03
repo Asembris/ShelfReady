@@ -19,7 +19,7 @@ objects with sku, price, stock string fields. Supplier rows also have row intege
 Define a function transform(INPUT_JSON) returning a Python list of dictionaries.
 Do not call the function or print anything; the trusted wrapper handles invocation
 and JSON serialization. Count ALL supplier SKU occurrences with Counter before
-iterating; skip every occurrence when a SKU occurs more than once.
+iterating; count SKU.casefold() and skip every occurrence of case-insensitive duplicates.
 Replace baseline price and stock with supplier values for exact matching SKUs.
 Emit only supplier rows with unique supplier SKUs, a baseline match, nonempty
 untrimmed SKU not starting =+-@, price matching [0-9]{1,9}(\\.[0-9]{1,6})?,
