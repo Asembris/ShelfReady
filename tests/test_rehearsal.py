@@ -1,4 +1,6 @@
 import json
+from types import SimpleNamespace
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -91,6 +93,32 @@ def test_all_unresolved_never_calls_model_or_store(api, monkeypatch):
     worker.process(jobs.claim())
     assert jobs.get(key)["state"] == "failed"
     assert api.get(f"/api/jobs/{key}/download/csv").status_code == 409
+
+
+@pytest.mark.live
+def test_generated_function_invoked_inside_sandbox(monkeypatch):
+    """Synthetic model function; real Docker proves the trusted invocation contract."""
+    fake = MagicMock()
+    fake.__enter__.return_value.chat.completions.create.return_value = SimpleNamespace(
+        choices=[SimpleNamespace(finish_reason="stop", message=SimpleNamespace(
+            content='import json\ndef transform(INPUT_JSON):\n return json.loads(INPUT_JSON)["supplier"]'))],
+        id="synthetic-model-response", model="synthetic", usage=None)
+    monkeypatch.setattr(worker.inference, "client", lambda: fake)
+    code, evidence = worker.generate({}, "")
+    from shelfready.sandbox import run
+    expected = [{"row": 1, "sku": "00017", "price": "13.5500", "stock": "7"}]
+    result = run(code, data={"supplier": expected})
+    assert result.status == "finished" and result.exit_code == 0
+    catalog.validate(json.loads(result.stdout), expected)
+    assert evidence["response_id"] == "synthetic-model-response"
+
+
+def test_runner_refuses_implicit_local_execution(monkeypatch):
+    from shelfready.runner import execute
+    for key in ("SHELFREADY_LOCAL_RUNNER", "RUNNER_HOST", "RUNNER_SSH_KEY_PATH"):
+        monkeypatch.delenv(key, raising=False)
+    with pytest.raises(RuntimeError, match="fixed SSH runner"):
+        execute("print('unsafe fallback')", {})
 
 
 @pytest.mark.parametrize("fail_store,valid_after", [(False, 2), (True, 1), (False, 4)])
