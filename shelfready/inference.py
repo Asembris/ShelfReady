@@ -33,10 +33,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model")
     args = parser.parse_args()
-    api = client()
-    ids = sorted(model.id for model in api.models.list())
     target = Path("artifacts/inference")
     target.mkdir(parents=True, exist_ok=True)
+    for name in ("generated.py", "response.json"):
+        (target / name).unlink(missing_ok=True)
+    api = client()
+    ids = sorted(model.id for model in api.models.list())
     (target / "models.json").write_text(json.dumps(ids, indent=2))
     print(json.dumps({"available_models": ids}))
     pinned = json.loads(Path("config/inference.json").read_text())
@@ -49,6 +51,8 @@ def main():
         model=model, messages=[{"role": "user", "content": PROMPT}],
         max_tokens=2048, temperature=0,
     )
+    if response.choices[0].finish_reason != "stop":
+        raise ValueError("Incomplete model response")
     code = response.choices[0].message.content or ""
     if code.startswith("```python\n") and code.rstrip().endswith("```"):
         code = code.removeprefix("```python\n").rstrip().removesuffix("```")

@@ -58,6 +58,9 @@ checks['no_socket'] = not pathlib.Path('/var/run/docker.sock').exists()
 checks['no_host'] = not pathlib.Path('/host').exists()
 checks['no_new_privs'] = 'NoNewPrivs:\\t1' in pathlib.Path('/proc/self/status').read_text()
 checks['no_caps'] = 'CapEff:\\t0000000000000000' in pathlib.Path('/proc/self/status').read_text()
+checks['cpu_quota'] = pathlib.Path('/sys/fs/cgroup/cpu.max').read_text().strip() == '50000 100000'
+checks['memory_quota'] = pathlib.Path('/sys/fs/cgroup/memory.max').read_text().strip() == '134217728'
+checks['pid_quota'] = pathlib.Path('/sys/fs/cgroup/pids.max').read_text().strip() == '32'
 try:
     pathlib.Path('/etc/escape').write_text('bad')
     checks['root_readonly'] = False
@@ -90,4 +93,4 @@ print(json.dumps(checks))
     result = run(code, timeout=10)
     assert result.exit_code == 0, result
     checks = json.loads(result.stdout)
-    assert len(checks) == 10 and all(checks.values()), checks
+    assert len(checks) == 13 and all(checks.values()), checks

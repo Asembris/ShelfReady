@@ -59,6 +59,7 @@ def main():
                        "\nROOT_PASSWORD=" + secrets.token_hex(24) + "\n")
     evidence = Path("artifacts/store")
     evidence.mkdir(parents=True, exist_ok=True)
+    (evidence / "result.json").unlink(missing_ok=True)
     package = RUNTIME / f"woocommerce.{WOO_VERSION}.zip"
     if not package.exists():
         command(["curl.exe" if __import__('os').name == 'nt' else "curl", "-fL",

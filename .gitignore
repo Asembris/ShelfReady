@@ -4,6 +4,11 @@
 architecture.md
 *.pem
 *.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+secrets/
 *credentials*
 .ssh/
 .aws/

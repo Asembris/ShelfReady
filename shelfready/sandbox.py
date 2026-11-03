@@ -57,10 +57,19 @@ def run(code: str, timeout: float = 5) -> Result:
 
     reader = threading.Thread(target=drain, daemon=True)
     reader.start()
+
+    def feed():
+        try:
+            proc.stdin.write(code.encode())
+        except (BrokenPipeError, OSError):
+            pass
+        finally:
+            proc.stdin.close()
+
+    writer = threading.Thread(target=feed, daemon=True)
+    writer.start()
     status = "finished"
     try:
-        proc.stdin.write(code.encode())
-        proc.stdin.close()
         deadline = time.monotonic() + timeout
         while proc.poll() is None and not overflow.wait(0.02):
             if time.monotonic() >= deadline:
@@ -76,6 +85,7 @@ def run(code: str, timeout: float = 5) -> Result:
             proc.kill()
             raise RuntimeError("Sandbox cleanup failed: " + removed.stderr.decode()[:300])
         proc.wait(timeout=10)
+        writer.join(timeout=10)
         reader.join(timeout=10)
         proc.stdout.close()
     if overflow.is_set():
