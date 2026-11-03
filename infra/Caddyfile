@@ -1,7 +1,7 @@
 # Local built-UI preview only; API is bound to loopback.
-http://localhost:8000 {
+http://localhost:18766 {
     handle /api/* {
-        reverse_proxy 127.0.0.1:8001
+        reverse_proxy 127.0.0.1:18765
     }
     handle {
         root * web/dist

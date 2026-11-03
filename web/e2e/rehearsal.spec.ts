@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {spawn,ChildProcess} from 'node:child_process';
+import {spawn,spawnSync,ChildProcess} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 const root=path.resolve(import.meta.dirname,'../..');
@@ -8,7 +8,12 @@ test.beforeAll(()=>{
  const python=process.platform==='win32'?path.join(root,'.venv/Scripts/python.exe'):path.join(root,'.venv/bin/python');
  worker=spawn(python,['-m','shelfready.worker'],{cwd:root,env:{...process.env,SHELFREADY_LOCAL_RUNNER:'1',SHELFREADY_DATA_DIR:path.join(root,'.runtime/browser')},stdio:'ignore'});
 });
-test.afterAll(()=>{worker?.kill()});
+test.afterAll(()=>{
+ if(worker?.pid){
+  if(process.platform==='win32')spawnSync('taskkill',['/PID',String(worker.pid),'/T','/F']);
+  else worker.kill();
+ }
+});
 test('confirm mappings, rehearse real Vultr code and download partial verified results',async({page})=>{
  await page.goto('/');
  await page.getByLabel('Baseline WooCommerce CSV').setInputFiles(path.join(root,'fixtures/baseline.csv'));
@@ -17,7 +22,8 @@ test('confirm mappings, rehearse real Vultr code and download partial verified r
  await expect(page.getByRole('button',{name:'Confirm and rehearse'})).toBeDisabled();
  await page.getByRole('checkbox').check();
  await page.getByRole('button',{name:'Confirm and rehearse'}).click();
- await expect(page.getByTestId('state')).toHaveText('partial',{timeout:230000});
+ await expect.poll(async()=>await page.getByTestId('state').textContent(),{timeout:230000}).toMatch(/partial|failed/);
+ await expect(page.getByTestId('state')).toHaveText('partial');
  const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('link',{name:'Download verified CSV'}).click()]);
  const dir=path.join(root,'artifacts/rehearsal');await fs.mkdir(dir,{recursive:true});
  await download.saveAs(path.join(dir,'verified.csv'));

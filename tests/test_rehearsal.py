@@ -50,7 +50,8 @@ def test_upload_bounds_and_quota(api, monkeypatch):
     assert api.post("/api/jobs", json={}, headers={"Origin": "https://untrusted.example"}).status_code == 403
 
 
-@pytest.mark.parametrize("raw", [b"a,a\n1,2", b"a,b\n1", b"a\n\x00", b"a\n"+b"1\n"*101])
+@pytest.mark.parametrize("raw", [b"a,a\n1,2", b"a,b\n1", b"a\n\x00", b'a\n"unterminated',
+                                 b'a\n"multi\nline"', b"a\n"+b"1\n"*101])
 def test_reject_invalid_csv(raw):
     with pytest.raises(ValueError):
         catalog.parse(raw)
@@ -65,6 +66,31 @@ def test_independent_accounting():
                 [{**expected[0], "price": "13.55"}], [{**expected[0], "row": True}]]:
         with pytest.raises(ValueError):
             catalog.validate(bad, expected)
+
+
+def test_expiration_and_single_active_job(api):
+    key = upload(api)
+    jobs.confirm(key, MAPPING)
+    another = upload(api)
+    with pytest.raises(ValueError, match="already active"):
+        jobs.confirm(another, MAPPING)
+    with jobs.connect() as db:
+        db.execute("UPDATE jobs SET created=0 WHERE id=?", (another,))
+    assert api.get(f"/api/jobs/{another}").status_code == 404
+
+
+def test_all_unresolved_never_calls_model_or_store(api, monkeypatch):
+    response = api.post("/api/jobs", json={"baseline": BASE,
+                                         "supplier": "SKU,Regular price,Stock\nabsent,1.00,1\n"})
+    key = response.json()["id"]
+    jobs.confirm(key, MAPPING)
+    def forbidden(*args):
+        pytest.fail("No transformation/import is allowed for zero resolved rows")
+    monkeypatch.setattr(worker, "generate", forbidden)
+    monkeypatch.setattr(worker.rehearsal_store, "rehearse", forbidden)
+    worker.process(jobs.claim())
+    assert jobs.get(key)["state"] == "failed"
+    assert api.get(f"/api/jobs/{key}/download/csv").status_code == 409
 
 
 @pytest.mark.parametrize("fail_store,valid_after", [(False, 2), (True, 1), (False, 4)])

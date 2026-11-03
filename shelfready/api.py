@@ -16,6 +16,8 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1
 async def local_only(request, call_next):
     if request.method == "POST" and request.headers.get("origin") not in (
             None, "http://localhost:5173", "http://127.0.0.1:5173",
+            "http://localhost:18766", "http://127.0.0.1:18766",
+            "http://localhost:18765", "http://127.0.0.1:18765",
             "http://localhost:8000", "http://127.0.0.1:8000"):
         return Response("Origin denied", status_code=403)
     return await call_next(request)

@@ -4,24 +4,34 @@ import os
 import sqlite3
 import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 
-ROOT = Path(os.getenv("SHELFREADY_DATA_DIR", ".runtime/rehearsal"))
+from dotenv import load_dotenv
+
+load_dotenv()
+ROOT = Path(os.getenv("SHELFREADY_DATA_DIR") or ".runtime/rehearsal")
 TTL = 86400
 QUOTA = 30
 
 
+@contextmanager
 def connect():
     ROOT.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(ROOT / "jobs.sqlite", timeout=10)
     db.row_factory = sqlite3.Row
+    db.execute("BEGIN IMMEDIATE")
     db.execute("CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, state TEXT, "
                "created REAL, data TEXT, confirmation TEXT, report TEXT, csv TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS usage (total INTEGER)")
     if not db.execute("SELECT * FROM usage").fetchone():
         db.execute("INSERT INTO usage VALUES (0)")
     db.commit()
-    return db
+    try:
+        with db:
+            yield db
+    finally:
+        db.close()
 
 
 def reap(db):

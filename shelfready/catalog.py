@@ -19,14 +19,18 @@ def parse(raw):
     text = raw.decode("utf-8-sig")
     if any(ord(c) < 32 and c not in "\r\n" for c in text):
         raise ValueError("CSV contains control characters")
-    rows = list(csv.reader(io.StringIO(text), strict=True))
+    try:
+        rows = list(csv.reader(io.StringIO(text), strict=True))
+    except csv.Error as error:
+        raise ValueError("Malformed CSV quoting") from error
     if not rows or not 1 <= len(rows) - 1 <= MAX_ROWS:
         raise ValueError("CSV must contain 1–100 data rows")
     headers = rows[0]
     if (not 1 <= len(headers) <= 20 or len(set(headers)) != len(headers)
             or any(not h or len(h) > 80 for h in headers)):
         raise ValueError("CSV headers must be unique, nonempty and bounded")
-    if any(len(row) != len(headers) or any(len(c) > 256 for c in row) for row in rows[1:]):
+    if any(len(row) != len(headers) or any(len(c) > 256 or "\n" in c or "\r" in c
+                                         for c in row) for row in rows[1:]):
         raise ValueError("CSV has inconsistent columns or oversized cells")
     return {"headers": headers, "rows": rows[1:]}
 
