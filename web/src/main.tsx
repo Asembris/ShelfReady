@@ -3,7 +3,11 @@ import {createRoot} from 'react-dom/client';
 import './style.css';
 type Table = {headers:string[],rows:string[][]};
 type Upload = {id:string,tables:Record<string,Table>,candidates:Record<string,Record<string,string[]>>};
-type Status = {state:string,report:Record<string,unknown>|null};
+type Values = {price:string,stock:string};
+type Report = {input_rows?:number,resolved_rows?:number,reason?:string,
+ unresolved?:{row:number,sku:string,reason:string}[],
+ changes?:{sku:string,before:Values,after:Values}[]};
+type Status = {state:string,report:Report|null};
 async function request(path:string, data?:unknown) {
   const response=await fetch('/api'+path,data===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
   const result=await response.json();
@@ -48,7 +52,12 @@ function App(){
    {status.state==='partial'&&<p>Partial success: only resolved, independently verified rows are exported. Review unresolved rows below.</p>}
    {status.state==='failed'&&<p>Rehearsal failed. No verified CSV is available.</p>}
    {['complete','partial'].includes(status.state)&&<p><a href={'/api/jobs/'+upload!.id+'/download/csv'}>Download verified CSV</a> · <a href={'/api/jobs/'+upload!.id+'/download/report'}>Download change report</a></p>}
-   {status.report&&<pre>{JSON.stringify(status.report,null,2)}</pre>}
+   {status.report&&<div className="space-y-4">
+    {status.report.reason&&<p>{status.report.reason}</p>}
+    {status.report.input_rows!==undefined&&<p>{status.report.input_rows} input rows · {status.report.resolved_rows} resolved · {status.report.unresolved?.length||0} unresolved</p>}
+    {!!status.report.changes?.length&&<table><caption>Verified replacements</caption><thead><tr><th>SKU</th><th>Price before</th><th>Price after</th><th>Stock before</th><th>Stock after</th></tr></thead><tbody>{status.report.changes.map(r=><tr key={r.sku}><td>{r.sku}</td><td>{r.before.price}</td><td>{r.after.price}</td><td>{r.before.stock}</td><td>{r.after.stock}</td></tr>)}</tbody></table>}
+    {!!status.report.unresolved?.length&&<table><caption>Unresolved supplier rows</caption><thead><tr><th>Row</th><th>SKU</th><th>Reason</th></tr></thead><tbody>{status.report.unresolved.map(r=><tr key={r.row}><td>{r.row}</td><td>{r.sku}</td><td>{r.reason}</td></tr>)}</tbody></table>}
+   </div>}
    {!['queued','running'].includes(status.state)&&<button onClick={()=>{setStatus(null);setUpload(null);setError('')}}>Start another rehearsal</button>}
   </section>}
  </main>;
