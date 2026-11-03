@@ -15,7 +15,7 @@ COMPOSE = ["docker", "compose", "--project-name", PROJECT,
 
 
 def command(args, **kwargs):
-    result = subprocess.run(args, capture_output=True, text=True, timeout=180, **kwargs)
+    result = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", timeout=180, **kwargs)
     if result.returncode:
         # Commands can contain generated passwords: never include argv in errors.
         raise RuntimeError(result.stderr[-2000:])

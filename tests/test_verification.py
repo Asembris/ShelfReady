@@ -232,3 +232,20 @@ def test_frozen_oracle_is_independent_of_planner():
             "baseline": frozen["baseline_mapping"], "supplier": case["mapping"]})
         catalog.validate(resolved, case["resolved"])
         assert [r["row"] for r in unresolved] == case["unresolved"]
+
+
+@pytest.mark.live
+def test_native_unicode_names_identifiers_and_untouched_product(tmp_path):
+    baseline = [{"sku": "00017", "name": 'Étagère, "acier"', "type": "simple",
+                 "price": "1.2300", "stock": "3"},
+                {"sku": "KEEP-1", "name": "Support fixe", "type": "simple",
+                 "price": "2.50", "stock": "0"}]
+    updates = [{"row": 1, "sku": "00017", "price": "0.000001", "stock": "0"}]
+    actual = rehearsal_store.rehearse(baseline, updates, tmp_path)
+    assert actual == [["00017", "0.000001", "0", 'Étagère, "acier"'],
+                      ["KEEP-1", "2.50", "0", "Support fixe"]]
+    snapshots = json.loads((tmp_path / "readback.json").read_text(encoding="utf-8"))
+    before = {r["sku"]: r for r in snapshots["before"]}
+    after = {r["sku"]: r for r in snapshots["after"]}
+    assert all(before[sku]["id"] == after[sku]["id"] for sku in before)
+    assert before["KEEP-1"] == after["KEEP-1"]
