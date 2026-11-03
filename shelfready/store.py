@@ -84,25 +84,33 @@ def main():
         command(["docker", "cp", str(package), f"{container}:/tmp/woocommerce.zip"])
         command(["docker", "cp", "infra/import.php", f"{container}:/tmp/import.php"])
         wp("plugin", "install", "/tmp/woocommerce.zip", "--activate")
-        assert wp("plugin", "get", "woocommerce", "--field=version") == WOO_VERSION
+        installed_version = wp("plugin", "get", "woocommerce", "--field=version")
+        if installed_version != WOO_VERSION:
+            raise RuntimeError(
+                f"WooCommerce version mismatch: expected {WOO_VERSION!r}, "
+                f"received {installed_version!r}")
         report["baseline_import"] = import_csv(Path("fixtures/baseline.csv"))
         before = readback()
-        assert before == "00017\t12.30\t4\tLeading zero product\nA-2\t0.10\t0\tDecimal product", before
+        if before != "00017\t12.30\t4\tLeading zero product\nA-2\t0.10\t0\tDecimal product":
+            raise RuntimeError(f"Baseline SQL readback mismatch: received {before!r}")
         report["update_import"] = import_csv(Path("fixtures/update.csv"), update=True)
         after = readback()
-        assert after == "00017\t13.55\t7\tLeading zero product\nA-2\t1.35\t2\tDecimal product", after
+        if after != "00017\t13.55\t7\tLeading zero product\nA-2\t1.35\t2\tDecimal product":
+            raise RuntimeError(f"Updated SQL readback mismatch: received {after!r}")
         report.update(before=before, after=after)
         wp("db", "reset", "--yes")
         tables = compose("exec", "-T", "db", "sh", "-c",
                          'exec mariadb -ushelfready -p"$MARIADB_PASSWORD" '
                          '--batch --skip-column-names shelfready', input="SHOW TABLES;")
-        assert tables == "", tables
+        if tables != "":
+            raise RuntimeError(f"Database reset incomplete: remaining tables {tables!r}")
         report["reset_empty"] = True
     finally:
         compose("down", "--volumes", "--remove-orphans")
         remaining = command(["docker", "volume", "ls", "-q", "--filter",
                              f"label=com.docker.compose.project={PROJECT}"])
-        assert remaining == "", remaining
+        if remaining != "":
+            raise RuntimeError(f"Store cleanup incomplete: remaining volumes {remaining!r}")
     report["volumes_removed"] = True
     (evidence / "result.json").write_text(json.dumps(report, indent=2))
     print(json.dumps(report, indent=2))
