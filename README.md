@@ -1,9 +1,90 @@
 # ShelfReady
 Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
-This branch implements Phase 1 feasibility only. Synthetic fixture products are
-used in **real** Vultr, Docker and native WooCommerce probes. There is no UI,
-production-store integration, deployed service, or application agent loop yet.
+This branch implements the Phase 2 local upload-to-download rehearsal slice.
+It uses real Vultr inference, restricted Python containers, native WooCommerce
+import and independent database readback. No cloud resources have been provisioned.
+See [Phase 2 evidence and limitations](docs/rehearsal.md).
+
+## Run the local rehearsal
+
+First complete the Phase 1 setup below, including `python -m shelfready.store`
+to cache the checksum-pinned plugin and generate disposable local credentials.
+Use Node 22.12+ (tested with Node 24) and Python 3.12. From the repository root:
+
+```powershell
+uv sync --locked
+# Terminal 1: loopback API
+uv run --locked uvicorn shelfready.api:app --host 127.0.0.1 --port 18765
+# Terminal 2: separate worker; explicit local Docker development mode
+$env:SHELFREADY_LOCAL_RUNNER='1'
+uv run --locked python -m shelfready.worker
+# Terminal 3
+cd web
+npm ci
+npm run dev
+```
+
+Open `http://127.0.0.1:18766`. Upload UTF-8 baseline and supplier CSV files,
+review candidate mappings and previews, choose every required column, and
+explicitly confirm same-currency replacement of both price and stock. Execution
+cannot begin before confirmation. The worker gets at most three code-generation/
+validation attempts. Only independently validated rows enter the disposable store;
+CSV and JSON change-report downloads unlock after independent persisted readback
+and successful cleanup. Partial success labels every unresolved supplier row.
+Zero resolved rows or verification/cleanup failure releases no CSV.
+
+Bounds: 16 KiB, 100 rows, 20 columns, 256 characters/cell; unique headers,
+single-line cells, explicit simple-product baseline, nonnegative decimal prices
+up to six places and whole nonnegative stock. Matching is exact and preserves
+SKU strings. Unknown SKUs, duplicate supplier SKUs and invalid price/stock rows
+remain unresolved. Unsupported baseline data fails validation. The trusted
+validator computes expectations separately from generated code and rejects
+omitted, extra, altered or incorrectly accounted output rows.
+
+SQLite stores local jobs/downloads for 24 hours; expiry is reaped on requests
+and worker polls. Original input data is cleared on completion/failure. A persistent
+30-upload lifetime quota bounds inference usage; expiry does not reset it. One
+queued/running rehearsal and one OS-locked worker are allowed. A worker restart
+reaps its disposable store, labelled sandbox containers and temporary catalog
+directories, and marks interrupted work failed. Do not run Phase 1 tests and the
+worker concurrently, since containment cleanup tests assume no other sandboxes.
+
+The local API has host/origin checks and is intended for loopback use. Job UUIDs
+act as download capabilities; keep them private. Public deployment, authentication
+and independent runner verification remain deployment work. The default execution
+path requires `RUNNER_HOST` and `RUNNER_SSH_KEY_PATH`: it sends JSON over stdin
+to a fixed `python3 -m shelfready.runner` SSH command, with batch mode and strict
+host-key checking. Install this pinned checkout and Python 3.12 on the runner,
+pre-pull the pinned image, restrict SSH/network access and keep model credentials
+off that VM. That remote boundary has **not** been deployed or live-verified.
+Local mode must be explicitly opted into; generated code is never a shell argument.
+
+For a built-UI local preview, run `npm run build` in `web`, keep the API on
+18765, and run `caddy run --config infra/Caddyfile` from the root instead of Vite.
+Caddy serves the static build and proxies the API on localhost:18766.
+
+Verification from the root, with no worker already running:
+
+```powershell
+uv run --locked pytest -q --basetemp=.runtime/pytest-check
+uv run --locked ruff check .
+git diff --check
+cd web
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+The browser test starts its own API and separate worker, uses the real Vultr key
+from ignored `.env`, and rehearses synthetic fixture products through real native
+import/readback before downloading partial verified output. It spends inference
+tokens and writes ignored evidence under `artifacts/rehearsal/`. Unit failure
+injections are explicitly synthetic and do not substitute for this live test.
+If system CAs are required, use `uv --native-tls` and
+`$env:NODE_OPTIONS='--use-system-ca'`; never disable certificate verification.
+
+## Phase 1 probes
 
 The local, ignored `architecture.md` is the owner's binding scope contract.
 `AGENTS.md` and `CLAUDE.md` require coding agents to read it. Obtain it from the
@@ -87,12 +168,12 @@ no core dumps, 64 KiB input code and 64 KiB combined stdout/stderr. Container
 logging is disabled. Default execution timeout is five seconds, capped at thirty;
 cleanup has separate bounded Docker-command timeouts and reports failures.
 
-Only bounded stdout is released in this feasibility probe; no generated files
-are exported. Phase 2 must add immutable per-job inputs, safe file validation,
-the fixed SSH dispatcher on a separate Vultr runner VM, durable reaping and
-quotas before exposing untrusted uploads. Docker shares the host kernel and
-does not provide absolute isolation. These probes validate local Docker
-feasibility, not the future deployment boundary.
+Only bounded stdout is released; no generated files are exported. Rehearsal
+inputs arrive as a serialized JSON string over stdin, without input-file mounts;
+generated code cannot modify the trusted host's validation expectations. The
+fixed SSH dispatcher is implemented, but its separate Vultr VM boundary still
+requires deployment and live verification. Docker shares the host kernel and
+does not provide absolute isolation. The observed execution evidence is local.
 
 `pytest` includes live Docker containment tests and requires the pinned Python
 image. `pytest -m "not live"` runs only host validation tests; that is insufficient

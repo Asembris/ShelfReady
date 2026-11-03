@@ -22,14 +22,18 @@ class Result:
     exit_code: int | None
 
 
-def run(code: str, timeout: float = 5) -> Result:
+def run(code: str, timeout: float = 5, data=None) -> Result:
     if len(code.encode()) > MAX_CODE:
         raise ValueError("Code exceeds 64 KiB")
     if not 0 < timeout <= 30:
         raise ValueError("Timeout must be in (0, 30]")
+    payload = json.dumps({"code": code, "data": data}).encode()
+    if len(payload) > 131072:
+        raise ValueError("Sandbox payload exceeds 128 KiB")
     name = "shelfready-sandbox-" + uuid.uuid4().hex
     command = [
         "docker", "run", "--name", name, "--pull=never", "--interactive",
+        "--label=shelfready.execution=1",
         "--network=none", "--read-only", "--user=65534:65534",
         "--cap-drop=ALL", "--security-opt=no-new-privileges:true",
         "--memory=128m", "--memory-swap=128m", "--cpus=0.5", "--pids-limit=32",
@@ -38,8 +42,9 @@ def run(code: str, timeout: float = 5) -> Result:
         "--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=8m,mode=1777",
         "--tmpfs=/output:rw,noexec,nosuid,nodev,size=1m,mode=1777",
         "--workdir=/output", IMAGE, "python", "-I", "-B", "-c",
-        "import os,sys; os.environ.clear(); os.environ['PATH']='/usr/bin:/bin'; "
-        "exec(compile(sys.stdin.buffer.read(65537), '<generated>', 'exec'))",
+        "import os,sys,json; os.environ.clear(); os.environ['PATH']='/usr/bin:/bin'; "
+        "p=json.loads(sys.stdin.buffer.read(131073)); INPUT_JSON=json.dumps(p['data']); "
+        "exec(compile(p['code'], '<generated>', 'exec'))",
     ]
     output = bytearray()
     overflow = threading.Event()
@@ -60,7 +65,7 @@ def run(code: str, timeout: float = 5) -> Result:
 
     def feed():
         try:
-            proc.stdin.write(code.encode())
+            proc.stdin.write(payload)
         except (BrokenPipeError, OSError):
             pass
         finally:
