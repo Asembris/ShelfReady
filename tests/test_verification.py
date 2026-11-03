@@ -107,6 +107,51 @@ def test_case_insensitive_duplicate_skus_are_unresolved():
     assert [r["row"] for r in unresolved] == [2, 3]
 
 
+def test_case_colliding_baseline_identifiers_are_rejected():
+    data = {"baseline": catalog.parse(
+        b"Type,SKU,Name,Regular price,Stock\nsimple,ABC,One,1,2\nsimple,abc,Two,3,4\n"),
+        "supplier": catalog.parse(SUPPLIER.encode())}
+    with pytest.raises(ValueError, match="unique"):
+        catalog.plan(data, MAPPING)
+
+
+def test_cleanup_after_successful_native_import_blocks_release(tmp_path, monkeypatch):
+    """All native/provider calls are injected; this specifically tests finalization."""
+    import hashlib
+    monkeypatch.setattr(jobs, "ROOT", tmp_path / "jobs")
+    cache = tmp_path / "cache"
+    cache.mkdir()
+    package = b"synthetic unit-test plugin"
+    (cache / f"woocommerce.{rehearsal_store.store.WOO_VERSION}.zip").write_bytes(package)
+    monkeypatch.setattr(rehearsal_store.store, "RUNTIME", cache)
+    monkeypatch.setattr(rehearsal_store.store, "WOO_SHA256", hashlib.sha256(package).hexdigest())
+    baseline = {**state(), "name": "Test", "price": "12.30", "active_price": "12.30", "stock": "4"}
+    updated = {**baseline, "price": "13.5500", "active_price": "13.5500", "stock": "7"}
+    snapshots = iter([baseline, updated])
+    def native(*args, **kwargs):
+        if kwargs.get("input"):
+            return json.dumps(next(snapshots))
+        if args[-2:] == ("eval-file", "/tmp/import.php"):
+            update = "IMPORT_UPDATE=1" in args
+            return json.dumps({"failed": [], "skipped": [],
+                               "imported": [] if update else [10], "updated": [10] if update else []})
+        if "plugin" in args and "get" in args:
+            return rehearsal_store.store.WOO_VERSION
+        return ""
+    monkeypatch.setattr(rehearsal_store, "compose", native)
+    monkeypatch.setattr(rehearsal_store.store, "command", lambda *args: "")
+    cleanup = MagicMock(side_effect=RuntimeError("synthetic cleanup failure after successful import"))
+    monkeypatch.setattr(rehearsal_store, "cleanup", cleanup)
+    monkeypatch.setattr(worker, "generate", lambda *args: ("synthetic", {}))
+    monkeypatch.setattr(worker.runner, "execute", lambda *args: Result("finished", json.dumps([
+        {"row": 1, "sku": "00017", "price": "13.5500", "stock": "7"}]), 0))
+    key = jobs.create({"baseline": catalog.parse(BASE.encode()), "supplier": catalog.parse(SUPPLIER.encode())})
+    jobs.confirm(key, MAPPING)
+    worker.process(jobs.claim())
+    cleanup.assert_called_once()
+    assert jobs.get(key)["state"] == "failed" and jobs.get(key)["csv"] is None
+
+
 @pytest.mark.parametrize("control", ["\u007f", "\u0085", "\u202e", "\u200b"])
 def test_reject_invisible_controls(control):
     with pytest.raises(ValueError, match="control"):
