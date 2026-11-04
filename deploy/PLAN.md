@@ -1,8 +1,9 @@
 # Phase 5 approval-ready deployment plan
 
 Status: VM configurations approved by owner November 4, 2026 for an initial
-72-hour evaluation, with no paid add-ons. NOT PROVISIONED: demo FQDN and admin
-IP/CIDR remain required. Recheck pricing/configuration before creation and stop
+72-hour evaluation, with no paid add-ons. NOT PROVISIONED: owner confirmation of
+the detected admin IPv4 /32 remains required. Owner approved a temporary sslip.io
+FQDN derived from the control public IPv4. Recheck pricing/configuration before creation and stop
 if either changes. Public HTTPS, remote SSH containment and cloud cleanup
 have NOT been verified. Deployment verdict is NO-GO until approval and live gates.
 Phase 4 benchmark and its French failure are preserved; the reliability fix is
@@ -113,10 +114,15 @@ with Caddy authentication. This is a bounded demo, not multi-tenant authorizatio
   job with actual remote runner/native readback/cleanup evidence separately;
   the browser alone does not prove which execution host was used.
 
-Until FQDN/admin CIDR are provided and the real deployment gates pass, public
+Until the admin CIDR is confirmed and the real deployment gates pass, public
 launch remains **NO-GO**. Provisioning permission is not verification evidence.
 
-Required owner inputs: DNS FQDN under your control and admin source IP/CIDR.
+Required owner input: explicit confirmation of the detected admin IPv4 /32.
+Use `CONTROL_IPV4.sslip.io` as the temporary demo hostname after provisioning;
+verify its DNS A record equals the assigned control IPv4 and obtain/verify a
+valid HTTPS certificate before enabling demo access. Do not bypass TLS or DNS
+failures. This third-party hostname is temporary and depends on its operator
+and certificate issuance limits; see [sslip.io documentation](https://sslip.io/).
 VM configurations/rates are approved; management API key is configured locally
 (presence checked without printing its value). No billable action has been taken.
 
@@ -175,3 +181,33 @@ Read-only Vultr catalog recheck returned the unchanged approved CPU/RAM/disk/
 transfer configurations and $0.027/$0.014 hourly rates, with `cdg` listed.
 Repeat this check immediately before creation. No resources were created and
 no cloud isolation, usage, native staging, cleanup or HTTPS success is claimed.
+
+## Read-only provisioning preflight
+
+November 4, 2026: two independent external IPv4 services queried from the local
+Windows machine returned the same globally routable IPv4. Its proposed /32 was
+presented privately to the owner for confirmation; do not commit the owner's
+personal IP. No firewall or resource changes precede that confirmation.
+
+Authenticated account and firewall-list endpoints returned HTTP 200. Account
+ACLs include `provisioning`, `firewall` and `root`; this establishes reported
+permissions, not a guarantee that a future create request will succeed. The
+firewall list is empty with no next page, so there are no existing rules to
+reuse or alter. Create dedicated groups and verify them before attaching VMs:
+control SSH only from the confirmed admin /32; runner SSH only from that /32
+and the assigned control IPv4 /32. Never permit SSH from `0.0.0.0/0` or `::/0`.
+Keep other runner inbound traffic denied and disable IPv6 provisioning.
+Initially keep the application unavailable; public TCP 80/443 is solely for
+Caddy certificate acquisition and authenticated HTTPS once configuration is
+validated. No public API/WooCommerce/database/Docker ports are allowed.
+
+The live Paris availability endpoint includes both approved plans. The plan
+catalog reports unchanged CPU/RAM/disk/transfer and hourly/monthly rates; Ubuntu
+24.04 x64 is still OS 2284. Capacity is not reserved. Repeat pricing, capacity,
+permissions and firewall verification immediately before creation and stop on
+any failed gate. Current resource cost from this work is zero: nothing has been
+provisioned. Actual usage charges and the 72-hour review deadline can only be
+recorded after creation. Retain the exact two approved IDs for teardown; delete
+only those instances after owner-directed teardown, then verify their absence
+and remove their dedicated unused keys/firewall groups. Power-off alone is not
+teardown. Do not delete unrelated account resources.
