@@ -2761,3 +2761,209 @@ textarea::placeholder {
     transition: none;
   }
 }
+/* Cinematic refinement: grounded opening, distinct inspection and release compositions. */
+.site-header {
+  background: #0a1530;
+  color: #f1f5ff;
+  border-color: #283650;
+  max-width: none;
+}
+.site-header nav {
+  color: #b7c6e2;
+}
+.brand-link img {
+  content: url("/brand/horizontal-dark.svg");
+}
+.header-cta svg {
+  color: #8ea6ff;
+}
+.hero:not(.hero-condensed) {
+  background: #0a1530;
+  color: #f1f5ff;
+  max-width: none;
+  min-height: 730px;
+  padding-top: 70px;
+  padding-bottom: 90px;
+}
+.hero:not(.hero-condensed) .hero-description,
+.hero-assurance {
+  color: #b7c6e2;
+}
+.hero:not(.hero-condensed) h1 span {
+  color: #8ea6ff;
+}
+.hero .eyebrow-line {
+  background: #8ea6ff;
+}
+.hero-art {
+  height: 560px;
+  box-shadow: none;
+  background: transparent;
+  overflow: visible;
+}
+.hero-art:before {
+  display: none;
+}
+.scene-caption,
+.art-cross {
+  display: none;
+}
+.scene-footer {
+  font-size: 11px;
+}
+.hero-art .proof-scene {
+  overflow: hidden;
+}
+.hero:not(.hero-condensed) .text-link {
+  color: #f1f5ff;
+}
+.proof-passage {
+  border-top: 1px solid #293751;
+}
+.passage-heading > span {
+  font-size: 10px;
+}
+.passage-stage {
+  background: radial-gradient(ellipse at 78% 43%, #172d54 0%, #0a1530 62%);
+}
+.passage-copy {
+  top: 29%;
+  width: 32%;
+}
+.passage-beat {
+  transition: none;
+  transform: none;
+}
+.passage-beat h2 {
+  font-size: clamp(64px, 7vw, 100px);
+  font-weight: 450;
+  letter-spacing: -5px;
+}
+.passage-beat h3 {
+  font-size: 24px;
+  max-width: 330px;
+}
+.passage-beat p {
+  font-size: 14px;
+}
+.passage-beat > span {
+  font-size: 11px;
+}
+.passage-heading p {
+  font-size: 12px;
+}
+.passage-caption {
+  font-size: 10px;
+}
+.passage-handoff {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+.passage-handoff p {
+  font-size: 26px;
+}
+.workspace-main {
+  border-radius: 4px;
+  box-shadow: 0 16px 50px -35px #10204445;
+}
+.panel-heading h3 {
+  font-size: 26px;
+}
+.file-slot {
+  border-radius: 3px;
+}
+.button {
+  border-radius: 3px;
+  transition:
+    background 0.16s ease-out,
+    transform 0.16s ease-out,
+    box-shadow 0.16s ease-out;
+}
+.panel-enter {
+  animation-duration: 0.26s;
+}
+.site-header a {
+  transition: opacity 0.16s;
+}
+.site-header a:hover {
+  opacity: 0.8;
+}
+@media (max-width: 850px) {
+  .hero:not(.hero-condensed) {
+    padding-top: 46px;
+    padding-bottom: 40px;
+    min-height: 0;
+  }
+  .hero-art {
+    height: 400px;
+  }
+  .passage-copy {
+    top: 54%;
+    width: 84%;
+  }
+  .passage-beat h2 {
+    font-size: 60px;
+    letter-spacing: -3px;
+  }
+  .passage-beat h3 {
+    font-size: 21px;
+    max-width: none;
+  }
+  .passage-beat p {
+    font-size: 13px;
+  }
+  .passage-caption {
+    font-size: 8px;
+  }
+}
+@media (max-width: 540px) {
+  .hero-art {
+    height: 330px;
+  }
+  .hero:not(.hero-condensed) {
+    padding-top: 34px;
+  }
+  .passage-beat h2 {
+    font-size: 52px;
+  }
+  .passage-beat h3 {
+    font-size: 19px;
+  }
+  .passage-beat p {
+    font-size: 12px;
+  }
+  .passage-beat > span {
+    font-size: 10px;
+  }
+  .passage-handoff p {
+    font-size: 20px;
+  }
+  .panel-heading h3 {
+    font-size: 22px;
+  }
+}
+@media (max-width: 540px) and (max-height: 700px) {
+  .passage-copy {
+    top: 49%;
+  }
+  .passage-beat h2 {
+    font-size: 42px;
+  }
+  .passage-beat h3 {
+    font-size: 17px;
+  }
+  .passage-beat > span {
+    font-size: 9px;
+  }
+}
+.passage-static .passage-copy {
+  top: auto;
+  width: auto;
+}
+.passage-static h2 {
+  font-size: 48px;
+  letter-spacing: -2px;
+}
+.hero .tiny-cross {
+  color: #8ea6ff;
+}

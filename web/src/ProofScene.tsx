@@ -234,9 +234,9 @@ export default function ProofScene({
               viewScale * (1 - inspect * 0.65) * (1 - release * 0.5),
             );
             group.position.set(
-              0.1 - release * 0.85,
+              0.1 - inspect * 1.55 * (1 - release) - release * 0.55,
               release * 1.05,
-              release * 0.3,
+              release * 1.1,
             );
             pieces.forEach((piece, i) => {
               piece.position.set(
