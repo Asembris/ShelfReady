@@ -46,6 +46,24 @@ function readAnchors(): Anchor[] {
   return anchors;
 }
 
+/**
+ * A film rendered on the CPU takes the page down with it, input included. Decide
+ * before downloading anything: software WebGL gets the still frame and all controls.
+ */
+function hasCapableGpu() {
+  const probe = document.createElement("canvas");
+  const gl = probe.getContext("webgl2", {
+    failIfMajorPerformanceCaveat: true,
+  });
+  if (!gl) return false;
+  const info = gl.getExtension("WEBGL_debug_renderer_info");
+  const name = info
+    ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL))
+    : "";
+  gl.getExtension("WEBGL_lose_context")?.loseContext();
+  return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
+}
+
 /** One fixed canvas behind the whole page. The CSS scene beneath it is the WebGL-free fallback. */
 export function WorldStage({
   ready,
@@ -66,11 +84,17 @@ export function WorldStage({
     let created: World | null = null;
     const compact = matchMedia("(max-width:850px),(pointer:coarse)").matches;
     const lose = () => {
+      created?.dispose();
+      created = null;
       stage.world = null;
       setWorld(null);
       // No film to watch: the chapters collapse into plain reading order.
       document.documentElement.dataset.film = "off";
     };
+    if (!hasCapableGpu()) {
+      lose();
+      return;
+    }
     import("./world/world")
       .then(({ createWorld }) =>
         createWorld(element, {

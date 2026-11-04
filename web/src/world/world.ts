@@ -1003,9 +1003,9 @@ export async function createWorld(
     failedMood = 0,
     targetActive = 0,
     targetFailed = 0;
-  let slowFrames = 0,
-    timedFrames = 0,
-    budgetAverage = 0;
+  let budgetTime = 0,
+    budgetFrames = 0,
+    hopeless = 0;
   let disposed = false;
   const up = new Vector3(0, 1, 0);
   const lookTarget = new Vector3();
@@ -1246,19 +1246,26 @@ export async function createWorld(
     clearColor = flatness > 0 ? GROUND_LINEAR : cold;
     renderOnce();
 
-    // Adaptive quality moves in rare, deliberate steps; it never oscillates or recovers mid-film.
-    if (elapsed < 200) {
-      budgetAverage = budgetAverage * 0.94 + elapsed * 0.06;
-      if (++timedFrames > 90 && budgetAverage > 25 && !diving) {
-        if (++slowFrames > 90 && quality < qualityScale.length - 1) {
+    // Adaptive quality moves in rare, deliberate steps and never oscillates. A device that
+    // still cannot hold a film at the lowest step gets the page back, not a slideshow.
+    if (!diving && elapsed < 1000) {
+      budgetTime += elapsed;
+      budgetFrames++;
+      if (budgetTime >= 1500) {
+        const average = budgetTime / budgetFrames;
+        budgetTime = 0;
+        budgetFrames = 0;
+        if (average > 25 && quality < qualityScale.length - 1) {
           quality++;
-          slowFrames = 0;
-          timedFrames = 0;
-          budgetAverage = 0;
           allocate();
           host.dataset.quality = String(quality);
-        }
-      } else slowFrames = 0;
+        } else if (average > 45) {
+          if (++hopeless >= 2) {
+            options.onLost();
+            return;
+          }
+        } else hopeless = 0;
+      }
     }
 
     // Stop only where the page is opaque and nothing is changing.

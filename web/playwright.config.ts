@@ -10,7 +10,13 @@ export default defineConfig({
   testIgnore: "**/public.spec.ts",
   workers: 1,
   timeout: 240000,
-  use: { baseURL: "http://127.0.0.1:18766" },
+  use: {
+    baseURL: "http://127.0.0.1:18766",
+    // The film only runs on a real GPU; software WebGL deliberately gets the still frame.
+    launchOptions: {
+      args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"],
+    },
+  },
   webServer: [
     {
       command: `"${python}" -m uvicorn shelfready.api:app --host 127.0.0.1 --port 18765`,

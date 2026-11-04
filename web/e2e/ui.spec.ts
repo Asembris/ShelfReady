@@ -145,6 +145,25 @@ test("reduced motion and unavailable WebGL retain usable responsive controls", a
   await context.close();
 });
 
+test("software WebGL gets the still frame, not a film that blocks input", async ({
+  page,
+}) => {
+  await page.addInitScript(`sessionStorage.setItem('shelfready:intro','seen');
+  const read = WebGL2RenderingContext.prototype.getParameter;
+  WebGL2RenderingContext.prototype.getParameter = function (name) {
+    return name === 0x9246 ? "ANGLE (Google, SwiftShader Device, SwANGLE)" : read.call(this, name);
+  };`);
+  await page.goto("/");
+  await expect(page.getByTestId("world")).toHaveAttribute(
+    "data-renderer",
+    "fallback",
+  );
+  await expect(page.locator("canvas")).toHaveCount(0);
+  await page.keyboard.press("PageDown");
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await expect(page.getByLabel("Baseline WooCommerce CSV")).toBeAttached();
+});
+
 test("draws a real world in one context and falls back after context loss", async ({
   page,
 }) => {
