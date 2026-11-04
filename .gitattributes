@@ -1,3 +1,11 @@
 *.sh text eol=lf
 brand/*.svg text eol=lf
 brand/fonts/*.woff2 binary
+
+web/**/*.ts text eol=lf
+web/**/*.tsx text eol=lf
+web/**/*.css text eol=lf
+web/**/*.mjs text eol=lf
+web/**/*.json text eol=lf
+web/**/*.html text eol=lf
+.github/** text eol=lf
