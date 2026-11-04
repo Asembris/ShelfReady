@@ -799,6 +799,10 @@ svg {
 .handoff p {
   color: var(--mist);
 }
+.handoff p,
+.studio-heading h2 {
+  text-shadow: 0 0 22px var(--ground);
+}
 .handoff em {
   font-style: normal;
   color: var(--ink);
@@ -1621,6 +1625,9 @@ tbody th {
     position: static;
     max-width: none;
     padding: 24px var(--gutter) 0;
+  }
+  .handoff {
+    min-height: 110vh;
   }
   .workspace-grid {
     grid-template-columns: 1fr;

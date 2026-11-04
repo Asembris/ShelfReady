@@ -547,7 +547,7 @@ float grainAt(vec2 p, float t) {
 void main() {
   vec3 raw = texture2D(uScene, vUv).rgb;
   vec3 color = raw + texture2D(uBloom, vUv).rgb * uBloomK;
-  color += vec3(0.5, 0.62, 1.0) * uFlash * 0.95;
+  color += vec3(0.5, 0.62, 1.0) * uFlash * 0.6;
   vec2 v = (vUv - 0.5) * vec2(min(uAspect, 1.6) / 1.6 + 0.4, 1.0);
   color *= mix(0.42, 1.0, smoothstep(0.92, 0.28, length(v) * 1.1));
   color *= 1.0 - uDim * 0.86;
