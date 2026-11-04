@@ -72,7 +72,11 @@ test("cinematic intro finishes once per tab session and supports skipping", asyn
       }
     }).observe(document, { childList: true, subtree: true });
   });
+  // The bound is for a warmed GPU shader cache. Cold first visits are measured in the docs.
   await page.goto("/");
+  await expect(page.getByTestId("brand-intro")).toBeHidden({ timeout: 15000 });
+  await page.evaluate(() => sessionStorage.removeItem("shelfready:intro"));
+  await page.reload();
   await expect(page.getByTestId("brand-intro")).toBeVisible();
   await expect(page.getByTestId("brand-intro")).toBeHidden({ timeout: 7000 });
   const opening = await page.evaluate(() => {

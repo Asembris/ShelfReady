@@ -146,16 +146,14 @@ test("the film closes on the world itself, without a footer panel", async ({
     "data-renderer",
     "webgl",
   );
-  // The picture holds still while the operator works through the sheet.
-  await page
-    .getByRole("button", { name: "Upload and review mappings" })
-    .evaluate((el) => {
-      const box = el.getBoundingClientRect();
-      scrollTo({
-        top: box.top + scrollY - innerHeight / 2,
-        behavior: "instant",
-      });
+  // The picture holds still while paper fills the frame.
+  await page.locator(".workspace-grid").evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    scrollTo({
+      top: box.bottom + scrollY - innerHeight - 8,
+      behavior: "instant",
     });
+  });
   expect(await settle(page)).toBeLessThan(6.03);
   await page.evaluate(() =>
     scrollTo({
