@@ -1,3 +1,4 @@
+import ProofPassage from "./ProofPassage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ProofScene, { BrandIntro, useMediaQuery } from "./ProofScene";
 
@@ -588,57 +589,7 @@ export default function App() {
               </div>
             )}
           </section>
-          {!phase && (
-            <section
-              id="process"
-              className="process-section"
-              aria-labelledby="process-title"
-            >
-              <div className="section-intro">
-                <span className="eyebrow">A DELIBERATE PATH TO RELEASE</span>
-                <h2 id="process-title">
-                  Real staging.
-                  <br />
-                  Not a prediction.
-                </h2>
-                <p>Three clear stages. One decision that stays yours.</p>
-              </div>
-              <div className="process-grid">
-                {[
-                  [
-                    "01",
-                    "Rehearse",
-                    "Bring your baseline and supplier CSV. Confirm exactly what each column means.",
-                    "You set the intent",
-                  ],
-                  [
-                    "02",
-                    "Verify",
-                    "Transform in isolation. Import into WooCommerce and independently read persisted values.",
-                    "Evidence, not assumptions",
-                  ],
-                  [
-                    "03",
-                    "Release",
-                    "Download verified updates and a change report. Unresolved rows stay visible and out of your CSV.",
-                    "Only what passed",
-                  ],
-                ].map(([n, t, text, foot]) => (
-                  <article key={n}>
-                    <span className="process-num">{n}</span>
-                    <h3>
-                      {t}
-                      <span className="process-glyph" aria-hidden="true">
-                        {n === "01" ? "↗" : n === "02" ? "⊕" : "↳"}
-                      </span>
-                    </h3>
-                    <p>{text}</p>
-                    <span className="process-foot">{foot}</span>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
+          {!phase && <ProofPassage enabled={introDone} />}
           <section
             id="studio"
             className="studio"

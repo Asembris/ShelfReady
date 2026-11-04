@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, RefObject } from "react";
 
 export function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() => matchMedia(query).matches);
@@ -18,9 +18,11 @@ export function useReducedMotion() {
 export default function ProofScene({
   phase = 0,
   intro = false,
+  journey,
 }: {
   phase?: number;
   intro?: boolean;
+  journey?: RefObject<number>;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -66,6 +68,37 @@ export default function ProofScene({
         scene.add(edge);
         const group = new T.Group();
         scene.add(group);
+        const passage = new T.Group();
+        scene.add(passage);
+        const frameGeometry = new T.EdgesGeometry(
+          new T.BoxGeometry(4.8, 3.8, 0.04),
+        );
+        const frameMaterial = new T.LineBasicMaterial({
+          color: 0x6c8cff,
+          transparent: true,
+          opacity: 0.6,
+        });
+        const readback = new T.LineSegments(frameGeometry, frameMaterial);
+        passage.add(readback);
+        const recordGeometry = new T.BoxGeometry(0.7, 0.065, 0.16);
+        const recordMaterial = new T.MeshStandardMaterial({
+          color: 0xf1f5ff,
+          metalness: 0.6,
+          roughness: 0.3,
+        });
+        const records = Array.from({ length: 7 }, (_, i) => {
+          const mesh = new T.Mesh(recordGeometry, recordMaterial);
+          passage.add(mesh);
+          mesh.position.y = (i - 3) * 0.21;
+          return mesh;
+        });
+        const heldGeometry = new T.EdgesGeometry(
+          new T.BoxGeometry(0.7, 0.2, 0.16),
+        );
+        const heldMaterial = new T.LineBasicMaterial({ color: 0xf1f5ff });
+        const held = new T.LineSegments(heldGeometry, heldMaterial);
+        passage.add(held);
+        passage.visible = !!journey;
         // Exact approved planar paths; extrusion is a spatial illustration, not a new logo master.
         const coordinates = [
           [
@@ -159,6 +192,42 @@ export default function ProofScene({
               (intro ? 0 : assembly * (1 - i) * 0.3);
             piece.rotation.y = (1 - assembly) * (i % 2 ? 1 : -1) * 1.3;
           });
+          if (journey) {
+            const p = journey.current;
+            const open = Math.sin(Math.PI * Math.min(1, p / 0.85));
+            const release = ease((p - 0.66) / 0.34);
+            group.rotation.set(
+              0.3 - open * 0.15,
+              -0.42 + open * 1.1 + pointer.x * 0.1,
+              -0.08,
+            );
+            const viewScale = camera.aspect < 1 ? 0.64 : 0.83;
+            group.scale.setScalar(viewScale);
+            group.position.x = 0.15;
+            pieces.forEach((piece, i) => {
+              piece.position.set(
+                (i - 1) * open * 0.35,
+                (1 - i) * open * 0.65,
+                (i - 1) * open * 1.5,
+              );
+              piece.rotation.y = (i - 1) * open * 0.24;
+            });
+            readback.rotation.y = -0.45 + open * 0.2;
+            readback.position.set(0.5, 0, 0.5);
+            frameMaterial.opacity = 0.15 + Math.sin(Math.PI * p) * 0.65;
+            records.forEach((record, i) => {
+              record.position.set(
+                0.5 + (1 - release) * Math.sin(i * 1.8) * 0.35,
+                (i - 3) * 0.21,
+                (p * 2 - 1) * 3 + (i % 2) * 0.2,
+              );
+              record.rotation.y = -0.42 + open * 0.4;
+              record.scale.x = 1 - release * 0.35;
+            });
+            held.position.set(-1.8 - ease((p - 0.35) / 0.3) * 0.6, -1.15, 0.6);
+            held.rotation.y = -0.5;
+            passage.scale.setScalar(viewScale * (1 - release * 0.28));
+          }
           renderer.render(scene, camera);
           if (!hasRendered) {
             hasRendered = true;
@@ -177,6 +246,10 @@ export default function ProofScene({
           }
         };
         wake.current = start;
+        const scroll = () => {
+          if (journey) start();
+        };
+        if (journey) addEventListener("scroll", scroll, { passive: true });
         const size = new T.Vector2();
         const resize = () => {
           const rect = element.getBoundingClientRect();
@@ -235,6 +308,7 @@ export default function ProofScene({
         resize();
         start();
         cleanup = () => {
+          if (journey) removeEventListener("scroll", scroll);
           wake.current = () => {};
           observer.disconnect();
           intersection.disconnect();
@@ -249,6 +323,12 @@ export default function ProofScene({
           });
           grid.geometry.dispose();
           gridMaterial.dispose();
+          frameGeometry.dispose();
+          frameMaterial.dispose();
+          recordGeometry.dispose();
+          recordMaterial.dispose();
+          heldGeometry.dispose();
+          heldMaterial.dispose();
           renderer.dispose();
           renderer.forceContextLoss();
           renderer.domElement.remove();
