@@ -615,7 +615,7 @@ export default function App() {
             {FILM_INDEX.map((chapter) => (
               <a
                 key={chapter.id}
-                href={"#" + chapter.id}
+                href={chapter.href}
                 aria-current={current === chapter.id ? "true" : undefined}
               >
                 <span>{chapter.label}</span>

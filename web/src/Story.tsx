@@ -131,9 +131,14 @@ function Chapter({ chapter }: { chapter: (typeof CHAPTERS)[number] }) {
 }
 
 export const FILM_INDEX = [
-  { id: "top", label: "Opening" },
-  ...CHAPTERS.map((c) => ({ id: c.id, label: c.label })),
-  { id: "studio", label: "Studio" },
+  { id: "top", href: "#top", label: "Opening" },
+  // Links land on the words, not the top of a chapter's long stretch of film.
+  ...CHAPTERS.map((c) => ({
+    id: c.id,
+    href: `#${c.id}-copy`,
+    label: c.label,
+  })),
+  { id: "studio", href: "#studio", label: "Studio" },
 ];
 
 export default function Story() {

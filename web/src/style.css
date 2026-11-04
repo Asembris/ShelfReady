@@ -689,13 +689,13 @@ svg {
 }
 .chapter {
   min-height: 215vh;
-  scroll-margin-top: -20vh;
   padding: 0 var(--gutter);
   display: flex;
   align-items: center;
 }
 .chapter-copy {
   position: relative;
+  scroll-margin-top: 22vh;
   max-width: min(40rem, 100%);
 }
 /* A soft local ground keeps copy legible over any frame, without resampling the canvas. */
