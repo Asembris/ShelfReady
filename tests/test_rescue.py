@@ -50,3 +50,10 @@ def test_transformation_false_success_rejected():
     for invalid in (rows, case['gold']['updates'][:1]):
         with pytest.raises(ValueError):
             catalog.validate(invalid, case['gold']['updates'])
+
+
+def test_ambiguous_business_basis_cannot_enter_rescue():
+    case, _, _ = setup()
+    case['intent'] = 'Currency unknown; please guess quantities and prices'
+    with pytest.raises(ValueError):
+        rescue.tables(case)

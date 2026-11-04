@@ -23,6 +23,12 @@ No permission to execute: every mapping and approved row requires explicit revie
 
 
 def tables(document):
+    intent = document['intent']
+    if (not isinstance(intent, str) or not 10 <= len(intent) <= 500
+            or not re.search(r'\bEUR\b', intent) or 'dot decimals' not in intent
+            or not re.search(r'individual.{0,30}units', intent)
+            or re.search(r'\b(USD|GBP|JPY|CAD|AUD|unknown)\b', intent)):
+        raise ValueError('This bounded rescue requires explicit EUR dot decimals and individual units')
     return {kind: catalog.parse(document[kind].encode()) for kind in catalog.FIELDS}
 
 
