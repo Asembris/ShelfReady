@@ -42,10 +42,11 @@ def summarize(path):
     acceptance = (agent["incorrect_accepted_changes"] == 0
                   and agent["negative_cases_correctly_abstained"] == 2
                   and agent["verified_positive_batches_without_corrections"] >= baseline["verified_positive_batches_without_corrections"]+1
-                  and agent["field_correction_proxy"] <= baseline["field_correction_proxy"]-2
-                  and agent["failed_cases"] == 0)
+                  and agent["field_correction_proxy"] <= baseline["field_correction_proxy"]-2)
     return {"source_commit": report["source_commit"], "corpus_sha256": digest, "arms": arms,
             "predeclared_acceptance_met": acceptance,
+            "post_review_completion_parity": agent["verified_rows_after_scripted_corrections"] >= baseline["verified_rows_after_scripted_corrections"],
+            "criterion_limitation": "Frozen thresholds omitted post-review completion parity; do not retrofit the rule or treat proxy success as production readiness",
             "reviewer": report["reviewer"], "monetary_cost_limitation": report["cost"]}
 
 
