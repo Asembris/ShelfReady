@@ -24,6 +24,7 @@ def connect():
     db.execute("CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, state TEXT, "
                "created REAL, data TEXT, confirmation TEXT, report TEXT, csv TEXT)")
     db.execute("CREATE TABLE IF NOT EXISTS usage (total INTEGER)")
+    db.execute("CREATE TABLE IF NOT EXISTS interpretations (job_id TEXT PRIMARY KEY, intent TEXT, result TEXT)")
     if not db.execute("SELECT * FROM usage").fetchone():
         db.execute("INSERT INTO usage VALUES (0)")
     db.commit()
@@ -36,6 +37,7 @@ def connect():
 
 def reap(db):
     db.execute("DELETE FROM jobs WHERE created < ? AND state != 'running'", (time.time()-TTL,))
+    db.execute("DELETE FROM interpretations WHERE job_id NOT IN (SELECT id FROM jobs)")
 
 
 def create(data):

@@ -1,6 +1,22 @@
 # ShelfReady
 Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
+## Approved Phase 4 agent-value spike
+
+An optional interpretation step now accepts explicit currency, numeric-format,
+inventory-unit and SKU-padding intent. After upload, choose these deliberately,
+describe the intended selling-price/available-stock meaning, and select
+**Propose supplier interpretation**. Review source-cell evidence, explanations,
+uncertainties, columns and normalization rules before confirming execution.
+Only the first five supplier rows, headers and baseline SKU references are sent
+for interpretation. Unknown/ambiguous business basis blocks execution.
+
+The generated transformation receives raw columns plus the confirmed rules;
+trusted independent normalization, row accounting and native readback remain
+outside generated code. The original manual mapping flow still works. There is
+no product creation, variants, production-store access or paid cloud provisioning.
+See [bounded spike evidence and limitations](docs/agent-value-spike.md).
+
 This branch implements the Phase 2 local upload-to-download rehearsal slice.
 It uses real Vultr inference, restricted Python containers, native WooCommerce
 import and independent database readback. No cloud resources have been provisioned.

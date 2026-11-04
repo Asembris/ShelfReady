@@ -62,6 +62,9 @@ def invalid(row):
 
 
 def plan(data, mapping):
+    if mapping.get("interpretation"):
+        from shelfready.interpretation import prepare
+        data, mapping = prepare(data, mapping)
     baseline = mapped(data["baseline"], mapping["baseline"], "baseline")
     supplier = mapped(data["supplier"], mapping["supplier"], "supplier")
     if len({r["sku"].casefold() for r in baseline}) != len(baseline):
