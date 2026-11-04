@@ -1,3 +1,4 @@
+import { damp, smooth } from "./motion";
 import { useEffect, useRef, useState, RefObject } from "react";
 
 export function useMediaQuery(query: string) {
@@ -92,12 +93,35 @@ export default function ProofScene({
           mesh.position.y = (i - 3) * 0.21;
           return mesh;
         });
+        const readMaterial = new T.MeshStandardMaterial({
+          color: 0x6c8cff,
+          metalness: 0.4,
+          roughness: 0.3,
+          transparent: true,
+        });
+        const readRecords = records.map(() => {
+          const mesh = new T.Mesh(recordGeometry, readMaterial);
+          passage.add(mesh);
+          return mesh;
+        });
+        const sourceColor = new T.Color(0xf1f5ff),
+          releaseColor = new T.Color(0x164bff);
         const heldGeometry = new T.EdgesGeometry(
           new T.BoxGeometry(0.7, 0.2, 0.16),
         );
         const heldMaterial = new T.LineBasicMaterial({ color: 0xf1f5ff });
         const held = new T.LineSegments(heldGeometry, heldMaterial);
         passage.add(held);
+        const folioGeometry = new T.BoxGeometry(2.8, 3.5, 0.08);
+        const folioMaterial = new T.MeshStandardMaterial({
+          color: 0xf1f5ff,
+          metalness: 0.18,
+          roughness: 0.4,
+          transparent: true,
+        });
+        const folio = new T.Mesh(folioGeometry, folioMaterial);
+        passage.add(folio);
+        folio.visible = false;
         passage.visible = !!journey;
         // Exact approved planar paths; extrusion is a spatial illustration, not a new logo master.
         const coordinates = [
@@ -141,8 +165,8 @@ export default function ProofScene({
           });
           const material = new T.MeshStandardMaterial({
             color: index === 0 ? 0x164bff : intro ? 0xf1f5ff : 0x9baed7,
-            metalness: 0.38,
-            roughness: 0.29,
+            metalness: 0.56,
+            roughness: 0.24,
           });
           const mesh = new T.Mesh(geometry, material);
           group.add(mesh);
@@ -165,16 +189,19 @@ export default function ProofScene({
         const pointer = { x: 0, y: 0 };
         const ease = (v: number) =>
           1 - Math.pow(1 - Math.max(0, Math.min(1, v)), 3);
+        let displayed = journey?.current ?? 0;
+        const compact = matchMedia("(max-width:850px)").matches;
         const render = (now: number) => {
-          if (now - last < 1000 / 30) return;
+          if (compact && last && now - last < 1000 / 30 - 1) return;
+          const dt = Math.min(0.05, last ? (now - last) / 1000 : 1 / 60);
           last = now;
           const elapsed = (now - began) / 1000,
             mode = phaseRef.current;
           const targetY = intro ? 0 : -0.38 + pointer.x * 0.14;
           const targetX = intro ? 0 : 0.28 + pointer.y * 0.1;
-          group.rotation.y += (targetY - group.rotation.y) * 0.09;
-          group.rotation.x += (targetX - group.rotation.x) * 0.09;
-          group.rotation.z += (intro ? 0 : -0.07 - group.rotation.z) * 0.07;
+          group.rotation.y = damp(group.rotation.y, targetY, 8, dt);
+          group.rotation.x = damp(group.rotation.x, targetX, 8, dt);
+          group.rotation.z = damp(group.rotation.z, intro ? 0 : -0.07, 8, dt);
           pieces.forEach((piece, i) => {
             const assembly = intro
               ? ease((elapsed - 0.2 - i * 0.18) / 1.65)
@@ -193,47 +220,80 @@ export default function ProofScene({
             piece.rotation.y = (1 - assembly) * (i % 2 ? 1 : -1) * 1.3;
           });
           if (journey) {
-            const p = journey.current;
-            const open = Math.sin(Math.PI * Math.min(1, p / 0.85));
-            const release = ease((p - 0.66) / 0.34);
+            displayed = damp(displayed, journey.current, 13, dt);
+            const p = displayed,
+              inspect = smooth(0.18, 0.46, p),
+              release = smooth(0.65, 0.94, p);
+            const viewScale = 0.64 + smooth(0.8, 1.4, camera.aspect) * 0.18;
             group.rotation.set(
-              0.3 - open * 0.15,
-              -0.42 + open * 1.1 + pointer.x * 0.1,
-              -0.08,
+              0.22 * (1 - release),
+              -0.42 + inspect * 1.35 - release * 0.93,
+              -0.08 * (1 - release),
             );
-            const viewScale = camera.aspect < 1 ? 0.64 : 0.83;
-            group.scale.setScalar(viewScale);
-            group.position.x = 0.15;
+            group.scale.setScalar(
+              viewScale * (1 - inspect * 0.65) * (1 - release * 0.5),
+            );
+            group.position.set(
+              0.1 - release * 0.85,
+              release * 1.05,
+              release * 0.3,
+            );
             pieces.forEach((piece, i) => {
               piece.position.set(
-                (i - 1) * open * 0.35,
-                (1 - i) * open * 0.65,
-                (i - 1) * open * 1.5,
+                (i - 1) * inspect * 0.15 * (1 - release),
+                (1 - i) * inspect * 0.45 * (1 - release),
+                (i - 1) * inspect * 1.2 * (1 - release),
               );
-              piece.rotation.y = (i - 1) * open * 0.24;
+              piece.rotation.y = (i - 1) * inspect * 0.15 * (1 - release);
             });
-            readback.rotation.y = -0.45 + open * 0.2;
-            readback.position.set(0.5, 0, 0.5);
-            frameMaterial.opacity = 0.15 + Math.sin(Math.PI * p) * 0.65;
+            passage.scale.setScalar(viewScale);
+            readback.rotation.y = -0.25 + inspect * 0.25;
+            readback.position.set(0.3, 0, 0.5);
+            frameMaterial.opacity = 0.08 + inspect * (1 - release) * 0.65;
+            folio.visible = release > 0.001;
+            folioMaterial.opacity = release;
+            folio.position.set(0.25, 0, 1);
+            folio.rotation.y = (1 - release) * -0.6;
+            recordMaterial.color.lerpColors(sourceColor, releaseColor, release);
+            readMaterial.opacity = inspect * (1 - release);
             records.forEach((record, i) => {
-              record.position.set(
-                0.5 + (1 - release) * Math.sin(i * 1.8) * 0.35,
-                (i - 3) * 0.21,
-                (p * 2 - 1) * 3 + (i % 2) * 0.2,
-              );
-              record.rotation.y = -0.42 + open * 0.4;
-              record.scale.x = 1 - release * 0.35;
+              const scatter = (1 - inspect) * (1 - release);
+              const x =
+                0.3 -
+                inspect * 0.85 * (1 - release) +
+                Math.sin(i * 1.8) * scatter * 0.8;
+              const y = (i - 3) * 0.22 - release * 0.25;
+              const z = -1.4 + inspect * 2.2 + release * 0.4;
+              record.position.set(x, y, z);
+              record.rotation.y = (1 - release) * (-0.4 + inspect * 0.4);
+              record.scale.x = 1 + release * (i % 3 === 0 ? 0.7 : 1.2);
+              readRecords[i].position.set(1.05, y, 1.05);
+              readRecords[i].rotation.y = 0;
+              readRecords[i].visible = readMaterial.opacity > 0.001;
             });
-            held.position.set(-1.8 - ease((p - 0.35) / 0.3) * 0.6, -1.15, 0.6);
-            held.rotation.y = -0.5;
-            passage.scale.setScalar(viewScale * (1 - release * 0.28));
+            held.position.set(-2.15, -1.25, 0.6);
+            held.rotation.y = -0.3;
+            gridMaterial.opacity = 0.18 * (1 - release);
+            camera.position.z = damp(
+              camera.position.z,
+              9.5 - inspect * 0.6 + release * 0.8,
+              8,
+              dt,
+            );
+            element.dataset.renderProgress = displayed.toFixed(4);
           }
           renderer.render(scene, camera);
           if (!hasRendered) {
             hasRendered = true;
             setReady(true);
           }
-          if (!intro && elapsed > 2.6 && mode !== 2 && now > activeUntil) {
+          if (
+            !intro &&
+            elapsed > 2.6 &&
+            mode !== 2 &&
+            now > activeUntil &&
+            (!journey || Math.abs(displayed - journey.current) < 0.0001)
+          ) {
             renderer.setAnimationLoop(null);
             looping = false;
           }
@@ -329,6 +389,9 @@ export default function ProofScene({
           recordMaterial.dispose();
           heldGeometry.dispose();
           heldMaterial.dispose();
+          readMaterial.dispose();
+          folioGeometry.dispose();
+          folioMaterial.dispose();
           renderer.dispose();
           renderer.forceContextLoss();
           renderer.domElement.remove();
