@@ -3,7 +3,10 @@
 **Locked direction: Concept A — Proof Shelf.** Final visual approval granted
 November 4, 2026. Concepts B and C are rejected. These are the approved production
 source assets; raster explorations and proof screenshots remain ignored artifacts.
-The identity package is not wired into the application in this change.
+The original Phase 6.5 package did not wire assets into the application. Phase 7
+now copies these unchanged sources into the frontend's build output; see
+[UI integration and verification](ui-overhaul.md). Package-only statements below
+describe the original brand delivery, not the current application integration.
 
 ShelfReady rehearses and independently verifies supplier catalog updates before
 release. The three shelves suggest successive controlled stages. The rectangular
