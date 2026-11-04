@@ -1,0 +1,113 @@
+{
+  "status": "APPROVED \u2014 Concept A / Proof Shelf",
+  "grid": 96,
+  "shelf_thickness": 16,
+  "vertical_gap": 12,
+  "offset": 8,
+  "notch_width": 12,
+  "notch_depth": 8,
+  "palette": {
+    "navy": "#102044",
+    "cobalt": "#164BFF",
+    "dark_surface": "#0A1530",
+    "inverse_ink": "#F1F5FF",
+    "inverse_cobalt": "#6C8CFF"
+  },
+  "wordmark": "Inter optical size 32, weight 640, custom pair spacing; outlined",
+  "version": "1.0",
+  "approved_date": "2026-11-04",
+  "assets": [
+    {
+      "file": "favicon-16-dark.svg",
+      "sha256": "700426bf6ecddcffba0ee7df171f5312b209dba90402a368d3093489b54a8ea2",
+      "tagline": false
+    },
+    {
+      "file": "favicon-16-light.svg",
+      "sha256": "586c85abf23710027db4fcb15adf89405b73bddd089b245861e7304c9ceb0c7e",
+      "tagline": false
+    },
+    {
+      "file": "favicon-24-dark.svg",
+      "sha256": "a7474f0f02b54a032179628cbbe5d31bddfafba9c50c18214412a7f046442177",
+      "tagline": false
+    },
+    {
+      "file": "favicon-24-light.svg",
+      "sha256": "b2f28f0fdef95426953cc5387e78666d762a5c24a2f3f608303cfedbe78ff3d9",
+      "tagline": false
+    },
+    {
+      "file": "favicon-32-dark.svg",
+      "sha256": "d1def5e2a8e636a06d97061935654669f6813a851fdb342f7af77c83bc72d6d1",
+      "tagline": false
+    },
+    {
+      "file": "favicon-32-light.svg",
+      "sha256": "a6da663c7e2a6cde4a2e5a6ec2ffffce25962882104f4842b675cc89e56c8334",
+      "tagline": false
+    },
+    {
+      "file": "horizontal-dark.svg",
+      "sha256": "67982f98a19d023f553f7b5fe9edc2baa219b37e544ed8283a44f1af631e109a",
+      "tagline": false
+    },
+    {
+      "file": "horizontal-light.svg",
+      "sha256": "dcebc33f5abad5dfa8bcc385d83c55a6969dc26278d06668abdf67ebaa48cd4b",
+      "tagline": false
+    },
+    {
+      "file": "icon-dark.svg",
+      "sha256": "45c2971c9aed4ef90d3e77f8c7024586f9f3177bdb5d400d89560aec0546660b",
+      "tagline": false
+    },
+    {
+      "file": "icon-light.svg",
+      "sha256": "ab4fcee49071fbab4ed75e2686d73c309d12303bb2d170778c604ba461849c76",
+      "tagline": false
+    },
+    {
+      "file": "icon-monochrome.svg",
+      "sha256": "9b45e2492f0dcafa499ff43b94e5941c92ad0d8e4114b43c7b08dbf171ffbc60",
+      "tagline": false
+    },
+    {
+      "file": "primary-dark.svg",
+      "sha256": "301959fe0fe3154161cf56dc9569630b48bc5eea0ac8a103571efa8a878e281f",
+      "tagline": true
+    },
+    {
+      "file": "primary-light.svg",
+      "sha256": "1569c2a3cb4ec5ef45bc86a6981bd3e702674a77fe97bd9befc3f1f3655887ba",
+      "tagline": true
+    },
+    {
+      "file": "signature-dark.svg",
+      "sha256": "0261bc175c8eb02897d9a7bd10aff8324f266d7cba5b68e554711772255068a7",
+      "tagline": true
+    },
+    {
+      "file": "signature-light.svg",
+      "sha256": "9aa30800ce288b58a9ce41a0bc2debb97785a991a2d00b8fb9a19633be6ff2e2",
+      "tagline": true
+    },
+    {
+      "file": "wordmark-dark.svg",
+      "sha256": "a2f296654929e035a3b109f7eda77e9445aee98c3412393bb4bdbc83cef63522",
+      "tagline": false
+    },
+    {
+      "file": "wordmark-light.svg",
+      "sha256": "a3b9a79a5053d9dd68f43ffbfe44c0d3a078cc6f8d90e32c115db11f3618cc2f",
+      "tagline": false
+    }
+  ],
+  "font": {
+    "file": "fonts/Inter-variable.woff2",
+    "license": "fonts/OFL.txt",
+    "sha256": "077be02e65d0b087034a9f36ad0d8c667f5618487b4f814c4b78385a09f565b2",
+    "upstream": "https://github.com/google/fonts/tree/main/ofl/inter",
+    "source_sha256": "29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031"
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ShelfReady — approved Proof Shelf asset proof</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef1f6; color: var(--sr-brand-navy); font-family: var(--sr-font-sans); }
+    main { max-width: 1120px; padding: 32px; margin: auto; }
+    h1 { font-size: 28px; font-weight: 600; letter-spacing: -1px; }
+    h2 { font-size: 15px; font-weight: 500; }
+    p { font-size: 13px; line-height: 1.6; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel { background: white; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
+    .dark { background: var(--sr-brand-dark-surface); color: var(--sr-brand-inverse-ink); }
+    .primary { display: block; width: 100%; max-width: 340px; height: auto; margin: 30px auto; }
+    .samples { display: flex; align-items: center; gap: 32px; min-height: 100px; }
+    .samples figure { margin: 0; text-align: center; }
+    figcaption { font-size: 11px; margin-top: 12px; }
+    .navbar { display: flex; align-items: center; gap: 32px; min-height: 72px; padding: 18px 24px; }
+    .navbar img { width: 167.625px; height: 36px; }
+    .navbar span { font-size: 13px; }
+    .navbar .right { margin-left: auto; }
+    .wordmark { width: 260px; height: auto; max-width: 100%; }
+    .signature { width: 360px; height: auto; max-width: 100%; }
+    .compact-note { display: none; }
+    @media (max-width: 650px) {
+      .pair { grid-template-columns: 1fr; }
+      .navbar span { display: none; }
+      .compact-note { display: block; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>ShelfReady / Proof Shelf</h1>
+  <p>Approved identity · static asset proof only · no application integration</p>
+  <section class="pair" aria-label="Primary light and dark variants">
+    <div class="panel"><h2>Primary / light surface</h2><picture><source media="(max-width:650px)" srcset="horizontal-light.svg"><img class="primary" src="primary-light.svg" alt="ShelfReady"></picture><p class="compact-note">Compact substitute: horizontal, without tagline.</p></div>
+    <div class="panel dark"><h2>Primary / dark surface</h2><picture><source media="(max-width:650px)" srcset="horizontal-dark.svg"><img class="primary" src="primary-dark.svg" alt="ShelfReady"></picture><p class="compact-note">Compact substitute: horizontal, without tagline.</p></div>
+  </section>
+  <h2>Horizontal signature / navbar mockups</h2>
+  <p>Compact use omits the tagline. These are static examples, not interactive navigation.</p>
+  <div class="panel navbar"><img src="horizontal-light.svg" alt="ShelfReady"><span>Rehearsals</span><span>Reports</span><span class="right">New rehearsal</span></div>
+  <div class="panel navbar dark"><img src="horizontal-dark.svg" alt="ShelfReady"><span>Rehearsals</span><span>Reports</span><span class="right">New rehearsal</span></div>
+  <section class="pair" aria-label="Wordmarks">
+    <div class="panel"><h2>Wordmark / light surface</h2><img class="wordmark" src="wordmark-light.svg" alt="ShelfReady"></div>
+    <div class="panel dark"><h2>Wordmark / dark surface</h2><img class="wordmark" src="wordmark-dark.svg" alt="ShelfReady"></div>
+  </section>
+  <section class="pair" aria-label="Standalone symbols">
+    <div class="panel samples"><img width="96" height="96" src="icon-light.svg" alt="ShelfReady icon on light"><img width="96" height="96" src="icon-monochrome.svg" alt="ShelfReady monochrome icon"></div>
+    <div class="panel samples dark"><img width="96" height="96" src="icon-dark.svg" alt="ShelfReady icon on dark"></div>
+  </section>
+  <h2>Actual-size favicons</h2><p>View at 100%. The 16px icon has the approved optical adjustment.</p>
+  <section class="pair" aria-label="Actual-size favicon variants">
+    <div class="panel samples">
+      <figure><img width="16" height="16" src="favicon-16-light.svg" alt="ShelfReady favicon, 16 pixels, light surface"><figcaption>16px</figcaption></figure>
+      <figure><img width="24" height="24" src="favicon-24-light.svg" alt="ShelfReady favicon, 24 pixels, light surface"><figcaption>24px</figcaption></figure>
+      <figure><img width="32" height="32" src="favicon-32-light.svg" alt="ShelfReady favicon, 32 pixels, light surface"><figcaption>32px</figcaption></figure>
+    </div>
+    <div class="panel samples dark">
+      <figure><img width="16" height="16" src="favicon-16-dark.svg" alt="ShelfReady favicon, 16 pixels, dark surface"><figcaption>16px</figcaption></figure>
+      <figure><img width="24" height="24" src="favicon-24-dark.svg" alt="ShelfReady favicon, 24 pixels, dark surface"><figcaption>24px</figcaption></figure>
+      <figure><img width="32" height="32" src="favicon-32-dark.svg" alt="ShelfReady favicon, 32 pixels, dark surface"><figcaption>32px</figcaption></figure>
+    </div>
+  </section>
+  <section class="pair" aria-label="Large horizontal signatures with tagline">
+    <div class="panel"><h2>Large signature only</h2><picture><source media="(max-width:650px)" srcset="horizontal-light.svg"><img class="signature" src="signature-light.svg" alt="ShelfReady"></picture><p class="compact-note">Compact substitute: horizontal, without tagline.</p></div>
+    <div class="panel dark"><h2>Large signature only</h2><picture><source media="(max-width:650px)" srcset="horizontal-dark.svg"><img class="signature" src="signature-dark.svg" alt="ShelfReady"></picture><p class="compact-note">Compact substitute: horizontal, without tagline.</p></div>
+  </section>
+</main>
+</body>
+</html>
