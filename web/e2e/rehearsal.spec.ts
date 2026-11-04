@@ -2,11 +2,12 @@ import {test,expect} from '@playwright/test';
 import {spawn,spawnSync,ChildProcess} from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+test.use({reducedMotion:'reduce'});
 const root=path.resolve(import.meta.dirname,'../..');
 let worker:ChildProcess;
 test.beforeAll(()=>{
  const python=process.platform==='win32'?path.join(root,'.venv/Scripts/python.exe'):path.join(root,'.venv/bin/python');
- worker=spawn(python,['-m','shelfready.worker'],{cwd:root,env:{...process.env,SHELFREADY_LOCAL_RUNNER:'1',SHELFREADY_DATA_DIR:path.join(root,'.runtime/browser')},stdio:'ignore'});
+ worker=spawn(python,['-m','shelfready.worker'],{cwd:root,env:{...process.env,SHELFREADY_LOCAL_RUNNER:'1',SHELFREADY_DATA_DIR:path.join(root,'.runtime/ui-browser')},stdio:'ignore'});
 });
 test.afterAll(()=>{
  if(worker?.pid){
@@ -43,6 +44,7 @@ test('review grounded interpretation before normalizing a supplier export',async
  await page.getByLabel('Baseline WooCommerce CSV').setInputFiles(path.join(root,'fixtures/baseline.csv'));
  await page.getByLabel('Supplier CSV').setInputFiles({name:'supplier.csv',mimeType:'text/csv',buffer:Buffer.from('Vendor code,Unit retail,On hand\n00017,13.5500,7\nA-2,1.35,2\n')});
  await page.getByRole('button',{name:'Upload and review mappings'}).click();
+ await page.getByText('Need help interpreting supplier columns?',{exact:false}).click();
  await page.getByLabel('Declared currency').selectOption('EUR');
  await page.getByLabel('Declared price format').selectOption('dot');
  await page.getByLabel('Declared stock unit').selectOption('each');

@@ -19,7 +19,7 @@ export default function ProofScene({phase=0,intro=false}:{phase?:number,intro?:b
    if(cancelled||!host.current)return;
    const element=host.current;
    let renderer:InstanceType<typeof T.WebGLRenderer>;
-   try{renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});}
+   try{renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power',preserveDrawingBuffer:true});}
    catch{return;} // The approved SVG beneath remains available without WebGL.
    renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
    renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
