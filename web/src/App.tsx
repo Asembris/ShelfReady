@@ -353,13 +353,28 @@ export default function App() {
   useEffect(() => {
     if (upload || status) heading.current?.focus({ preventScroll: true });
   }, [upload?.id, status?.state]);
-  // The browser resolves a deep link before React has rendered its target.
+  // Native fragment scrolling can precede both React and the final font layout.
+  // Align once those real readiness signals settle, without a timer or later
+  // re-anchoring when the operator changes workflow stages.
   useLayoutEffect(() => {
-    if (location.hash.length > 1)
-      document
-        .getElementById(location.hash.slice(1))
-        ?.scrollIntoView({ behavior: "instant" });
-  }, []);
+    if (!introDone || location.hash.length <= 1) return;
+    const hash = location.hash;
+    let cancelled = false;
+    let frame = 0;
+    document.fonts.ready.then(() => {
+      if (cancelled) return;
+      frame = requestAnimationFrame(() => {
+        if (!cancelled && location.hash === hash)
+          document
+            .getElementById(hash.slice(1))
+            ?.scrollIntoView({ behavior: "instant" });
+      });
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+    };
+  }, [introDone]);
   // Each stage replaces the panel and may remove the film above it. Without this
   // the browser keeps a stale offset and strands the operator below the content.
   const lastPhase = useRef(phase);

@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 // Exact portable suite. No worker, API, model key, Docker or GPU required.
 export default defineConfig({
   testDir: "e2e",
-  testMatch: ["ui.spec.ts", "motion.spec.ts"],
+  testMatch: ["ui.spec.ts", "motion.spec.ts", "deep-link.spec.ts"],
   workers: 1,
   retries: 0,
   forbidOnly: true,
