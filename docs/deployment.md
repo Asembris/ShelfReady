@@ -1,6 +1,8 @@
 # Phase 5 live deployment evidence
 
-Status: provisioned, **STOPPED at failed Caddy validation gate**. **NO-GO for public demo**
+Status: resumed on `fix/vultr-cloud-verification` from merged main `9abf33e`.
+Only the existing approved VMs are used; the billing deadline is unchanged.
+**NO-GO for public demo**
 until HTTPS, authentication, remote isolation, native staging/readback, browser
 and cleanup gates pass. This document records live operations, not simulated
 cloud evidence. Phase 3/4 benchmark results are unchanged.
@@ -50,7 +52,7 @@ are retained under ignored `artifacts/cloud/` and `.runtime/cloud/`. Management
 API credentials remain on the local Windows machine; no key values enter Git.
 `95.179.218.142.sslip.io` resolves to the control IPv4; TLS is not yet verified.
 
-## Failed gate and retained safe state
+## Previous failed gate and retained evidence
 
 The setup command incorrectly sourced `/etc/shelfready/caddy.env` through a
 shell. This expanded dollar characters in the bcrypt password hash. Caddy
@@ -87,6 +89,30 @@ remote container CPU/memory/PID/time limits, failure containment, HTTPS/auth,
 public browser journey, native cloud WooCommerce/independent SQL and job cleanup
 remain **NOT RUN**. No destructive probes ran on the control host. The public
 Playwright test must not be reported as passed merely because its config lists.
+
+## Resumed private verification
+
+The corrected literal-environment Caddy validation passed on the existing
+control VM. Real SSH dispatch as `shelfready` returned `remote-service-account-ok`
+with strict host checking. API and separate worker then started privately as
+`shelfready`, with zero restarts and a working loopback API.
+
+Real probes through `deploy/verify_remote.py` executed only on runner:
+non-root UID 65534, cleared environment, root-filesystem write denied, outbound
+network denied; infinite loop timed out in 5.466 seconds with exit 137; a 256 MiB
+allocation exited 137 under the 128 MiB cap. Independent host inspection caught
+all three containers and confirmed network none, read-only root, 128 MiB memory
+and swap cap, 0.5 CPU, 32 PIDs, all capabilities dropped, no-new-privileges, no
+bind mounts, bounded tmpfs and file-descriptor/file-size/core limits. A timeout
+sample used 49.44% CPU, 7.773 MiB/128 MiB and one PID. Short-lived probes finished
+too quickly for a stats sample. No labelled containers remained after cleanup.
+PID exhaustion and host-kernel escapes were not stress-tested; Docker shares
+the runner kernel. No containment probe executed on control.
+
+Evidence: `artifacts/cloud/caddy-corrected-validation.log`,
+`service-account-dispatch.json`, `remote-containment.json`, and
+`remote-container-inspection.json`. These are live remote observations, not
+synthetic mocks. Public HTTPS/native staging/browser gates are still pending.
 
 ## Reproduction and teardown
 
