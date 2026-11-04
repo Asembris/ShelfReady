@@ -2,6 +2,7 @@
 import csv
 import io
 import re
+import unicodedata
 from collections import Counter
 
 MAX_BYTES = 16384
@@ -17,7 +18,7 @@ def parse(raw):
     if not raw or len(raw) > MAX_BYTES:
         raise ValueError("Each CSV must contain 1–16384 bytes")
     text = raw.decode("utf-8-sig")
-    if any(ord(c) < 32 and c not in "\r\n" for c in text):
+    if any(unicodedata.category(c) in ("Cc", "Cf") and c not in "\r\n" for c in text):
         raise ValueError("CSV contains control characters")
     try:
         rows = list(csv.reader(io.StringIO(text), strict=True))
@@ -63,17 +64,17 @@ def invalid(row):
 def plan(data, mapping):
     baseline = mapped(data["baseline"], mapping["baseline"], "baseline")
     supplier = mapped(data["supplier"], mapping["supplier"], "supplier")
-    if len({r["sku"] for r in baseline}) != len(baseline):
+    if len({r["sku"].casefold() for r in baseline}) != len(baseline):
         raise ValueError("Baseline SKUs must be unique")
     for row in baseline:
         if invalid(row) or row["type"] != "simple" or not row["name"]:
             raise ValueError("Baseline requires valid simple products, names, prices and stock")
     known = {r["sku"] for r in baseline}
-    counts = Counter(r["sku"] for r in supplier)
+    counts = Counter(r["sku"].casefold() for r in supplier)
     resolved, unresolved = [], []
     for number, row in enumerate(supplier, 1):
         reason = invalid(row)
-        if counts[row["sku"]] > 1:
+        if counts[row["sku"].casefold()] > 1:
             reason = "Duplicate supplier SKU"
         elif row["sku"] not in known:
             reason = "SKU absent from baseline"
@@ -81,7 +82,15 @@ def plan(data, mapping):
             unresolved.append({"row": number, "sku": row["sku"], "reason": reason})
         else:
             resolved.append({"row": number, **row})
+    validate_accounting(len(supplier), resolved, unresolved)
     return baseline, supplier, resolved, unresolved
+
+
+def validate_accounting(total, resolved, unresolved):
+    numbers = [r.get("row") for r in [*resolved, *unresolved]]
+    if (any(type(n) is not int for n in numbers) or len(numbers) != total
+            or sorted(numbers) != list(range(1, total+1))):
+        raise ValueError("Resolved and unresolved rows must partition all supplier rows exactly once")
 
 
 def validate(output, expected):

@@ -3,11 +3,11 @@ import hashlib
 import json
 import secrets
 import time
-from decimal import Decimal
 from pathlib import Path
 
 from shelfready import store
 from shelfready.catalog import csv_text
+from shelfready.verification import verify_snapshot
 
 PROJECT = "shelfready-rehearsal"
 
@@ -25,7 +25,7 @@ def cleanup():
         raise RuntimeError("Disposable store volumes remain after cleanup")
 
 
-def rehearse(baseline, updates, directory):
+def rehearse(baseline, updates, directory, *, expected_updates=None):
     package = store.RUNTIME / f"woocommerce.{store.WOO_VERSION}.zip"
     if not package.exists() or hashlib.sha256(package.read_bytes()).hexdigest() != store.WOO_SHA256:
         raise RuntimeError("Run the Phase 1 store setup to cache the pinned plugin and credentials")
@@ -34,35 +34,23 @@ def rehearse(baseline, updates, directory):
         return compose("exec", "-T", "cli", "wp", *args)
 
     def snapshot():
-        query = """SELECT s.meta_value, p.meta_value, q.meta_value, n.post_title
-        FROM wp_posts n JOIN wp_postmeta s ON s.post_id=n.ID AND s.meta_key='_sku'
-        JOIN wp_postmeta p ON p.post_id=n.ID AND p.meta_key='_regular_price'
-        JOIN wp_postmeta q ON q.post_id=n.ID AND q.meta_key='_stock'
-        WHERE n.post_type='product' ORDER BY s.meta_value"""
+        query = Path("infra/snapshot.sql").read_text(encoding="utf-8")
         text = compose("exec", "-T", "db", "sh", "-c",
                        'exec mariadb -ushelfready -p"$MARIADB_PASSWORD" '
-                       '--batch --skip-column-names shelfready', input=query)
-        return [line.split("\t") for line in text.splitlines()]
-
-    def verify(actual, expected):
-        want = sorted([[r["sku"], Decimal(r["price"]), int(r["stock"]), r["name"]]
-                       for r in expected])
-        try:
-            got = sorted([[sku, Decimal(price), int(stock), name]
-                          for sku, price, stock, name in actual])
-        except (ValueError, ArithmeticError) as error:
-            raise RuntimeError("Malformed independent store readback") from error
-        if got != want:
-            raise RuntimeError("Persisted products differ from independently expected values")
+                       '--batch --raw --skip-column-names shelfready', input=query)
+        return [json.loads(line) for line in text.splitlines()]
 
     try:
         compose("up", "-d", "--wait", "--wait-timeout", "150")
         for _ in range(60):
             try:
+                compose("exec", "-T", "cli", "test", "-f", "/var/www/html/wp-config.php")
                 wp("core", "version")
                 break
             except RuntimeError:
                 time.sleep(1)
+        else:
+            raise RuntimeError("WordPress configuration did not become ready within 60 polls")
         wp("core", "install", "--url=http://shelfready.invalid", "--title=Rehearsal",
            "--admin_user=localadmin", "--admin_password=" + secrets.token_hex(24),
            "--admin_email=local@example.invalid", "--skip-email")
@@ -73,6 +61,7 @@ def rehearse(baseline, updates, directory):
         if wp("plugin", "get", "woocommerce", "--field=version") != store.WOO_VERSION:
             raise RuntimeError("WooCommerce version mismatch")
         wp("option", "update", "woocommerce_price_num_decimals", "6")
+        before = None
         for rows, update in [(baseline, False), (updates, True)]:
             path = directory / "catalog.csv"
             path.write_text(csv_text(rows, baseline=not update), encoding="utf-8")
@@ -82,13 +71,19 @@ def rehearse(baseline, updates, directory):
             imported = json.loads(result)
             if imported["failed"] or imported["skipped"]:
                 raise RuntimeError("Native importer failed or skipped rows")
+            if len(imported["updated" if update else "imported"]) != len(rows):
+                raise RuntimeError("Native importer row accounting mismatch")
             if not update:
-                verify(snapshot(), baseline)
+                before = snapshot()
+                verify_snapshot(before, baseline)
         merged = {r["sku"]: dict(r) for r in baseline}
-        for row in updates:
+        for row in updates if expected_updates is None else expected_updates:
             merged[row["sku"]].update(price=row["price"], stock=row["stock"])
         actual = snapshot()
-        verify(actual, merged.values())
-        return actual
+        verify_snapshot(actual, list(merged.values()), before)
+        (directory / "readback.json").write_text(json.dumps({"before": before, "after": actual}),
+                                                  encoding="utf-8")
+        return [[r["sku"], r["price"], r["stock"], r["name"]]
+                for r in sorted(actual, key=lambda r: r["sku"])]
     finally:
         cleanup()

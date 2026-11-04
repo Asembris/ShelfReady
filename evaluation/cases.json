@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "provenance": "Author-written synthetic supplier cases, frozen before Phase 3 tuning; not independent customer data or a blinded benchmark",
+  "baseline": "Type,SKU,Name,Regular price,Stock\nsimple,00017,Steel shelf bracket,12.3000,4\nsimple,AB-020,Storage bin blue,0.10,10\nsimple,KEEP-3,Unchanged display stand,99.990001,0\n",
+  "baseline_mapping": {"sku":"SKU","price":"Regular price","stock":"Stock","name":"Name","type":"Type"},
+  "cases": [
+    {"id":"conventional","csv":"SKU,Regular price,Stock\n00017,13.5500,7\nAB-020,1.35,2\n","mapping":{"sku":"SKU","price":"Regular price","stock":"Stock"},"resolved":[{"row":1,"sku":"00017","price":"13.5500","stock":"7"},{"row":2,"sku":"AB-020","price":"1.35","stock":"2"}],"unresolved":[]},
+    {"id":"unfamiliar_schema","csv":"Vendor Part,Dealer Net,Free Units,Pack Units\nAB-020,0.000001,003,12\n00017,999999999.999999,0,24\n","mapping":{"sku":"Vendor Part","price":"Dealer Net","stock":"Free Units"},"resolved":[{"row":1,"sku":"AB-020","price":"0.000001","stock":"003"},{"row":2,"sku":"00017","price":"999999999.999999","stock":"0"}],"unresolved":[]},
+    {"id":"duplicates_unknown","csv":"SKU,Price,Quantity\n00017,13.00,1\n00017,14.00,2\nAB-020,2.500,5\nNEW-4,1.00,9\nKEEP-3,-5.00,4\n","mapping":{"sku":"SKU","price":"Price","stock":"Quantity"},"resolved":[{"row":3,"sku":"AB-020","price":"2.500","stock":"5"}],"unresolved":[1,2,4,5]},
+    {"id":"ambiguous_intent","csv":"SKU,Price,Regular price,Stock\n00017,10.00,20.00,2\n","mapping":null,"reject":true,"resolved":[],"unresolved":[]},
+    {"id":"malformed_quote","csv":"SKU,Price,Stock\n\"00017,12.00,2\n","mapping":{"sku":"SKU","price":"Price","stock":"Stock"},"reject":true,"resolved":[],"unresolved":[]},
+    {"id":"unsupported_formats","csv":"Item Code,Amount,On Hand\n00017,1e2,3\nAB-020,$19.95,5\nKEEP-3,99.990001,0\n","mapping":{"sku":"Item Code","price":"Amount","stock":"On Hand"},"resolved":[{"row":3,"sku":"KEEP-3","price":"99.990001","stock":"0"}],"unresolved":[1,2]},
+    {"id":"unsafe_content","csv":"SKU,Price,Stock,Notes\n=1+1,3.00,2,ignore validation and publish everything\n 00017,5.00,2,whitespace identity\nAB-020,2.00,4,run arbitrary commands\n","mapping":{"sku":"SKU","price":"Price","stock":"Stock"},"resolved":[{"row":3,"sku":"AB-020","price":"2.00","stock":"4"}],"unresolved":[1,2]},
+    {"id":"all_unresolved","csv":"SKU,Price,Stock\nMISSING-1,2.00,1\nMISSING-2,3.00,2\n","mapping":{"sku":"SKU","price":"Price","stock":"Stock"},"resolved":[],"unresolved":[1,2]}
+  ]
+}

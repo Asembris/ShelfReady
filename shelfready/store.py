@@ -15,7 +15,7 @@ COMPOSE = ["docker", "compose", "--project-name", PROJECT,
 
 
 def command(args, **kwargs):
-    result = subprocess.run(args, capture_output=True, text=True, timeout=180, **kwargs)
+    result = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", timeout=180, **kwargs)
     if result.returncode:
         # Commands can contain generated passwords: never include argv in errors.
         raise RuntimeError(result.stderr[-2000:])
@@ -73,10 +73,13 @@ def main():
         compose("up", "-d", "--wait", "--wait-timeout", "150")
         for _ in range(60):
             try:
+                compose("exec", "-T", "cli", "test", "-f", "/var/www/html/wp-config.php")
                 wp("core", "version")
                 break
             except RuntimeError:
                 time.sleep(1)
+        else:
+            raise RuntimeError("WordPress configuration did not become ready within 60 polls")
         wp("core", "install", "--url=http://shelfready.invalid", "--title=Disposable",
            "--admin_user=localadmin", "--admin_password=" + secrets.token_hex(24),
            "--admin_email=local@example.invalid", "--skip-email")

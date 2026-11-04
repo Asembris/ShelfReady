@@ -6,6 +6,56 @@ It uses real Vultr inference, restricted Python containers, native WooCommerce
 import and independent database readback. No cloud resources have been provisioned.
 See [Phase 2 evidence and limitations](docs/rehearsal.md).
 
+## Phase 3 verification and competitive evaluation
+
+Measured verdict: **NARROW**. Both arms verified 7/7 eligible operations with zero
+incorrect accepted changes; the generated path added model calls/tokens without
+improving completion. This is not evidence of agent necessity or market superiority.
+
+The rehearsal now reads complete JSON product snapshots directly from MariaDB,
+including records with missing metadata. It checks exact SKU identity, decimal
+regular/active prices, integer stock and derived stock status. After baseline
+seeding, every update must preserve staged product IDs, parent IDs, names, slugs,
+publication status, descriptions, short descriptions, simple-product type,
+sale-price metadata and stock-management mode. Unupdated products must retain
+their price/stock as well. IDs are preserved within the disposable store; source
+or production WooCommerce IDs are not copied or claimed to be equivalent.
+Only the supported mapped input fields are seeded; other CSV columns remain
+outside the rehearsal's unchanged-field guarantee.
+
+The eight synthetic evaluation holdouts and gold results were frozen before
+tuning in `evaluation/cases.json`, with an LF-normalized SHA-256 manifest and
+predeclared [paired protocol](evaluation/PROTOCOL.md). They are developer-authored
+realistic examples, not independent customer evidence. Both arms receive the same
+confirmed mappings and use the same native staging/verification. The deterministic
+comparator performs a full exact-SKU join with duplicate detection, validation
+and unresolved accounting; it does not deliberately guess unfamiliar headers.
+
+Run only with no application worker or other evaluation already running. Complete
+the Phase 1 plugin/image/credential setup first. From the repository root:
+
+```powershell
+uv run --locked pytest -q --basetemp=.runtime/pytest-verification
+uv run --locked ruff check .
+git diff --check
+# Real Vultr tokens + local disposable Docker stores, no cloud provisioning:
+uv run --locked python -m shelfready.evaluate --live-local
+# Use the exact results.json path printed by that run:
+uv run --locked python -m shelfready.evaluate_summary artifacts/evaluation/RUN/results.json
+```
+
+Every run has a new ignored directory. Raw API request IDs/usage, generated
+programs, candidate stdout, wall times and independent before/after snapshots
+remain there. The summary refuses incomplete or selected-case runs and audits
+accepted final states against the frozen oracle. Never select the best run.
+Malformed inputs, unknown/duplicate SKUs, unsupported numeric formats, ambiguous
+intent, hostile ignored text and all-unresolved cases are represented. Two
+pre-import corruptions and a deliberately incorrect **real native import** serve
+as negative controls; synthetic provider/cleanup failures are separate unit tests.
+The tests do not establish arbitrary prompt-injection resistance: ignored supplier
+notes are not sent to the model, and mapping confirmation precedes generation.
+See [measured competitive evidence](docs/verification.md) for the verdict and limits.
+
 ## Run the local rehearsal
 
 First complete the Phase 1 setup below, including `python -m shelfready.store`
