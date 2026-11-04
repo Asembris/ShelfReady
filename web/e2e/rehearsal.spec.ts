@@ -30,7 +30,14 @@ test.afterAll(() => {
 test("confirm mappings, rehearse real Vultr code and download partial verified results", async ({
   page,
 }) => {
+  // The full film is running here: the journey must work inside it, not only without it.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
+  await page.getByRole("button", { name: "Skip intro" }).click();
+  await expect(page.getByTestId("world")).toHaveAttribute(
+    "data-renderer",
+    "webgl",
+  );
   await page
     .getByLabel("Baseline WooCommerce CSV")
     .setInputFiles(path.join(root, "fixtures/baseline.csv"));

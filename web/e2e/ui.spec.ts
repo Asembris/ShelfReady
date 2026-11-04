@@ -61,9 +61,26 @@ async function files(page: Page) {
 test("cinematic intro finishes once per tab session and supports skipping", async ({
   page,
 }) => {
+  await page.addInitScript(() => {
+    new MutationObserver((_, observer) => {
+      const intro = document.querySelector('[data-testid="brand-intro"]');
+      const w = window as unknown as { __in?: number; __out?: number };
+      if (intro && !w.__in) w.__in = performance.now();
+      if (!intro && w.__in && !w.__out) {
+        w.__out = performance.now();
+        observer.disconnect();
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
   await page.goto("/");
   await expect(page.getByTestId("brand-intro")).toBeVisible();
   await expect(page.getByTestId("brand-intro")).toBeHidden({ timeout: 7000 });
+  const opening = await page.evaluate(() => {
+    const w = window as unknown as { __in: number; __out: number };
+    return w.__out - w.__in;
+  });
+  expect(opening).toBeGreaterThan(2800);
+  expect(opening).toBeLessThan(3500);
   await expect(
     page.getByRole("heading", {
       name: "Make the change. Keep the confidence.",
@@ -74,6 +91,11 @@ test("cinematic intro finishes once per tab session and supports skipping", asyn
   await page.evaluate(() => sessionStorage.removeItem("shelfready:intro"));
   await page.reload();
   await page.getByRole("button", { name: "Skip intro" }).click();
+  await expect(page.getByTestId("brand-intro")).toHaveCount(0);
+  await page.evaluate(() => sessionStorage.removeItem("shelfready:intro"));
+  await page.reload();
+  await expect(page.getByTestId("brand-intro")).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(page.getByTestId("brand-intro")).toHaveCount(0);
 });
 
@@ -103,49 +125,68 @@ test("reduced motion and unavailable WebGL retain usable responsive controls", a
   const original=HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext=function(type,...args){if(String(type).includes('webgl'))return null;return original.call(this,type,...args);};`);
   await page.goto("/");
-  await expect(page.locator('.hero-art [data-renderer="svg"]')).toBeVisible();
-  await expect(page.locator(".hero-art .scene-fallback")).toBeVisible();
+  await expect(page.getByTestId("world")).toHaveAttribute(
+    "data-renderer",
+    "fallback",
+  );
+  await expect(page.locator(".world-fallback")).toBeVisible();
+  // Nothing to watch means no long empty scroll: chapters collapse to reading order.
+  await expect
+    .poll(() => page.locator("#verify").evaluate((el) => el.clientHeight))
+    .toBeLessThan(900);
+  await expect(
+    page.getByRole("heading", {
+      name: "Make the change. Keep the confidence.",
+    }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Upload and review mappings" }),
   ).toBeDisabled();
   await context.close();
 });
 
-test("renders spatial geometry after the intro and falls back after context loss", async ({
+test("draws a real world in one context and falls back after context loss", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(page.getByTestId("brand-intro")).toHaveCount(0, {
     timeout: 7000,
   });
-  const scene = page.locator(".hero-art .proof-scene");
-  await expect(scene).toHaveAttribute("data-renderer", "webgl");
-  // Inspect actual rendered pixels, rather than treating a canvas as proof of rendering.
+  const world = page.getByTestId("world");
+  await expect(world).toHaveAttribute("data-renderer", "webgl");
+  await expect(page.locator("canvas")).toHaveCount(1);
+  // Inspect presented pixels, rather than treating a canvas as proof of rendering.
   await expect
-    .poll(async () =>
-      page.locator(".hero-art canvas").evaluate(async (canvas) => {
-        const image = new Image();
-        image.src = (canvas as HTMLCanvasElement).toDataURL();
-        await image.decode();
-        const copy = document.createElement("canvas");
-        copy.width = image.width;
-        copy.height = image.height;
-        const ctx = copy.getContext("2d")!;
-        ctx.drawImage(image, 0, 0);
-        const data = ctx.getImageData(0, 0, copy.width, copy.height).data;
-        let visible = 0;
-        for (let i = 3; i < data.length; i += 4) if (data[i] > 0) visible++;
-        return visible;
-      }),
-    )
-    .toBeGreaterThan(1000);
-  await page.locator(".hero-art canvas").evaluate((canvas) => {
+    .poll(async () => {
+      const shot = await page.screenshot({ type: "jpeg", quality: 60 });
+      return shot.length;
+    })
+    .toBeGreaterThan(40000);
+  await page.locator("canvas").evaluate((canvas) => {
     const gl = (canvas as HTMLCanvasElement).getContext("webgl2");
     gl!.getExtension("WEBGL_lose_context")!.loseContext();
   });
-  await expect(scene).toHaveAttribute("data-renderer", "svg");
-  await expect(scene.locator(".scene-fallback")).toHaveCSS("opacity", "1");
+  await expect(world).toHaveAttribute("data-renderer", "fallback");
+  await expect(page.locator(".world-fallback")).toBeVisible();
   await expect(page.getByLabel("Baseline WooCommerce CSV")).toBeAttached();
+});
+
+test("each workflow stage lands the operator on its panel, not a stale offset", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    sessionStorage.setItem("shelfready:intro", "seen"),
+  );
+  await page.route("**/api/jobs", (r) => r.fulfill({ json: upload }));
+  await page.goto("/#studio");
+  await expect(
+    page.getByRole("heading", { name: "Two files. One controlled rehearsal." }),
+  ).toBeInViewport();
+  await files(page);
+  await expect(
+    page.getByRole("heading", { name: "Make the meaning explicit." }),
+  ).toBeInViewport();
+  await expect(page.locator("#process")).toHaveCount(0);
 });
 
 test.describe("synthetic workflow boundaries", () => {
