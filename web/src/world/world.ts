@@ -356,6 +356,7 @@ export async function createWorld(
     uScan: { value: -34 },
     uSheet: { value: 0 },
     uBurst: { value: 0 },
+    uDepart: { value: 0 },
     uBuild: { value: 0 },
     uActive: { value: 0 },
     uFailed: { value: 0 },
@@ -1091,7 +1092,7 @@ export async function createWorld(
       const ledger = smooth(3.82, 4, s) * (1 - smooth(4.52, 4.7, s));
       cx += ledger * lerp(0.2, 0.2, smooth(4, 4.5, s));
       aimX += ledger * lerp(0.1, 0.1, smooth(4, 4.5, s));
-      shiftY = lerp(-0.14, -0.31, ledger) * height;
+      shiftY = lerp(lerp(-0.14, -0.31, ledger), 0.12, b.depart) * height;
     }
 
     let flatness = 0,
@@ -1164,6 +1165,7 @@ export async function createWorld(
     shared.uScan.value = b.scan;
     shared.uSheet.value = b.sheet;
     shared.uBurst.value = b.burst;
+    shared.uDepart.value = b.depart;
     shared.uLights.value = b.lights;
     shared.uSlotGlow.value = b.slotGlow;
     shared.uFigure.value = b.figure;
@@ -1196,6 +1198,8 @@ export async function createWorld(
     chamberFloor.visible = frames.visible && b.burst < 0.46;
     sheetIntensity.value = smooth(0.74, 1, b.sheet) * (1 - b.dim * 0.3);
     sheet.visible = sheetIntensity.value > 0.001;
+    const away = b.depart * b.depart;
+    sheet.position.set(0, 18.5 + away * 15, -205.2 - away * 350);
     sky.visible = reveal > 0;
     dust.visible = reveal > 0.05;
     const dustGlow = lerp(0.8, 1.5, b.dawn);
@@ -1273,7 +1277,8 @@ export async function createWorld(
       Math.abs(targetS - s) < 0.0004 && Math.abs(spring.velocity) < 0.0004;
     const restful =
       settled &&
-      s >= SCENE_END - 0.01 &&
+      s >= 5.99 && // Only the opaque studio rests; the closing shot stays alive.
+      s <= 6.03 &&
       revealed &&
       !diving &&
       fadeFrom < 0 &&

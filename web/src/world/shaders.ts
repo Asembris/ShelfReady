@@ -183,6 +183,7 @@ uniform float uFunnel;
 uniform float uSort;
 uniform float uScan;
 uniform float uSheet;
+uniform float uDepart;
 uniform float uTime;
 varying vec3 vWorld;
 varying vec3 vLocal;
@@ -218,7 +219,9 @@ void main() {
     vec3 group = vec3(21.5 + (iR.x - 0.5) * 3.2, 11.0 + (iR.y - 0.5) * 3.4, -198.0 + (iR.z - 0.5) * 2.0);
     p = mix(p, group, smoothstep(0.1, 0.8, uSheet));
   } else {
-    vec3 sheet = vec3(iSheet.x, 18.5 + iSheet.y, -205.0);
+    // At the very end the finished file leaves for the horizon.
+    float away = uDepart * uDepart;
+    vec3 sheet = vec3(iSheet.x, 18.5 + iSheet.y + away * 15.0, -205.0 - away * 350.0);
     vec3 scatter = vec3(sin(iR.w * 40.0), 0.0, cos(iR.x * 40.0)) * sin(rise * 3.1416) * 3.4;
     p = mix(p, sheet, 1.0 - pow(1.0 - rise, 3.0)) + scatter;
   }
@@ -229,6 +232,8 @@ void main() {
 
   vec3 size = vec3(mix(1.25, 1.45, landed) * mix(1.0, 0.075, rise), 0.03 * mix(1.0, 3.0, rise), mix(0.34, 0.72, landed) * mix(1.0, 0.1, rise));
   size *= appear * mix(1.0, 0.6, held * uSheet);
+  // Too far to resolve as lines: the rows give way to the sheet's single light.
+  size *= mix(1.0, 1.0 - smoothstep(0.72, 0.94, uDepart), 1.0 - held);
 
   mat3 turn = rotation(angle);
   vec3 world = turn * (position * size) + p;
@@ -401,13 +406,17 @@ export const sheetFragment = /* glsl */ `
 precision highp float;
 uniform float uIntensity;
 uniform float uReveal;
+uniform float uDepart;
 varying vec2 vUv;
 void main() {
   vec2 c = abs(vUv - 0.5) * 2.0;
+  float far = smoothstep(0.72, 0.94, uDepart);
   float inside = smoothstep(1.0, 0.994, max(c.x, c.y));
   float edge = inside * smoothstep(0.975, 0.992, max(c.x, c.y));
   vec3 color = vec3(0.1, 0.13, 0.26) * inside * 0.22 + vec3(0.72, 0.8, 1.0) * edge * 0.9;
-  gl_FragColor = vec4(color * uIntensity * uReveal, inside * 0.22 * uIntensity + edge * uIntensity);
+  color = mix(color, vec3(5.4, 6.0, 7.4) * inside, far); // Hot enough to bloom, like the door.
+  float alpha = mix(inside * 0.22 + edge, inside, far);
+  gl_FragColor = vec4(color * uIntensity * uReveal, alpha * uIntensity);
 }
 `;
 

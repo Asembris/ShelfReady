@@ -4,10 +4,10 @@ import { catmull, clamp, lerp, smooth } from "../motion";
  * The film's direction, as a pure function of scene time.
  *
  * Whole numbers are the chapters the page anchors to:
- * 0 hall · 1 rumor · 2 hold · 3 rehearse · 4 verify · 5 release · 6 studio.
+ * 0 hall · 1 rumor · 2 hold · 3 rehearse · 4 verify · 5 release · 6 studio · 7 close.
  * Nothing here reads a clock or accumulates, so scrubbing backwards is exact.
  */
-export const SCENE_END = 6;
+export const SCENE_END = 7;
 export const WALL_Z = -140;
 export const SLOT = { width: 3, height: 2 } as const; // The brand notch's 12:8 proportion.
 
@@ -70,6 +70,7 @@ const KEYS: Key[] = [
   { s: 5, pos: [-2, 10, -150], at: [-3, 15, -205], fov: 50, shift: [-0.16, 0] },
   { s: 5.5, pos: [0, 16, -168], at: [0, 25, -240], fov: 44, shift: [0, 0] },
   { s: 6, pos: [-8, 19, -184], at: [-24, 25, -205], fov: 42, shift: [0, 0] },
+  { s: 7, pos: [0, 15, -150], at: [0, 18, -300], fov: 42, shift: [0, 0.12] },
 ];
 
 function locate(s: number) {
@@ -124,6 +125,7 @@ export function shot(s: number): Shot {
 /** Everything the scene does, derived from the same scene time as the camera. */
 export function beat(s: number) {
   const dawn = smooth(4.8, 5.7, s);
+  const depart = smooth(6.08, 7, s);
   const rehearsal = smooth(2.66, 2.8, s);
   return {
     lights: lerp(lerp(0.78, 1, smooth(0.3, 1, s)), 0.12, smooth(1.5, 2, s)),
@@ -140,7 +142,8 @@ export function beat(s: number) {
     burst: smooth(4.66, 5.62, s),
     sheet: smooth(4.74, 5.52, s),
     dawn,
-    dim: smooth(5.55, 6, s),
+    dim: smooth(5.55, 6, s) * (1 - 0.56 * smooth(6.1, 6.9, s)),
+    depart,
     slotGlow: lerp(0.5, 2.2, smooth(0.9, 2, s)) * (1 - rehearsal),
     slotOpen: smooth(2.58, 2.74, s),
     flash: smooth(2.66, 2.74, s) * (1 - smooth(2.74, 2.83, s)),
@@ -148,10 +151,14 @@ export function beat(s: number) {
     chamberVisible: s > 2.3,
     figure: 1 - smooth(2.5, 2.62, s),
     fog: lerp(
-      lerp(0.0125, 0.0056, rehearsal) +
-        0.0075 * smooth(3.58, 3.95, s) * (1 - smooth(4.58, 4.86, s)),
-      0.0034,
-      dawn,
+      lerp(
+        lerp(0.0125, 0.0056, rehearsal) +
+          0.0075 * smooth(3.58, 3.95, s) * (1 - smooth(4.58, 4.86, s)),
+        0.0034,
+        dawn,
+      ),
+      0.0011,
+      depart,
     ),
     rehearsal,
     bars: smooth(1.72, 2, s) * (1 - smooth(2.2, 2.42, s)),
