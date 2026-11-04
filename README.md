@@ -1,6 +1,10 @@
 # ShelfReady
 Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
+Phase 5 deployment preparation is on `feat/vultr-deployment`. See the
+[approval-ready VM plan and current evidence](deploy/PLAN.md). No cloud deployment
+or public HTTPS/remote-runner verification is claimed before provisioning approval.
+
 ## Approved Phase 4 agent-value spike
 
 An optional interpretation step now accepts explicit currency, numeric-format,

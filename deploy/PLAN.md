@@ -87,3 +87,20 @@ with Caddy authentication. This is a bounded demo, not multi-tenant authorizatio
 Required owner inputs/approval: approve the two configurations and estimated
 charges; provide a DNS FQDN under your control, admin source IP/CIDR, and a way to
 provision (Vultr account/API access). No billable action has been taken.
+
+## Local preparation evidence (not cloud evidence)
+
+French reliability regression on November 4, 2026: real Vultr request
+`chatcmpl-6e167da1-0e81-403c-a1f4-a8cf1490eaf1` used 1,641 total tokens.
+Its new program passed the restricted local sandbox and returned both rows:
+`00017 / 15.00 / 8` and `AB-020 / 4.00 / 2`. Native WooCommerce persisted both,
+independent SQL verified them and unchanged fields, and cleanup completed.
+Raw evidence is ignored in `artifacts/phase5-french/result.json`. This is a
+targeted reliability regression, not a new competitive score or a guarantee
+against every future model error. Frozen Phase 3/4 evidence is unchanged.
+
+Local full suite: 97 passed in 126.68 seconds, one upstream deprecation warning.
+The subsequently added public synthetic-file/rate/origin guard test separately
+passed (1 test). Ruff and whitespace checks passed. Deployment templates have
+not been bootstrapped or cloud-validated. No public HTTPS journey or remote
+containment result exists yet. NO-GO for declaring deployment complete.
