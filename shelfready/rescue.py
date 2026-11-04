@@ -128,9 +128,14 @@ def agent_review(data, intent):
             response_format={'type': 'json_object'})
     evidence = {'response_id': response.id, 'usage': response.usage.model_dump(),
                 'raw': response.choices[0].message.content}
-    if response.choices[0].finish_reason != 'stop':
-        raise ValueError('Incomplete rescue advice')
-    return check(json.loads(evidence['raw']), data['supplier']), evidence
+    try:
+        if response.choices[0].finish_reason != 'stop':
+            raise ValueError('Incomplete rescue advice')
+        return check(json.loads(evidence['raw']), data['supplier']), evidence
+    except ValueError as error:
+        error.inference = evidence
+        error.raw_response = evidence['raw']
+        raise
 
 
 def decide(data, proposal, decisions):
@@ -210,7 +215,12 @@ def main():
     data = tables(document)
     if args.action == 'review':
         args.directory.mkdir(parents=True, exist_ok=False)
-        proposal, evidence = agent_review(data, document['intent'])
+        try:
+            proposal, evidence = agent_review(data, document['intent'])
+        except ValueError as error:
+            (args.directory/'failed-review.json').write_text(json.dumps({
+                'error': str(error)[:300], 'inference': getattr(error, 'inference', {})}, indent=2))
+            raise
         (args.directory/'review.json').write_text(json.dumps(proposal, indent=2))
         (args.directory/'inference.json').write_text(json.dumps(evidence, indent=2))
         (args.directory/'input.json').write_text(json.dumps(document))

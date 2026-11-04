@@ -58,6 +58,8 @@ def main():
             entry.update(failed=True, error_type=type(error).__name__, verified_rows=0)
             if hasattr(error, 'raw_response'):
                 entry['raw_response'] = error.raw_response
+                entry['inference'] = error.inference
+            entry['error'] = str(error)[:300]
         entry['total_seconds'] = time.monotonic()-start
         (root/'results.json').write_text(json.dumps(results, indent=2))
     a, b = results['arms']['agent'], results['arms']['baseline']
