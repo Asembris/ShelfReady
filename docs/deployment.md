@@ -2,9 +2,10 @@
 
 Status: resumed on `fix/vultr-cloud-verification` from merged main `9abf33e`.
 Only the existing approved VMs are used; the billing deadline is unchanged.
-Now **STOPPED at a genuine native-staging failure**. **NO-GO for public demo**
-until HTTPS, authentication, remote isolation, native staging/readback, browser
-and cleanup gates pass. This document records live operations, not simulated
+Current result: **GO for the tested bounded synthetic workflow**, following
+private diagnosis and one successful fresh public journey. Services and public
+web access are closed again after testing. The previous failures remain below.
+This document records live operations, not simulated
 cloud evidence. Phase 3/4 benchmark results are unchanged.
 
 ## Approved resources and billing window
@@ -178,7 +179,7 @@ Evidence also includes `failed-public-job.json`, `public-playwright.log`,
 No credentials or generated artifacts are committed. Phase 3/4 evidence and
 competitive conclusions remain unchanged.
 
-## Current verdict and reproduction
+## Previous verdict at the native failure
 
 **NO-GO** for deployment completion or public launch. Caddy, valid HTTPS,
 authentication, upload restrictions, real inference, remote sandbox containment
@@ -204,6 +205,86 @@ Ruff, production TypeScript/Vite build and `git diff --check` passed. The browse
 harness now saves the job ID and terminal status before asserting success, so
 future failures retain useful evidence; that retention-only change was not used
 to rerun this stopped cloud job.
+
+## Diagnosed native failure and verified correction
+
+Before changing staging behavior, services remained stopped while a trusted
+private reproduction ran as `shelfready` with the worker's umask 0077. Bounded
+diagnostics identified `wp.eval-file./tmp/import.php.baseline`, exit **0**, no
+timeout, with stderr `fopen(/tmp/catalog.csv): Failed to open stream: Permission
+denied`. WooCommerce's importer row accounting then rejected the operation.
+This is why exit status alone would have falsely suggested success.
+
+Root cause: the private catalog file has mode 0600. Docker cp preserves file
+permissions but creates the container destination as root, so the CLI's UID 33
+cannot read it. See [Docker copy ownership semantics](https://docs.docker.com/reference/cli/docker/container/cp/).
+The correction streams CSV through stdin into a fixed command executed as the
+trusted CLI user, with umask 077. The result is UID 33, mode 0600; CSV contents
+are never interpolated into shell code. Host privacy, independent validators,
+container boundaries and cleanup were not weakened.
+
+`native_diagnostics.py` retains only the last 12 command events, each with a
+controlled stage/command identity, exit code, timeout flag and at most 2048
+stderr characters. It excludes raw argv/stdout and redacts known environment,
+store and generated admin credentials plus common credential assignments.
+Failed worker reports retain this bounded evidence even when temporary job
+files are removed. Timeout and redaction tests use explicitly synthetic secrets.
+
+The pre-fix private failure is preserved in `native-before-fix.json`. The fixed
+private run passed native baseline import, updates and independent SQL, with
+full before/after snapshots in `native-after-fix-readback.json`. Both hosts were
+confirmed free of disposable containers, store volumes and networks before
+opening the public test window. `deploy/private_native.py` reproduces this
+trusted native test without inference or generated code on control. Use a new
+private artifact directory for each run; never overwrite previous evidence.
+
+Exactly **one fresh public Playwright journey** ran after that private success:
+**1 passed in 1.0 minute**. Job `bb729560a51c4e5890211494e2d58d7c` used real Vultr
+request `chatcmpl-504934f7-6872-4359-954d-b62ec8685212`, one attempt, 298 prompt +
+492 completion = **790 tokens**. Inference dollar cost remains unknown. Remote
+runner container `3f52472381fd` was independently inspected with the required
+isolation limits. No generated code executed on control.
+
+The browser downloaded verified CSV and report. Independent host SQL observation
+captured the same job's full baseline and updated products: IDs `10` and `11`
+were preserved; `00017` changed from 12.30/4 to **13.55/7** and `A-2` from 0.10/0
+to **1.35/2**. The trusted verifier separately checked exact SKUs, Decimal prices,
+stock and all supported unchanged fields against those observed snapshots.
+Two input rows resolved, zero unresolved. No importer-success message was used
+as a substitute for persisted readback.
+
+Download SHA-256:
+
+- CSV: `d2271f7760fcce61b0cd927e877a9cd5b255bb5e232c834010e0bc35f5012e93`.
+- Report: `05b896d58ad7d98c2fd4de907eeeb664a6f4c4273ab8c8536077674d48a068df`.
+
+The earlier genuine browser failure is archived in `prior-native-failure/`;
+the earlier authentication harness failure remains separately archived. None
+was deleted or relabelled as successful. This reliability correction is not a
+competitive benchmark rescore; Phase 3/4 conclusions remain unchanged.
+
+After the successful test, Caddy/API/worker were stopped and provider web rules
+removed again. Both hosts had **zero containers** and no rehearsal volumes or
+networks. Only the existing two VMs remain. At **November 4 14:41:51 UTC**, pending
+charges remained **$0.06 + $0.03 = $0.09**, not a final invoice. Allocation still
+bills; the review deadline remains **November 7 12:42 UTC / 13:42 Europe/Paris**.
+Evidence is in `native-fixed-final-state.json` and the public browser/SQL/runner
+observation files. No credentials or generated artifacts enter Git.
+
+Checks: **103 passed in 121.46 seconds**, one upstream deprecation warning; Ruff,
+TypeScript/Vite production build and `git diff --check` passed. A Linux Docker
+regression verifies that literal CSV input reaches a UID-33, mode-0600 file
+without shell interpolation. The first focused pytest invocation could not use
+Windows' default temporary directory; rerunning with a workspace temp directory
+passed, as did the full suite.
+
+Verdict: **GO for the tested invite-only, two-fixture, bounded cloud workflow**;
+currently closed between tests, not an anonymously available production service.
+Rate/quota exhaustion and multi-user operation remain unverified live, with
+local test/configuration evidence only. Shared-kernel isolation and temporary
+sslip.io/certificate dependency remain limitations. Deployment success does not
+establish competitive agent value. On authorized reopening, recheck both
+firewalls and service health without provisioning or resetting quota.
 
 ## Previous checks and teardown
 

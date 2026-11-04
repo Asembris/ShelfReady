@@ -2,9 +2,9 @@
 
 Status: VM configurations approved by owner November 4, 2026 for an initial
 72-hour evaluation, with no paid add-ons. PROVISIONED after the owner confirmed
-the admin IPv4 /32. Caddy/HTTPS and remote isolation now pass; deployment STOPPED
-at a genuine native-staging failure, with demo services disabled and web access
-closed again. See
+the admin IPv4 /32. The native permission failure is fixed after private diagnosis;
+one fresh public journey and independent SQL now pass. Demo services and web
+access are closed again between tests. No additional VMs were created. See
 [live evidence, IDs, billing and review deadline](../docs/deployment.md).
 Owner approved a temporary sslip.io
 FQDN derived from the control public IPv4. Recheck pricing/configuration before creation and stop
