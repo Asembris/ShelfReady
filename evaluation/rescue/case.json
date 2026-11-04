@@ -1,0 +1,18 @@
+{
+  "name": "Friday supplier rescue",
+  "baseline": "Type,SKU,Name,Regular price,Stock\nsimple,00017,Steel bracket,12.30,4\nsimple,A-2,Blue bin,1.00,2\nsimple,DUP-3,Cable,5.00,8\nsimple,HOLD-4,Clamp,8.00,6\nsimple,KEEP-5,Tray,40.00,4\nsimple,SAFE-6,Hook,11.00,5\n",
+  "supplier": "Item reference,Retail EUR,Offer EUR,Available units,Operator note\n00017,12.30,13.5500,7,Routine approved replenishment\nA-2,1.00,0.10,9999,Clearance or misplaced decimal - not yet approved\nDUP-3,5.00,5.50,2,First warehouse extract\nDUP-3,5.00,6.00,3,Conflicting second extract - do not merge\nHOLD-4,8.00,8.00,9,Count excludes returns - supplier requests verification before use\nNEW-9,2.00,2.10,4,New item not in current catalog\nKEEP-5,40.00,20.00,0,Temporary promotion signed off by buyer - intentional sell-through\nSAFE-6,11.00,11.25,5,Available includes 3 reserved - do not subtract until confirmed\n",
+  "intent": "EUR dot decimals, individual available units. Retail EUR and Offer EUR are alternative quotes; ask the operator which price column is approved. Never infer tax, currency, packs or reserved quantities. Review price changes of at least 50 percent, stock above ten times baseline, and supplier notes expressing caveats before release.",
+  "decisions": {
+    "confirm": true,
+    "mapping": {"sku": "Item reference", "price": "Offer EUR", "stock": "Available units"},
+    "approve": [1, 7],
+    "acknowledge": {"7": "Buyer confirms the promotion and zero-stock sell-through; no currency or tax change."}
+  },
+  "gold": {
+    "mapping": {"sku": "Item reference", "price": "Offer EUR", "stock": "Available units"},
+    "risk_rows": [2, 3, 4, 5, 6, 7, 8],
+    "updates": [{"row": 1, "sku": "00017", "price": "13.5500", "stock": "7"}, {"row": 7, "sku": "KEEP-5", "price": "20.00", "stock": "0"}],
+    "unresolved_rows": [2, 3, 4, 5, 6, 8]
+  }
+}
