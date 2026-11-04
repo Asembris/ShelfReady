@@ -163,3 +163,15 @@ The subsequently added public synthetic-file/rate/origin guard test separately
 passed (1 test). Ruff and whitespace checks passed. Deployment templates have
 not been bootstrapped or cloud-validated. No public HTTPS journey or remote
 containment result exists yet. NO-GO for declaring deployment complete.
+
+Follow-up preparation, November 4, 2026: full suite **99 passed in 93.31 seconds**,
+one upstream deprecation warning; Ruff, production TypeScript/Vite build and
+`git diff --check` passed. Built baseline/supplier fixtures match source bytes.
+The public Playwright config successfully listed its one test; the public test
+was **not executed** because no FQDN/VMs exist yet. The new SSH regression mocks
+the subprocess and verifies argument/stdin boundaries; service-account installer
+permissions and remote authentication still require live Linux verification.
+Read-only Vultr catalog recheck returned the unchanged approved CPU/RAM/disk/
+transfer configurations and $0.027/$0.014 hourly rates, with `cdg` listed.
+Repeat this check immediately before creation. No resources were created and
+no cloud isolation, usage, native staging, cleanup or HTTPS success is claimed.
