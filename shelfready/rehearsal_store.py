@@ -5,7 +5,7 @@ import secrets
 import time
 from pathlib import Path
 
-from shelfready import store
+from shelfready import store, native_diagnostics
 from shelfready.catalog import csv_text
 from shelfready.verification import verify_snapshot
 
@@ -26,6 +26,11 @@ def cleanup():
 
 
 def rehearse(baseline, updates, directory, *, expected_updates=None):
+    with native_diagnostics.scope(directory):
+        return _rehearse(baseline, updates, directory, expected_updates=expected_updates)
+
+
+def _rehearse(baseline, updates, directory, *, expected_updates=None):
     package = store.RUNTIME / f"woocommerce.{store.WOO_VERSION}.zip"
     if not package.exists() or hashlib.sha256(package.read_bytes()).hexdigest() != store.WOO_SHA256:
         raise RuntimeError("Run the Phase 1 store setup to cache the pinned plugin and credentials")

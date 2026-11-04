@@ -5,6 +5,7 @@ import secrets
 import subprocess
 import time
 from pathlib import Path
+from shelfready import native_diagnostics
 
 PROJECT = "shelfready-feasibility"
 RUNTIME = Path(".runtime")
@@ -15,7 +16,12 @@ COMPOSE = ["docker", "compose", "--project-name", PROJECT,
 
 
 def command(args, **kwargs):
-    result = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", timeout=180, **kwargs)
+    try:
+        result = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", timeout=180, **kwargs)
+    except subprocess.TimeoutExpired as error:
+        native_diagnostics.record(args, None, True, error.stderr)
+        raise
+    native_diagnostics.record(args, result.returncode, False, result.stderr)
     if result.returncode:
         # Commands can contain generated passwords: never include argv in errors.
         raise RuntimeError(result.stderr[-2000:])

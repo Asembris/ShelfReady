@@ -115,7 +115,8 @@ def process(row):
                     catalog.csv_text(expected))
     except Exception as error:
         jobs.finish(row["id"], "failed", {"reason": "Rehearsal failed; no verified CSV released",
-                                          "error_type": type(error).__name__, "attempts": attempts})
+                                          "error_type": type(error).__name__, "attempts": attempts,
+                                          "native_diagnostics": getattr(error, "native_diagnostics", [])})
 
 
 def main():
