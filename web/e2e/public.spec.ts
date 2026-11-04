@@ -9,6 +9,9 @@ test('authenticate, download synthetic inputs and rehearse through public HTTPS'
    expect((await anonymous.get(route)).status()).toBe(401);
   }
  } finally {await anonymous.dispose();}
+ for (const route of ['/docs','/redoc','/openapi.json']) {
+  expect((await request.get(route)).status()).toBe(404);
+ }
  const inputs:Record<string,Buffer>={};
  for (const name of ['baseline.csv','update.csv']) {
   const response=await request.get(`/demo/${name}`);
@@ -21,13 +24,18 @@ test('authenticate, download synthetic inputs and rehearse through public HTTPS'
  await page.goto('/');
  await page.getByLabel('Baseline WooCommerce CSV').setInputFiles({name:'baseline.csv',mimeType:'text/csv',buffer:inputs['baseline.csv']});
  await page.getByLabel('Supplier CSV').setInputFiles({name:'update.csv',mimeType:'text/csv',buffer:inputs['update.csv']});
- await page.getByRole('button',{name:'Upload and review mappings'}).click();
+ const [upload]=await Promise.all([
+  page.waitForResponse(r=>new URL(r.url()).pathname==='/api/jobs' && r.request().method()==='POST'),
+  page.getByRole('button',{name:'Upload and review mappings'}).click()
+ ]);
+ const job=await upload.json();
  await expect(page.getByRole('button',{name:'Confirm and rehearse'})).toBeDisabled();
  await page.getByLabel('I confirm these mappings',{exact:false}).check();
  await page.getByRole('button',{name:'Confirm and rehearse'}).click();
  await expect.poll(()=>page.getByTestId('state').textContent(),{timeout:230000}).toMatch(/complete|partial|failed/);
  await expect(page.getByTestId('state')).toHaveText('complete');
  const dir=path.resolve('../artifacts/cloud/public-browser');await fs.mkdir(dir,{recursive:true});
+ await fs.writeFile(path.join(dir,'journey.json'),JSON.stringify({origin:baseURL,job_id:job.id},null,2));
  for (const [label,name] of [['Download verified CSV','verified.csv'],['Download change report','report.json']]) {
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('link',{name:label}).click()]);
   await download.saveAs(path.join(dir,name));
@@ -37,4 +45,8 @@ test('authenticate, download synthetic inputs and rehearse through public HTTPS'
  const report=JSON.parse(await fs.readFile(path.join(dir,'report.json'),'utf8'));
  expect(report.resolved_rows).toBe(2);expect(report.input_rows).toBe(2);
  expect(report.unresolved).toEqual([]);
+ expect(report.persisted_readback).toEqual([
+  ['00017','13.55','7','Leading zero product'],
+  ['A-2','1.35','2','Decimal product']
+ ]);
 });
