@@ -1,0 +1,14 @@
+[Unit]
+Description=ShelfReady single rehearsal worker
+After=network-online.target docker.service
+Requires=docker.service
+[Service]
+User=shelfready
+WorkingDirectory=/opt/shelfready
+EnvironmentFile=/etc/shelfready/control.env
+ExecStart=/opt/shelfready/.venv/bin/python -m shelfready.worker
+Restart=on-failure
+RestartSec=10
+UMask=0077
+[Install]
+WantedBy=multi-user.target

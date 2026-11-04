@@ -1,0 +1,12 @@
+[Unit]
+Description=ShelfReady loopback control API
+After=network-online.target
+[Service]
+User=shelfready
+WorkingDirectory=/opt/shelfready
+EnvironmentFile=/etc/shelfready/control.env
+ExecStart=/opt/shelfready/.venv/bin/uvicorn shelfready.api:app --host 127.0.0.1 --port 18765 --workers 1 --limit-concurrency 8 --timeout-keep-alive 5
+Restart=on-failure
+UMask=0077
+[Install]
+WantedBy=multi-user.target

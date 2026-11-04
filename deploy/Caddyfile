@@ -1,0 +1,23 @@
+{$DEMO_DOMAIN} {
+    basic_auth {
+        {$DEMO_USER} {$DEMO_PASSWORD_HASH}
+    }
+    request_body {
+        max_size 70KB
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        Cache-Control no-store
+    }
+    @internal path /docs* /redoc* /openapi.json
+    respond @internal 404
+    handle /api/* {
+        reverse_proxy 127.0.0.1:18765
+    }
+    handle {
+        root * /opt/shelfready/web/dist
+        try_files {path} /index.html
+        file_server
+    }
+}
