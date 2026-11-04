@@ -53,7 +53,7 @@ def check(proposal, table, intent):
         if column not in table["headers"] or column in used:
             raise ValueError("Proposed column is missing or reused")
         used.append(column)
-        if not choice["evidence"]:
+        if not choice["evidence"] or not any(e["value"] for e in choice["evidence"]):
             raise ValueError("Nonempty source evidence is required")
         for evidence in choice["evidence"]:
             index = evidence["row"]-1

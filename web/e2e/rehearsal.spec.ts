@@ -20,7 +20,7 @@ test('confirm mappings, rehearse real Vultr code and download partial verified r
  await page.getByLabel('Supplier CSV').setInputFiles({name:'supplier.csv',mimeType:'text/csv',buffer:Buffer.from('SKU,Regular price,Stock\n00017,13.5500,7\nA-2,1.35,2\nUNKNOWN,5.00,1\n')});
  await page.getByRole('button',{name:'Upload and review mappings'}).click();
  await expect(page.getByRole('button',{name:'Confirm and rehearse'})).toBeDisabled();
- await page.getByRole('checkbox').check();
+ await page.getByLabel('I confirm these mappings', {exact:false}).check();
  await page.getByRole('button',{name:'Confirm and rehearse'}).click();
  await expect.poll(async()=>await page.getByTestId('state').textContent(),{timeout:230000}).toMatch(/partial|failed/);
  await expect(page.getByTestId('state')).toHaveText('partial');
