@@ -57,3 +57,15 @@ def test_ambiguous_business_basis_cannot_enter_rescue():
     case['intent'] = 'Currency unknown; please guess quantities and prices'
     with pytest.raises(ValueError):
         rescue.tables(case)
+
+
+def test_operator_review_creates_non_authorizing_draft(tmp_path, monkeypatch):
+    directory = tmp_path/'review'
+    monkeypatch.setattr('sys.argv', ['rescue', 'review', 'evaluation/rescue/case.json',
+                                  str(directory), '--baseline-review'])
+    rescue.main()
+    draft = json.loads((directory/'decisions.example.json').read_text())
+    assert draft['confirm'] is False and draft['approve'] == []
+    assert draft['mapping']['price'] is None
+    assert 'ROW 8' in (directory/'review.txt').read_text(encoding='utf-8')
+    assert not (directory/'verified.csv').exists()
