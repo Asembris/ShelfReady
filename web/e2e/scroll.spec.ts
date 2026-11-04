@@ -137,6 +137,51 @@ for (const [width, height] of [
   });
 }
 
+test("the film closes on the world itself, without a footer panel", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 810 });
+  await page.goto("/");
+  await expect(page.getByTestId("world")).toHaveAttribute(
+    "data-renderer",
+    "webgl",
+  );
+  // The picture holds still while the operator works through the sheet.
+  await page
+    .getByRole("button", { name: "Upload and review mappings" })
+    .evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      scrollTo({
+        top: box.top + scrollY - innerHeight / 2,
+        behavior: "instant",
+      });
+    });
+  expect(await settle(page)).toBeLessThan(6.03);
+  await page.evaluate(() =>
+    scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "instant",
+    }),
+  );
+  expect(await settle(page)).toBeCloseTo(7, 1);
+  const footer = page.locator(".site-footer");
+  await expect(footer).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  const lockup = page.locator(".footer-lockup");
+  await expect(lockup).toBeInViewport();
+  await expect(page.locator(".footer-sign")).toHaveCSS("opacity", "1");
+  // Brand minimum for the stacked lockup with its tagline.
+  const box = await lockup.boundingBox();
+  expect(box!.width).toBeGreaterThanOrEqual(300);
+  expect(box!.width).toBeLessThanOrEqual(320);
+  await expect(page.locator(".site-header")).not.toHaveClass(/is-solid/);
+  await footer.getByRole("link", { name: "Back to top" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: "Make the change. Keep the confidence.",
+    }),
+  ).toBeInViewport({ timeout: 10000 });
+});
+
 test("the renderer rests once the opaque studio has settled", async ({
   page,
 }) => {
