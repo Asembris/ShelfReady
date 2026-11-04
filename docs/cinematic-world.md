@@ -28,7 +28,7 @@ as a performance measurement.
 
 ## The film
 
-The rejected design was a logo beside captions. Here the logo appears once.
+The rejected design was a logo beside captions. Here the logo opens and signs off the film, and nothing between is a logo animation.
 
 | Scene time | Beat | What happens |
 | --- | --- | --- |
@@ -40,6 +40,12 @@ The rejected design was a logo beside captions. Here the logo appears once.
 | 4 | Verify | A scanner blade crosses the store; expected and read-back ledgers compare |
 | 5 | Release | The store is demolished; verified rows rise into one sheet; held rows stay visibly outside |
 | 6 | Studio | The world dims and rests behind a lit working sheet |
+| 7 | Close | The footer has no panel: dawn returns, the finished file leaves as a distant light, and held rows remain |
+
+The owner rejected the first footer, an oversized wordmark on a flat panel, as a text
+blob that ended the film abruptly. The close is now a shot of the same world, signed with
+the approved stacked lockup at its 300 to 320 px brand size, as a bookend to the opening.
+During a job the footer stays compact and the world stays dim.
 
 The door keeps the brand notch's 12:8 proportion, and buttons and the sheet's
 corner use the mark's exact 1:2 slope. Those are the only other brand references.
@@ -147,6 +153,28 @@ stepped down three times and the page fell back to the still frame after 9 secon
 **Package.** Main JS 228.64 kB / 72.04 kB gzip, CSS 33.71 kB / 8.24 kB gzip. The lazy
 world chunk is 591.00 kB / 153.03 kB gzip, down from 753.31 / 192.54 kB through named
 imports, and still triggers Vite's size warning. No dependencies were added.
+
+## Closing shot update
+
+Results above predate the closing shot. On the code that added it:
+
+- **Browser: 25 of 25 passed in 3.1 minutes**, real GPU, including both real journeys:
+  3 input = 2 verified + 1 held (`chatcmpl-0408443b-2325-4887-9431-a662880a5a40`, 835 tokens)
+  and 2 of 2 verified (`chatcmpl-6cb3905b-c414-47a9-a060-c47a43c8f236`, 1,549 tokens). Both
+  reports state native import, independent SQL readback and store destruction. No staging
+  containers remained. The brand and credential checks passed. Python tests were not rerun
+  because no backend file changed.
+- **Package:** main JS 229.12 kB / 72.18 kB gzip, CSS 34.32 kB / 8.35 kB gzip, world chunk
+  591.78 kB / 153.32 kB gzip.
+- **Opening timing:** with a fresh browser profile per run, so a cold shader cache, six
+  production openings took 3.06 to 3.09 s with a worst long task near 310 ms, down from near
+  400 ms. Warm runs took 3.06 to 3.14 s. One earlier run took 5.1 s on a cold cache right after
+  the Docker-heavy journeys, so heavy machine load can still extend it. The browser test now
+  bounds a warm-cache opening, and the shelves animate on the compositor during any stall.
+- The first full run failed 2 of 25: the new test wrongly expected the picture to hold after
+  the sheet's edge had entered the frame, and the opening bound measured the cold-cache case
+  above. Frames of the close were inspected at 1440×810 and 390×844 and are retained under
+  ignored `artifacts/creative-review/round4/`.
 
 ## Limits
 
