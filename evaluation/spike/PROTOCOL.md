@@ -34,7 +34,8 @@ unresolved rows, incorrect accepted changes, proposal errors, correction edits,
 latency, request IDs and prompt/completion/total tokens. If no measured billing
 price is available, report token cost and USD unknown; never invent dollar cost.
 Each complete proposal gets independent normalization/row validation; corrected
-positive cases pass real restricted generated-code execution, native Woo import,
+positive cases pass real restricted code execution (Vultr-generated for the agent,
+trusted deterministic stdlib template for the baseline), native Woo import,
 SQL readback and cleanup for both arms. Unsupported cases remain unresolved.
 No outcome is counted verified merely from a model's mapping claim.
 

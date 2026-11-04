@@ -41,7 +41,8 @@ strip_each accepts [0-9]{1,7} optionally followed by ' ea' or ' each' and remove
 (otherwise empty string). No other normalization, conversions, arithmetic or intent guesses.
 Count ALL normalized SKU.casefold() occurrences before filtering; drop all duplicates.
 Do not print or call transform. Use only stdlib; no files/network/subprocesses.
-''' + prompt[prompt.index("Replace baseline price"):]
+''' + prompt[prompt.index("Replace baseline price"):].replace(
+            "Preserve all strings exactly.", "Preserve normalized strings exactly; only apply confirmed rules.")
     with inference.client() as api:
         response = api.chat.completions.create(
             model=model, messages=[{"role": "system", "content": prompt},

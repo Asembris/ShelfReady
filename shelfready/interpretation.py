@@ -6,7 +6,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Literal
 
-from shelfready import catalog, inference
+from shelfready import inference
 
 
 class Intent(BaseModel):
@@ -132,6 +132,11 @@ def propose(table, baseline_skus, intent):
             response_format={"type": "json_object"})
     evidence = {"response_id": response.id, "model": response.model,
                 "usage": response.usage.model_dump() if response.usage else None}
-    if response.choices[0].finish_reason != "stop":
-        raise ValueError("Incomplete interpretation response")
-    return check(json.loads(response.choices[0].message.content), table, intent), evidence
+    try:
+        if response.choices[0].finish_reason != "stop":
+            raise ValueError("Incomplete interpretation response")
+        return check(json.loads(response.choices[0].message.content), table, intent), evidence
+    except ValueError as error:
+        error.inference = evidence
+        error.raw_response = response.choices[0].message.content
+        raise
