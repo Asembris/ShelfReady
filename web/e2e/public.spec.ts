@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 test('authenticate, download synthetic inputs and rehearse through public HTTPS',async({page,request,playwright,baseURL})=>{
- const anonymous=await playwright.request.newContext({baseURL});
+ // newContext inherits Playwright's configured defaults unless explicitly cleared.
+ const anonymous=await playwright.request.newContext({baseURL,httpCredentials:undefined});
  try {
   for (const route of ['/', '/demo/baseline.csv', '/api/jobs/missing', '/api/jobs/missing/download/csv']) {
    expect((await anonymous.get(route)).status()).toBe(401);
@@ -29,13 +30,16 @@ test('authenticate, download synthetic inputs and rehearse through public HTTPS'
   page.getByRole('button',{name:'Upload and review mappings'}).click()
  ]);
  const job=await upload.json();
+ const dir=path.resolve('../artifacts/cloud/public-browser');await fs.mkdir(dir,{recursive:true});
+ await fs.writeFile(path.join(dir,'journey.json'),JSON.stringify({origin:baseURL,job_id:job.id},null,2));
  await expect(page.getByRole('button',{name:'Confirm and rehearse'})).toBeDisabled();
  await page.getByLabel('I confirm these mappings',{exact:false}).check();
  await page.getByRole('button',{name:'Confirm and rehearse'}).click();
  await expect.poll(()=>page.getByTestId('state').textContent(),{timeout:230000}).toMatch(/complete|partial|failed/);
+ const status=await request.get(`/api/jobs/${job.id}`);
+ expect(status.status()).toBe(200);
+ await fs.writeFile(path.join(dir,'status.json'),JSON.stringify(await status.json(),null,2));
  await expect(page.getByTestId('state')).toHaveText('complete');
- const dir=path.resolve('../artifacts/cloud/public-browser');await fs.mkdir(dir,{recursive:true});
- await fs.writeFile(path.join(dir,'journey.json'),JSON.stringify({origin:baseURL,job_id:job.id},null,2));
  for (const [label,name] of [['Download verified CSV','verified.csv'],['Download change report','report.json']]) {
   const [download]=await Promise.all([page.waitForEvent('download'),page.getByRole('link',{name:label}).click()]);
   await download.saveAs(path.join(dir,name));
