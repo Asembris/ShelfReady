@@ -1,5 +1,6 @@
 import copy
 import json
+import inspect
 
 import pytest
 
@@ -91,3 +92,22 @@ def test_single_shot_and_agent_step_bounds(tmp_path, monkeypatch):
         path.mkdir()
         code, _, attempts, _ = forge.generate(raw, ref, arm, path)
         assert code is None and len(attempts) == count
+
+
+@pytest.mark.live
+def test_saved_trusted_adapter_replays_in_real_sandbox_without_inference(tmp_path, monkeypatch):
+    # Mechanism regression using trusted comparator source, not a successful LLM adapter.
+    code = ('import csv,io,re\nfrom collections import Counter\nfrom types import SimpleNamespace\n'
+            +inspect.getsource(forge.catalog.invalid)
+            +'\ncatalog=SimpleNamespace(invalid=invalid)\n'
+            +inspect.getsource(forge.records)+'\n'+inspect.getsource(forge.deterministic)
+            +'\ndef adapt(raw,known_skus):return deterministic(raw,known_skus)\n')
+    def forbidden():
+        pytest.fail('Replay must not use inference')
+    monkeypatch.setattr(forge.inference, 'client', forbidden)
+    raw, reference = forge.load('base')
+    path = tmp_path/'saved.json'
+    forge.save(code, raw, reference['known_skus'], path)
+    text, reference = forge.load('replay')
+    result = forge.replay(path, text, reference)
+    assert result['verified_rows'] == 2 and result['incorrect_accepted'] == 0

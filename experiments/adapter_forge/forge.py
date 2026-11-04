@@ -239,6 +239,8 @@ def replay(path, raw, reference):
 
 
 def run():
+    if BUDGET.exists():
+        raise RuntimeError('Existing experiment ledger: do not restart or reset its request budget')
     start = time.monotonic()
     root = Path('artifacts/adapter-forge')/(time.strftime('%Y%m%d-%H%M%S')+'-'+uuid.uuid4().hex[:8])
     root.mkdir(parents=True)
