@@ -1,6 +1,13 @@
-import ProofPassage from "./ProofPassage";
-import { useCallback, useEffect, useRef, useState } from "react";
-import ProofScene, { BrandIntro, useMediaQuery } from "./ProofScene";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { WorldStage } from "./Cinema";
+import { BrandIntro } from "./Intro";
+import Story, { FILM_INDEX, useReveal } from "./Story";
 
 type Table = { headers: string[]; rows: string[][] };
 type Intent = {
@@ -230,7 +237,6 @@ function SourcePreview({ table, kind }: { table: Table; kind: string }) {
 }
 
 export default function App() {
-  const desktop = useMediaQuery("(min-width:851px)");
   const [introDone, setIntroDone] = useState(false);
   const finishIntro = useCallback(() => setIntroDone(true), []);
   const [files, setFiles] = useState<
@@ -267,6 +273,10 @@ export default function App() {
   const [pollError, setPollError] = useState("");
   const [retry, setRetry] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
+  const [solidHeader, setSolidHeader] = useState(false);
+  const [current, setCurrent] = useState("top");
+  const heroRef = useRef<HTMLElement>(null);
+  const studioRef = useReveal<HTMLElement>();
   const active = !!status && ["queued", "running"].includes(status.state);
   const verified = !!status && ["complete", "partial"].includes(status.state);
   const phase = status
@@ -341,6 +351,59 @@ export default function App() {
   useEffect(() => {
     if (upload || status) heading.current?.focus({ preventScroll: true });
   }, [upload?.id, status?.state]);
+  // The browser resolves a deep link before React has rendered its target.
+  useLayoutEffect(() => {
+    if (location.hash.length > 1)
+      document
+        .getElementById(location.hash.slice(1))
+        ?.scrollIntoView({ behavior: "instant" });
+  }, []);
+  // Each stage replaces the panel and may remove the film above it. Without this
+  // the browser keeps a stale offset and strands the operator below the content.
+  const lastPhase = useRef(phase);
+  useLayoutEffect(() => {
+    if (lastPhase.current === phase) return;
+    lastPhase.current = phase;
+    const studio = studioRef.current;
+    if (!studio) return;
+    scrollTo({
+      top: studio.getBoundingClientRect().top + scrollY - 84,
+      behavior: "instant",
+    });
+  }, [phase]);
+  useEffect(() => {
+    // The header needs a ground only where the working surface passes beneath it.
+    const studio = studioRef.current;
+    if (!studio) return;
+    const header = new IntersectionObserver(
+      ([entry]) => setSolidHeader(entry.isIntersecting),
+      { rootMargin: "0px 0px -92% 0px" },
+    );
+    header.observe(studio);
+    const chapters = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries)
+          if (entry.isIntersecting) setCurrent(entry.target.id);
+      },
+      { rootMargin: "-50% 0px -50% 0px" },
+    );
+    for (const { id } of FILM_INDEX) {
+      const target = document.getElementById(id);
+      if (target && id !== "top") chapters.observe(target);
+    }
+    const hero = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setCurrent("top");
+      },
+      { rootMargin: "-50% 0px -50% 0px" },
+    );
+    if (heroRef.current) hero.observe(heroRef.current);
+    return () => {
+      header.disconnect();
+      chapters.disconnect();
+      hero.disconnect();
+    };
+  }, [phase]);
   function selectFile(kind: "baseline" | "supplier", file?: File) {
     setFiles((old) => ({ ...old, [kind]: file }));
     setUpload(null);
@@ -504,18 +567,31 @@ export default function App() {
         : "Every good update starts here.";
   return (
     <>
+      <WorldStage
+        ready={introDone}
+        mood={
+          active
+            ? "active"
+            : status?.state === "failed"
+              ? "failed"
+              : verified
+                ? "verified"
+                : "idle"
+        }
+        layoutKey={phase ? "workspace" : "film"}
+      />
       <BrandIntro onDone={finishIntro} />
       <div
-        className={`app-shell ${introDone ? "is-ready" : ""}`}
+        className={`app-shell ${introDone ? "is-ready" : ""} ${phase ? "has-workspace" : ""}`}
         inert={!introDone}
       >
         <a className="skip-link" href="#studio">
           Skip to rehearsal studio
         </a>
-        <header className="site-header">
+        <header className={`site-header ${solidHeader ? "is-solid" : ""}`}>
           <a className="brand-link" href="#top" aria-label="ShelfReady home">
             <img
-              src="/brand/horizontal-light.svg"
+              src="/brand/horizontal-dark.svg"
               width="168"
               height="36"
               alt="ShelfReady"
@@ -531,21 +607,41 @@ export default function App() {
             Open studio <Arrow diagonal />
           </a>
         </header>
+        {!phase && (
+          <nav
+            className={`film-index ${current === "studio" ? "is-away" : ""}`}
+            aria-label="Chapters"
+          >
+            {FILM_INDEX.map((chapter) => (
+              <a
+                key={chapter.id}
+                href={"#" + chapter.id}
+                aria-current={current === chapter.id ? "true" : undefined}
+              >
+                <span>{chapter.label}</span>
+              </a>
+            ))}
+          </nav>
+        )}
         <main id="top">
           <section
+            ref={heroRef}
             className={`hero ${phase ? "hero-condensed" : ""}`}
             aria-labelledby="hero-title"
+            {...(phase ? {} : { "data-scene": 0, "data-align": "top" })}
           >
-            <div className="hero-copy">
-              <div className="eyebrow">
-                <span className="eyebrow-line" />
-                THE CATALOG REHEARSAL STUDIO
-              </div>
-              <h1 id="hero-title">
-                Make the change.
-                <br />
-                <span>Keep the confidence.</span>
-              </h1>
+            <p className="hero-eyebrow">The catalog rehearsal studio</p>
+            <h1 id="hero-title">
+              <span className="ln">
+                <span>Make the change. </span>
+              </span>
+              <span className="ln">
+                <span>
+                  <em>Keep the confidence.</em>
+                </span>
+              </span>
+            </h1>
+            <div className="hero-foot">
               <p className="hero-description">
                 Your next supplier update deserves a dress rehearsal. Test
                 prices and stock in a disposable WooCommerce store. Release a
@@ -559,41 +655,20 @@ export default function App() {
                   Explore the process <span aria-hidden="true">↓</span>
                 </a>
               </div>
-              <div className="hero-assurance">
-                <span className="tiny-cross">+</span> Your production store
-                stays out of reach.
-              </div>
+              <p className="hero-assurance">
+                Your production store stays out of reach.
+              </p>
             </div>
-            {!phase && (
-              <div className="hero-art">
-                <div className="art-cross cross-one">+</div>
-                <div className="art-cross cross-two">+</div>
-                <div className="scene-caption">
-                  <span>PROOF SHELF / SPATIAL STUDY</span>
-                  <span>01—03</span>
-                </div>
-                {introDone ? (
-                  <ProofScene />
-                ) : (
-                  <img
-                    className="hero-placeholder"
-                    src="/brand/icon-dark.svg"
-                    alt=""
-                  />
-                )}
-                <div className="scene-footer">
-                  <span className="scene-dot" />
-                  Rehearse. Verify. Release.
-                  <small>Geometry illustration · not job progress</small>
-                </div>
-              </div>
-            )}
           </section>
-          {!phase && <ProofPassage enabled={introDone} />}
+          {!phase && <Story />}
           <section
             id="studio"
+            ref={studioRef}
             className="studio"
             aria-labelledby="studio-title"
+            data-scene="6"
+            data-align="top"
+            data-lead="110"
           >
             <div className="studio-heading">
               <div>
@@ -648,14 +723,6 @@ export default function App() {
                     </li>
                   ))}
                 </ol>
-                {desktop && phase > 0 && introDone && (
-                  <div className="rail-scene">
-                    <ProofScene phase={phase} />
-                    <span>
-                      PROOF SHELF / {active ? "IN MOTION" : "IN PERSPECTIVE"}
-                    </span>
-                  </div>
-                )}
                 <div className="boundary-note">
                   <span className="eyebrow">BUILT-IN BOUNDARIES</span>
                   <p>
@@ -1333,15 +1400,18 @@ export default function App() {
           </section>
         </main>
         <footer className="site-footer">
+          <div className="footer-line">
+            <p>Rehearse. Verify. Release.</p>
+            <span>Built for deliberate catalog changes.</span>
+            <a href="#top">Back to top ↑</a>
+          </div>
           <img
-            src="/brand/wordmark-light.svg"
+            className="footer-wordmark"
+            src="/brand/wordmark-dark.svg"
             alt="ShelfReady"
-            width="140"
-            height="35"
+            width="1332"
+            height="336"
           />
-          <p>Rehearse. Verify. Release.</p>
-          <span>Built for deliberate catalog changes.</span>
-          <a href="#top">Back to top ↑</a>
         </footer>
       </div>
     </>
