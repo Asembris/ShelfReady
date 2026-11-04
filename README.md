@@ -1,6 +1,11 @@
 # ShelfReady
 Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
+Phase 6 adds a local operator-reviewed Catalog Rescue CLI with explicit row holds
+and a deterministic/manual fallback. Its frozen evaluation did **not** demonstrate
+incremental agent value: see [measured results and reproduction](docs/catalog-rescue.md).
+It does not add public inputs or change the deployed demo.
+
 Phase 5 deployment preparation is on `feat/vultr-deployment`. See the
 [VM plan](deploy/PLAN.md). The two approved VMs are provisioned; deployment
 resumed on `fix/vultr-cloud-verification`. Caddy, public HTTPS/authentication and
