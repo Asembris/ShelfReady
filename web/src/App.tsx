@@ -373,7 +373,7 @@ export default function App() {
   }, [phase]);
   useEffect(() => {
     // The header needs a ground only where the working surface passes beneath it.
-    const studio = studioRef.current;
+    const studio = studioRef.current?.querySelector(".workspace-grid");
     if (!studio) return;
     const header = new IntersectionObserver(
       ([entry]) => setSolidHeader(entry.isIntersecting),

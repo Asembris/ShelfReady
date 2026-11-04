@@ -346,6 +346,11 @@ svg {
   z-index: -1;
   background: linear-gradient(180deg, var(--ground) 34%, transparent);
   pointer-events: none;
+  transition: opacity 0.35s linear;
+}
+/* Over the working sheet the veil would read as a dirty shadow on paper. */
+.site-header.is-solid::before {
+  opacity: 0;
 }
 .site-header.is-solid {
   background: var(--ground);
