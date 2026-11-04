@@ -128,7 +128,9 @@ def main():
                 raise RuntimeError('Instance firewall attachment/configuration mismatch')
             if instance.get('features'):
                 raise RuntimeError('Unexpected instance features; inspect before proceeding')
-            if instance['status'] == 'active' and ipaddress.ip_address(instance['main_ip']).is_global:
+            if (instance['status'] == 'active' and instance['power_status'] == 'running'
+                    and instance['server_status'] == 'ok'
+                    and ipaddress.ip_address(instance['main_ip']).is_global):
                 break
             time.sleep(4)
         else:
