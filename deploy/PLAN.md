@@ -89,6 +89,33 @@ with Caddy authentication. This is a bounded demo, not multi-tenant authorizatio
 6. GO only after those gates pass. A local regression or SSH mock is not cloud
    evidence. Keep access bounded, inspect usage, and review teardown after 72 hours.
 
+## Pre-public-launch requirements
+
+- **Two-file allowlist:** the public API currently accepts exactly
+  `fixtures/baseline.csv` as baseline and `fixtures/update.csv` as supplier
+  (CRLF/LF normalized). This is an intentional synthetic-only restriction, not
+  arbitrary supplier-upload support. Explicitly disclose it to demo invitees.
+  Do not remove it to make a live demonstration pass. Any additional scenario
+  requires deliberate review and tests before public access.
+- **Downloadable demo fixtures:** previously missing from the static build.
+  `npm run build` now copies those same source files to `web/dist/demo/` and
+  creates `/demo/index.html` with download links and role instructions. Before
+  launch verify authenticated downloads at the real HTTPS hostname, exact bytes
+  accepted by the API, and unauthenticated rejection. Local build success alone
+  does not satisfy this deployed gate.
+- **Public browser proof:** from `web/`, run `npm run test:public` with private
+  `SHELFREADY_PUBLIC_ORIGIN`, `DEMO_USER`, `DEMO_PASSWORD` environment variables.
+  The dedicated config starts no local servers or workers, accepts only HTTPS,
+  validates certificates, disables retries and keeps credential-bearing traces
+  off. It checks anonymous rejection, downloads both fixtures, rejects a wrong
+  origin, explicitly confirms mapping, waits for real staging and downloads
+  verified CSV/report. It consumes one persistent job quota slot. Correlate its
+  job with actual remote runner/native readback/cleanup evidence separately;
+  the browser alone does not prove which execution host was used.
+
+Until FQDN/admin CIDR are provided and the real deployment gates pass, public
+launch remains **NO-GO**. Provisioning permission is not verification evidence.
+
 Required owner inputs: DNS FQDN under your control and admin source IP/CIDR.
 VM configurations/rates are approved; management API key is configured locally
 (presence checked without printing its value). No billable action has been taken.
