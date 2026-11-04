@@ -30,6 +30,8 @@ preserves that reference and blocks an unchecked replacement job.
 
 ## Brand and rendering
 
+> The rendering described in this section was later replaced. See [The Archive](cinematic-world.md).
+
 The canonical `brand/` package remains unchanged. Predev/prebuild copy its SVGs,
 font and license to ignored `web/public/brand/`. Production copies were compared
 byte-for-byte with canonical sources. Navigation uses the compact horizontal

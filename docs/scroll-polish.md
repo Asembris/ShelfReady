@@ -1,5 +1,7 @@
 # Proof Passage: focused scroll refinement
 
+> Superseded: the owner rejected this design. See [The Archive](cinematic-world.md) for the current renderer and scroll model. Retained as history.
+
 Self-authored under explicit creative delegation, on `feat/ui-overhaul`.
 No new motion dependency, external runtime, generated asset, or infrastructure.
 

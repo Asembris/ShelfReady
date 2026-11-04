@@ -1,5 +1,7 @@
 # Cinematic refinement after reference review
 
+> Superseded: the owner rejected this design. See [The Archive](cinematic-world.md) for the current renderer and scroll model. Retained as history.
+
 Work remains on `feat/ui-overhaul`. Architecture, backend, native verification,
 authentication, frozen evaluations and infrastructure are unchanged.
 
