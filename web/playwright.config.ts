@@ -1,5 +1,9 @@
 import { defineConfig } from "@playwright/test";
 import path from "node:path";
+if (process.env.CI)
+  throw new Error(
+    "Default suite includes GPU and real inference. Use playwright.ci.config.ts in CI.",
+  );
 const root = path.resolve(import.meta.dirname, "..");
 const python =
   process.platform === "win32"

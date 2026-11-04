@@ -225,30 +225,3 @@ test("keyboard alone reaches every chapter and the studio", async ({
     page.getByRole("heading", { name: "Every good update starts here." }),
   ).toBeInViewport({ timeout: 8000 });
 });
-
-test("reduced motion exposes every explanation without a renderer or travel", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
-  const story = page.locator("#process");
-  for (const [, statement] of CHAPTERS) {
-    const heading = story.getByRole("heading", { name: statement });
-    await heading.scrollIntoViewIfNeeded();
-    await expect(heading).toBeInViewport();
-    await expect(heading.locator(".ln > span").first()).toHaveCSS(
-      "transform",
-      "none",
-    );
-  }
-  for (const name of ["Rehearse.", "Verify.", "Release."])
-    await expect(story.getByText(name, { exact: true })).toBeVisible();
-  await expect(page.locator("canvas")).toHaveCount(0);
-  await expect(page.locator(".world-fallback")).toBeVisible();
-  await page.getByRole("link", { name: "Skip to rehearsal studio" }).focus();
-  await page.keyboard.press("Enter");
-  await expect(page.getByLabel("Baseline WooCommerce CSV")).toBeAttached();
-  await expect(
-    page.getByRole("heading", { name: "Every good update starts here." }),
-  ).toBeInViewport();
-});

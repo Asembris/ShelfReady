@@ -1,3 +1,4 @@
+if(process.env.CI)throw new Error('Public live journeys are not permitted in CI.');
 import {defineConfig} from '@playwright/test';
 const baseURL=process.env.SHELFREADY_PUBLIC_ORIGIN;
 const username=process.env.DEMO_USER;
