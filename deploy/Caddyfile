@@ -11,7 +11,9 @@
         Cache-Control no-store
     }
     @internal path /docs* /redoc* /openapi.json
-    respond @internal 404
+    handle @internal {
+        respond 404
+    }
     handle /api/* {
         reverse_proxy 127.0.0.1:18765
     }

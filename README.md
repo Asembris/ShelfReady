@@ -3,9 +3,12 @@ Rehearse supplier catalog updates in a disposable WooCommerce store before they 
 
 Phase 5 deployment preparation is on `feat/vultr-deployment`. See the
 [VM plan](deploy/PLAN.md). The two approved VMs are provisioned; deployment
-stopped at a Caddy validation failure with application services inactive and web
-ports closed. See [live evidence and billing deadline](docs/deployment.md).
-Public HTTPS and remote-runner execution are not yet verified.
+resumed on `fix/vultr-cloud-verification`. Caddy, public HTTPS/authentication and
+remote containment passed. The native CSV ownership failure was diagnosed and
+fixed privately; one fresh public upload-to-download journey passed with real
+Vultr inference, remote execution and independent SQL. Services and web access
+are closed again between tests. GO applies to the tested bounded synthetic demo.
+See [live evidence, limitations and billing deadline](docs/deployment.md).
 Public launch requires verified service-account SSH access, authentication and
 downloadable synthetic fixtures. The demo accepts only the supplied baseline and
 supplier pair; after deployment invitees obtain them at `/demo/index.html`.

@@ -5,11 +5,12 @@ import secrets
 import time
 from pathlib import Path
 
-from shelfready import store
+from shelfready import store, native_diagnostics
 from shelfready.catalog import csv_text
 from shelfready.verification import verify_snapshot
 
 PROJECT = "shelfready-rehearsal"
+STAGE_CSV = "umask 077; cat > /tmp/catalog.csv"
 
 
 def compose(*args, **kwargs):
@@ -26,6 +27,11 @@ def cleanup():
 
 
 def rehearse(baseline, updates, directory, *, expected_updates=None):
+    with native_diagnostics.scope(directory):
+        return _rehearse(baseline, updates, directory, expected_updates=expected_updates)
+
+
+def _rehearse(baseline, updates, directory, *, expected_updates=None):
     package = store.RUNTIME / f"woocommerce.{store.WOO_VERSION}.zip"
     if not package.exists() or hashlib.sha256(package.read_bytes()).hexdigest() != store.WOO_SHA256:
         raise RuntimeError("Run the Phase 1 store setup to cache the pinned plugin and credentials")
@@ -65,7 +71,10 @@ def rehearse(baseline, updates, directory, *, expected_updates=None):
         for rows, update in [(baseline, False), (updates, True)]:
             path = directory / "catalog.csv"
             path.write_text(csv_text(rows, baseline=not update), encoding="utf-8")
-            store.command(["docker", "cp", str(path), f"{container}:/tmp/catalog.csv"])
+            # docker cp preserves mode 0600 but creates a root-owned destination.
+            # Write as the trusted CLI UID instead; CSV bytes never enter shell code.
+            compose("exec", "-T", "cli", "sh", "-c",
+                    STAGE_CSV, input=path.read_text(encoding="utf-8"))
             result = compose("exec", "-T", "-e", f"IMPORT_UPDATE={int(update)}", "cli",
                              "wp", "eval-file", "/tmp/import.php")
             imported = json.loads(result)
