@@ -11,6 +11,8 @@ ACTIVE = ContextVar('native_diagnostics', default=None)
 
 
 def identity(args):
+    if 'cli' in args and 'umask 077; cat > /tmp/catalog.csv' in args:
+        return 'cli.stage-csv'
     if args[:2] == ['docker', 'cp']:
         return 'copy.' + str(args[-1]).split('/')[-1]
     if 'wp' in args:

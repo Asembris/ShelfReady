@@ -10,6 +10,7 @@ from shelfready.catalog import csv_text
 from shelfready.verification import verify_snapshot
 
 PROJECT = "shelfready-rehearsal"
+STAGE_CSV = "umask 077; cat > /tmp/catalog.csv"
 
 
 def compose(*args, **kwargs):
@@ -70,7 +71,10 @@ def _rehearse(baseline, updates, directory, *, expected_updates=None):
         for rows, update in [(baseline, False), (updates, True)]:
             path = directory / "catalog.csv"
             path.write_text(csv_text(rows, baseline=not update), encoding="utf-8")
-            store.command(["docker", "cp", str(path), f"{container}:/tmp/catalog.csv"])
+            # docker cp preserves mode 0600 but creates a root-owned destination.
+            # Write as the trusted CLI UID instead; CSV bytes never enter shell code.
+            compose("exec", "-T", "cli", "sh", "-c",
+                    STAGE_CSV, input=path.read_text(encoding="utf-8"))
             result = compose("exec", "-T", "-e", f"IMPORT_UPDATE={int(update)}", "cli",
                              "wp", "eval-file", "/tmp/import.php")
             imported = json.loads(result)
