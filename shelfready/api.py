@@ -5,8 +5,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.concurrency import run_in_threadpool
 
-from shelfready import catalog, jobs
+from shelfready import catalog, jobs, interpretation
 
 app = FastAPI()
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"])
@@ -59,6 +60,37 @@ class Confirmation(BaseModel):
     baseline: dict[str, str]
     supplier: dict[str, str]
     replace_price_and_stock_same_currency: bool
+    interpretation: dict | None = None
+
+
+@app.post("/api/jobs/{key}/interpret")
+async def interpret(key: str, request: Request):
+    try:
+        intent = interpretation.Intent.model_validate(await body(request)).model_dump()
+        row = load(key)
+        if row["state"] != "mapping":
+            raise ValueError("Interpretation is allowed only before confirmation")
+        data = json.loads(row["data"])
+        with jobs.connect() as db:
+            # One bounded proposal per upload, within the persistent upload quota.
+            if db.execute("SELECT 1 FROM interpretations WHERE job_id=?", (key,)).fetchone():
+                raise ValueError("This upload already requested an interpretation")
+            db.execute("INSERT INTO interpretations VALUES (?,?,NULL)", (key, json.dumps(intent)))
+        sku_headers = catalog.candidates(data["baseline"], "baseline")["sku"]
+        skus = ([r[data["baseline"]["headers"].index(sku_headers[0])] for r in data["baseline"]["rows"]]
+                if len(sku_headers) == 1 else [])
+        proposal, evidence = await run_in_threadpool(
+            interpretation.propose, data["supplier"], skus, intent)
+        result = {"proposal": proposal, "intent": intent, "inference": evidence}
+        with jobs.connect() as db:
+            db.execute("UPDATE interpretations SET result=? WHERE job_id=?", (json.dumps(result), key))
+        return result
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from None
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(502, "Interpretation failed; review manually or upload again") from None
 
 
 @app.post("/api/jobs/{key}/confirm")
