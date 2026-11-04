@@ -6,6 +6,13 @@ execution, so mandatory completion parity was not met. A stronger deterministic
 reviewer already covered the scenario's actionable risks without correction.
 Do not present the manual fallback as an agent-review victory.
 
+The **verified deterministic reviewer/manual fallback is now the default CLI
+experience**. Model advice requires explicit `--experimental-agent-review` and
+is labelled experimental in the terminal and saved review notes. The existing
+`--baseline-review` flag remains a compatibility alias for the default. This
+changes review selection only: the separately confirmed `execute` command still
+uses Vultr-generated transformations with the existing trusted verification gates.
+
 ## Scope and freeze
 
 Started from clean main `8d99994`, fast-forwarded from origin, on
@@ -90,6 +97,16 @@ or editing this primary result. The raw summary's numeric correction-gain defaul
 of zero is not an observed agent correction score; the agent score is unavailable.
 Completion parity is false regardless, so the mandatory GO gate fails.
 
+**Protocol limitation: the frozen GO threshold was mathematically unattainable
+on this case once the deterministic baseline achieved zero corrections.**
+Correction counts are nonnegative. With baseline corrections B = 0 and agent
+corrections A >= 0, the required improvement B - A >= 2 cannot hold: B - A <= 0.
+Even a perfect agent could only tie zero corrections. This is a weakness of the
+case/acceptance design, not evidence of intrinsic agent inferiority. The agent's
+separate completion-parity failure remains an observed limitation. The frozen
+protocol, original results and evidence are unchanged; no retrospective threshold
+or rescore is substituted. There is still no demonstrated agent superiority.
+
 The reviewer in this evaluation is a frozen scripted oracle, not a person.
 Extra model warnings would count as corrections and be removed by that oracle
 identically before downstream execution; missing warnings remain enforced by
@@ -126,10 +143,12 @@ Use the existing local setup, pinned images/plugin and ignored inference key.
 Do not run tests, evaluations, another worker or rehearsals concurrently.
 
 ```powershell
-# Model review; may fail closed. No transformation or import runs here.
+# Verified deterministic reviewer / manual fallback (default; no review inference):
 .venv/Scripts/python.exe -m shelfready.rescue review evaluation/rescue/case.json artifacts/rescue/my-review
-# Deterministic review / explicit manual fallback (new directory):
+# Backward-compatible explicit alias for the same verified reviewer (new directory):
 .venv/Scripts/python.exe -m shelfready.rescue review evaluation/rescue/case.json artifacts/rescue/my-fallback --baseline-review
+# Experimental model advice; may fail closed. No transformation/import runs here:
+.venv/Scripts/python.exe -m shelfready.rescue review evaluation/rescue/case.json artifacts/rescue/my-experiment --experimental-agent-review
 ```
 
 Read `review.txt`, inspect the actual CSV, and copy/edit `decisions.example.json`
@@ -163,7 +182,8 @@ Stop this spike. The case demonstrates explicit human authority and safe partial
 release with a useful deterministic/manual fallback, but **does not demonstrate
 incremental agent value**. Failed parity, no observed correction reduction,
 missing review telemetry and the single authored case preclude GO. Model review
-should remain experimental. No UI redesign, animations, production integration,
+is explicitly opt-in and experimental; the verified deterministic/manual fallback
+is the default. No UI redesign, animations, production integration,
 new public inputs or expanded infrastructure were added.
 
 Final checks: **114 tests passed in 72.89 seconds**, one upstream Starlette/AnyIO
@@ -180,3 +200,11 @@ decision correct. English caveat rules are conservative, not complete semantic
 understanding. A misleading note or mistaken operator can still choose an
 incorrect business interpretation. The evaluation uses a known scripted reviewer;
 it provides no evidence about real operator error rates or labor savings.
+
+Phase 6 cleanup verification: **117 tests passed in 112.75 seconds**, one upstream
+Starlette/AnyIO deprecation warning. Ruff, TypeScript/Vite build, whitespace and
+tracked-file credential checks passed. Regression coverage verifies the default
+never invokes model review, the existing alias behaves identically, experimental
+advice requires explicit opt-in and is labelled, and conflicting flags fail before
+work. All 24 frozen-case/protocol and retained rescue-evidence files were checked
+byte-for-byte unchanged. No evaluation or inference was rerun for this cleanup.
