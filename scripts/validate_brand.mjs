@@ -15,7 +15,11 @@ const assets=[];
 for(const asset of manifest.assets){
  assert.equal(path.basename(asset.file),asset.file);
  const data=await fs.readFile(path.join(root,asset.file));
- assert.equal(sha(data),asset.sha256,`${asset.file}: differs from approved artwork`);
+ // The approved Windows manifest predates Git's LF-only SVG attribute. Accept
+ // that serialization's CRLF hash as well, without changing artwork or hashes.
+ const approved = sha(data) === asset.sha256 ||
+  sha(Buffer.from(data.toString().replace(/\r?\n/g, '\r\n'))) === asset.sha256;
+ assert.ok(approved,`${asset.file}: differs from approved artwork`);
  assets.push({...asset,svg:data.toString()});
 }
 assert.equal(sha(await fs.readFile(path.join(root,manifest.font.file))),manifest.font.sha256);
@@ -100,6 +104,9 @@ try{
  const out=path.resolve('artifacts/brand/production-validation');await fs.mkdir(out,{recursive:true});
  await page.screenshot({path:path.join(out,'desktop.png'),fullPage:true});
  await page.setViewportSize({width:390,height:1000});
+ // Picture source selection is asynchronous after a viewport change.
+ await page.waitForFunction(()=>[...document.querySelectorAll('.primary,.signature')]
+  .every(img=>new URL(img.currentSrc).pathname.includes('/horizontal-')));
  await page.evaluate(async()=>{
   await Promise.all([...document.images].map(img=>img.decode()));
   for(const img of document.querySelectorAll('.primary,.signature')){
