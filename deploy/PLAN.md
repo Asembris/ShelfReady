@@ -1,8 +1,10 @@
 # Phase 5 approval-ready deployment plan
 
 Status: VM configurations approved by owner November 4, 2026 for an initial
-72-hour evaluation, with no paid add-ons. NOT PROVISIONED: owner confirmation of
-the detected admin IPv4 /32 remains required. Owner approved a temporary sslip.io
+72-hour evaluation, with no paid add-ons. PROVISIONED after the owner confirmed
+the admin IPv4 /32. Deployment STOPPED at failed Caddy validation; see
+[live evidence, IDs, billing and review deadline](../docs/deployment.md).
+Owner approved a temporary sslip.io
 FQDN derived from the control public IPv4. Recheck pricing/configuration before creation and stop
 if either changes. Public HTTPS, remote SSH containment and cloud cleanup
 have NOT been verified. Deployment verdict is NO-GO until approval and live gates.
@@ -117,14 +119,16 @@ with Caddy authentication. This is a bounded demo, not multi-tenant authorizatio
 Until the admin CIDR is confirmed and the real deployment gates pass, public
 launch remains **NO-GO**. Provisioning permission is not verification evidence.
 
-Required owner input: explicit confirmation of the detected admin IPv4 /32.
+The detected admin IPv4 /32 was explicitly confirmed before provisioning.
 Use `CONTROL_IPV4.sslip.io` as the temporary demo hostname after provisioning;
 verify its DNS A record equals the assigned control IPv4 and obtain/verify a
 valid HTTPS certificate before enabling demo access. Do not bypass TLS or DNS
 failures. This third-party hostname is temporary and depends on its operator
 and certificate issuance limits; see [sslip.io documentation](https://sslip.io/).
 VM configurations/rates are approved; management API key is configured locally
-(presence checked without printing its value). No billable action has been taken.
+(presence checked without printing its value). Exactly the approved two VMs are
+now allocated and billable. The read-only preflight below describes the earlier
+state, not their current provisioning status.
 
 ## Service-account SSH installation gate
 

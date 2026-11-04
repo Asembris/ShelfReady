@@ -2,9 +2,10 @@
 Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
 Phase 5 deployment preparation is on `feat/vultr-deployment`. See the
-[approval-ready VM plan and current evidence](deploy/PLAN.md). No cloud deployment
-or public HTTPS/remote-runner verification is claimed. The two VM configurations
-are approved for 72 hours; provisioning awaits the demo FQDN and admin CIDR.
+[VM plan](deploy/PLAN.md). The two approved VMs are provisioned; deployment
+stopped at a Caddy validation failure with application services inactive and web
+ports closed. See [live evidence and billing deadline](docs/deployment.md).
+Public HTTPS and remote-runner execution are not yet verified.
 Public launch requires verified service-account SSH access, authentication and
 downloadable synthetic fixtures. The demo accepts only the supplied baseline and
 supplier pair; after deployment invitees obtain them at `/demo/index.html`.
