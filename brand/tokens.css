@@ -1,0 +1,25 @@
+/* Approved Proof Shelf identity. Opt-in only: this stylesheet is not loaded by the app. */
+@font-face {
+  font-family: "ShelfReady Inter";
+  src: url("./fonts/Inter-variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --sr-brand-cobalt: #164bff;
+  --sr-brand-navy: #102044;
+  --sr-brand-dark-surface: #0a1530;
+  --sr-brand-inverse-ink: #f1f5ff;
+  --sr-brand-inverse-cobalt: #6c8cff;
+  --sr-brand-light-surface: #ffffff;
+  --sr-font-sans: "ShelfReady Inter", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sr-font-weight-body: 400;
+  --sr-font-weight-label: 500;
+  --sr-font-weight-heading: 600;
+  --sr-font-weight-wordmark: 640;
+  --sr-brand-clearspace: 0.25; /* Ratio of the icon's 96-unit canvas, not a CSS length. */
+  --sr-brand-icon-min-size: 16px;
+  --sr-brand-navbar-icon-size: 32px;
+}
