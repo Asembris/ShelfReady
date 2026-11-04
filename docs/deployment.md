@@ -2,7 +2,7 @@
 
 Status: resumed on `fix/vultr-cloud-verification` from merged main `9abf33e`.
 Only the existing approved VMs are used; the billing deadline is unchanged.
-**NO-GO for public demo**
+Now **STOPPED at a genuine native-staging failure**. **NO-GO for public demo**
 until HTTPS, authentication, remote isolation, native staging/readback, browser
 and cleanup gates pass. This document records live operations, not simulated
 cloud evidence. Phase 3/4 benchmark results are unchanged.
@@ -114,7 +114,98 @@ Evidence: `artifacts/cloud/caddy-corrected-validation.log`,
 `remote-container-inspection.json`. These are live remote observations, not
 synthetic mocks. Public HTTPS/native staging/browser gates are still pending.
 
-## Reproduction and teardown
+## Public verification and genuine end-to-end failure
+
+The first HTTPS readiness attempt failed: UFW on the supplied Ubuntu images
+allowed only SSH, although the provider firewall had the correct web rules.
+`deploy/configure-firewall.sh` aligned the host rules without disabling UFW.
+It also removed the vendor's unrestricted host SSH rules; both layers now use
+the approved /32 sources. Provider restrictions protected SSH throughout.
+The runner received no web allowances. A second check found that Caddy's SPA
+fallback swallowed the documentation 404; using an explicit mutually exclusive
+`handle` fixed it. These operational failures are retained, not reported as passes.
+
+After those corrections, real HTTPS passed with TLS 1.3 and a valid Let's Encrypt
+YE2 certificate for `95.179.218.142.sslip.io`, expiring February 2, 2027. Certificate
+validation was never disabled. Anonymous homepage/API/download/fixture requests
+and wrong passwords returned 401; authenticated homepage returned 200; hidden
+documentation returned 404; wrong-origin POST returned 403; modified supplier
+upload returned 422; oversized body returned 413. Both downloadable fixtures
+matched source bytes. Evidence: `https-auth-gates.json`, host firewall logs and
+`control-web-firewall.json` under ignored `artifacts/cloud/`.
+
+The first public Playwright run failed **before upload** because its supposedly
+anonymous request context inherited configured Basic Auth credentials. The
+harness now explicitly clears `httpCredentials`. That failure is preserved in
+`artifacts/cloud/first-browser-harness-failure/`; independent HTTP checks had
+already shown real anonymous denial. This is a test setup correction, not an
+authentication bypass or a passed end-to-end result.
+
+The corrected public Playwright run passed those access checks and uploaded the
+two approved fixtures with explicit mapping confirmation. Job
+`09db378d210f454e830d78cd6d899919` made real Vultr request
+`chatcmpl-285ac8e7-d421-4f47-a986-024258dfeea1` to `qwen3.8-27b`: 298 prompt +
+537 completion = **835 tokens**. Inference USD cost remains unknown. One generated
+transformation passed trusted validation and executed in runner container
+`106928aae54d`; independent inspection confirmed its isolation settings.
+
+The job then failed with `RuntimeError` in the native staging path. Observers
+saw the pinned MariaDB/WordPress/WP-CLI containers, with no published store ports,
+but obtained **no product SQL snapshots**. The worker report omits the failing
+native command and stderr; retained Docker events do not identify its cause.
+Do not infer a specific cause, claim persisted-value/readback verification, or
+retry the model to manufacture a successful run. Next work requires bounded,
+credential-safe native-import diagnostics and an authorized reproduction.
+
+The public browser test therefore **FAILED**, with no verified CSV or change
+report downloaded. Both failed-job download endpoints returned 409. The stored
+job has `csv=NULL`, cleared input data and confirmation, and one consumed upload
+quota slot. No quota was reset. Independent observations confirmed no remaining
+runner containers and no native store containers, volumes or networks. This
+verifies the real failure cleanup path, **not a successful cloud rehearsal**.
+
+After the genuine failure, no further jobs or generated-code attempts ran.
+Caddy/API/worker were stopped and disabled; public provider ports 80/443 were
+removed, leaving only the approved SSH /32 rules. UFW remains enabled. Two
+existing VMs remain allocated/running, with no added resources. At November 4
+13:50:28 UTC, their API pending charges were **$0.06 control + $0.03 runner =
+$0.09** (not final invoices). Review remains November 7, 12:42 UTC / 13:42 Paris.
+
+Evidence also includes `failed-public-job.json`, `public-playwright.log`,
+`browser-native-observation.json`, `browser-runner-observation.json`,
+`failed-job-download-denial.json`, `native-failure-events.json`,
+`final-closed-state.json` and role `*-final-cleanup.log` under `artifacts/cloud/`.
+No credentials or generated artifacts are committed. Phase 3/4 evidence and
+competitive conclusions remain unchanged.
+
+## Current verdict and reproduction
+
+**NO-GO** for deployment completion or public launch. Caddy, valid HTTPS,
+authentication, upload restrictions, real inference, remote sandbox containment
+and failure cleanup have live evidence. Successful native import, independent
+persisted product readback and a passing public upload-to-download journey do not.
+Live request-rate exhaustion, lifetime-quota exhaustion and concurrency rejection
+were not tested after the genuine failure; their local tests/configuration must
+not be labelled live proof. A concurrency probe found no still-active job and
+made no confirmation request. Do not reset quota or weaken validators to pass.
+
+On authorized resumption, inspect only the two recorded IDs; do not run
+`deploy/provision.py`. Diagnose native staging privately before opening the demo.
+Use control venv Python with `deploy/validate_caddy.py` for literal environment
+validation. Run `python -m deploy.verify_remote` as the control service account
+with its private service environment, then verify host cleanup independently.
+For public verification, supply the private demo environment to
+`npm run test:public` from `web/`; this starts no local services, retains strict
+TLS and has no automatic retries. The two-file allowlist remains intentional.
+Keep every failed run and record any corrective rerun separately.
+
+Current local full suite: **100 passed in 126.27 seconds**, one upstream warning;
+Ruff, production TypeScript/Vite build and `git diff --check` passed. The browser
+harness now saves the job ID and terminal status before asserting success, so
+future failures retain useful evidence; that retention-only change was not used
+to rerun this stopped cloud job.
+
+## Previous checks and teardown
 
 Final local checks: **100 passed in 79.82 seconds**, one upstream Starlette/AnyIO
 deprecation warning; Ruff and `git diff --check` passed. The TypeScript/Vite
