@@ -35,11 +35,13 @@ def execute(code, data):
 def dispatch(payload):
     host = os.environ.get("RUNNER_HOST", "")
     key = os.environ.get("RUNNER_SSH_KEY_PATH", "")
+    known_hosts = os.environ.get("RUNNER_KNOWN_HOSTS_PATH", "")
     if not re.fullmatch(r"[A-Za-z0-9_.@-]+", host) or host.startswith("-") or not key:
         raise RuntimeError("Configure the fixed SSH runner or explicitly opt into local development")
+    trust = ["-oUserKnownHostsFile=" + known_hosts] if known_hosts else []
     proc = subprocess.run([
         "ssh", "-T", "-oBatchMode=yes", "-oStrictHostKeyChecking=yes", "-oConnectTimeout=10",
-        "-i", key, host, "python3 -m shelfready.runner",
+        "-oIdentitiesOnly=yes", *trust, "-i", key, host, "python3 -m shelfready.runner",
     ], input=json.dumps(payload), text=True,
         capture_output=True, timeout=60)
     if proc.returncode or len(proc.stdout.encode()) > 400000:

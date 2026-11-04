@@ -1,5 +1,10 @@
 """Loopback-only local API. UUIDs are download capabilities; no public deployment."""
 import json
+import hashlib
+import os
+import time
+from pathlib import Path
+from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
@@ -10,12 +15,25 @@ from starlette.concurrency import run_in_threadpool
 from shelfready import catalog, jobs, interpretation
 
 app = FastAPI()
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"])
+PUBLIC_ORIGIN = os.getenv("SHELFREADY_PUBLIC_ORIGIN", "")
+if PUBLIC_ORIGIN and (urlparse(PUBLIC_ORIGIN).scheme != "https" or not urlparse(PUBLIC_ORIGIN).hostname):
+    raise ValueError("Public origin must be an explicit HTTPS origin")
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"] +
+                   ([urlparse(PUBLIC_ORIGIN).hostname] if PUBLIC_ORIGIN else []))
+_window = [0, 0]
 
 
 @app.middleware("http")
 async def local_only(request, call_next):
+    if PUBLIC_ORIGIN:
+        minute = int(time.monotonic() // 60)
+        if _window[0] != minute:
+            _window[:] = [minute, 0]
+        _window[1] += 1
+        if _window[1] > 120:
+            return Response("Demo request limit reached", status_code=429)
     if request.method == "POST" and request.headers.get("origin") not in (
+            PUBLIC_ORIGIN,
             None, "http://localhost:5173", "http://127.0.0.1:5173",
             "http://localhost:18766", "http://127.0.0.1:18766",
             "http://localhost:18765", "http://127.0.0.1:18765",
@@ -48,6 +66,13 @@ async def upload(request: Request):
     raw = await body(request)
     try:
         data = {kind: catalog.parse(raw[kind].encode("utf-8")) for kind in catalog.FIELDS}
+        if PUBLIC_ORIGIN:
+            # Public demo accepts only exact operator-reviewed synthetic fixtures.
+            for kind, path in (("baseline", "fixtures/baseline.csv"), ("supplier", "fixtures/update.csv")):
+                digest = hashlib.sha256(raw[kind].encode("utf-8").replace(b"\r\n", b"\n")).digest()
+                expected = hashlib.sha256(Path(path).read_bytes().replace(b"\r\n", b"\n")).digest()
+                if digest != expected:
+                    raise ValueError("Public demo accepts only the supplied synthetic fixtures")
         key = jobs.create(data)
     except (ValueError, KeyError, TypeError, AttributeError) as error:
         raise HTTPException(422, str(error)) from None
