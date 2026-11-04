@@ -1,0 +1,20 @@
+Northbridge Trade Stock List - authored synthetic export
+Quote date,2026-11-04
+SECTION,Hardware,EUR,each
+SKU,Description,Pack,EUR each,Available each,Note
+00017,Steel bracket,10,13.5500,7,N1
+AB-020,Blue bin,4,4.00,2,
+SKU,Description,Pack,EUR each,Available each,Note
+DUP-9,Cable warehouse east,1,5.00,3,
+DUP-9,Cable warehouse west,1,5.50,4,
+
+SECTION,Storage,EUR,unit not specified
+SKU,Description,Pack,Price,Stock,Note
+CASE-5,Tray,12,24.00,6,
+SECTION,Quality release,EUR,each
+SKU,Description,Pack,EUR each,Available each,Note
+QC-7,Clamp,1,8.00,9,N2
+
+NOTES
+NOTE,N1,Stock is available individual units; pack column is ordering information only
+NOTE,N2,Quality inspection pending - hold until supplier confirms release

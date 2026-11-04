@@ -1,0 +1,227 @@
+{
+  "base": {
+    "data_rows": [
+      {
+        "row": 5,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": false
+      },
+      {
+        "row": 6,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": false
+      },
+      {
+        "row": 8,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 9,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 13,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 16,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      }
+    ],
+    "approved_rows": [
+      5,
+      6
+    ],
+    "known_skus": [
+      "00017",
+      "AB-020",
+      "DUP-9",
+      "CASE-5",
+      "QC-7"
+    ]
+  },
+  "replay": {
+    "data_rows": [
+      {
+        "row": 5,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": false
+      },
+      {
+        "row": 6,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": false
+      },
+      {
+        "row": 8,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 9,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 13,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 16,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      }
+    ],
+    "approved_rows": [
+      5,
+      6
+    ],
+    "known_skus": [
+      "00017",
+      "AB-020",
+      "DUP-9",
+      "CASE-5",
+      "QC-7"
+    ]
+  },
+  "drift": {
+    "data_rows": [
+      {
+        "row": 5,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": false
+      },
+      {
+        "row": 6,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": false
+      },
+      {
+        "row": 8,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": true
+      },
+      {
+        "row": 9,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": true
+      },
+      {
+        "row": 13,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": true
+      },
+      {
+        "row": 16,
+        "sku_col": 1,
+        "price_col": 5,
+        "stock_col": 4,
+        "hold": true
+      }
+    ],
+    "approved_rows": [
+      5,
+      6
+    ],
+    "known_skus": [
+      "00017",
+      "AB-020",
+      "DUP-9",
+      "CASE-5",
+      "QC-7"
+    ]
+  },
+  "currency": {
+    "data_rows": [
+      {
+        "row": 5,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 6,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 8,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 9,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 13,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      },
+      {
+        "row": 16,
+        "sku_col": 1,
+        "price_col": 4,
+        "stock_col": 5,
+        "hold": true
+      }
+    ],
+    "approved_rows": [],
+    "known_skus": [
+      "00017",
+      "AB-020",
+      "DUP-9",
+      "CASE-5",
+      "QC-7"
+    ]
+  }
+}
