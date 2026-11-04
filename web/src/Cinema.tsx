@@ -37,7 +37,9 @@ function readAnchors(): Anchor[] {
       const y =
         el.dataset.align === "top"
           ? top - Number(el.dataset.lead ?? 0)
-          : top + box.height / 2 - height * focus;
+          : el.dataset.align === "end"
+            ? top + box.height - height
+            : top + box.height / 2 - height * focus;
       return [Math.max(0, y), Number(el.dataset.scene)];
     })
     .sort((a, b) => a[1] - b[1]);

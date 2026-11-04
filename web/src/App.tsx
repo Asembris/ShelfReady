@@ -277,6 +277,8 @@ export default function App() {
   const [current, setCurrent] = useState("top");
   const heroRef = useRef<HTMLElement>(null);
   const studioRef = useReveal<HTMLElement>();
+  // The sign-off waits until it has risen clear of the departing sheet.
+  const closing = useReveal<HTMLDivElement>("0px 0px -46% 0px");
   const active = !!status && ["queued", "running"].includes(status.state);
   const verified = !!status && ["complete", "partial"].includes(status.state);
   const phase = status
@@ -688,7 +690,10 @@ export default function App() {
                 Disposable WooCommerce
               </span>
             </div>
-            <div className="workspace-grid">
+            <div
+              className="workspace-grid"
+              {...(phase ? {} : { "data-scene": 6.02, "data-align": "end" })}
+            >
               <aside className="workspace-rail" aria-label="Rehearsal stages">
                 <ol className="stage-list">
                   {[
@@ -1399,19 +1404,40 @@ export default function App() {
             </div>
           </section>
         </main>
-        <footer className="site-footer">
+        <footer
+          className="site-footer"
+          {...(phase ? {} : { "data-scene": 7, "data-align": "end" })}
+        >
+          <div className="footer-close">
+            <div ref={closing} className="footer-sign">
+              {phase ? (
+                <img
+                  src="/brand/horizontal-dark.svg"
+                  width="149"
+                  height="32"
+                  alt="ShelfReady"
+                />
+              ) : (
+                <picture>
+                  <source
+                    media="(max-width: 359px)"
+                    srcSet="/brand/horizontal-dark.svg"
+                  />
+                  <img
+                    className="footer-lockup"
+                    src="/brand/primary-dark.svg"
+                    width="377"
+                    height="244"
+                    alt="ShelfReady. Rehearse. Verify. Release."
+                  />
+                </picture>
+              )}
+            </div>
+          </div>
           <div className="footer-line">
-            <p>Rehearse. Verify. Release.</p>
             <span>Built for deliberate catalog changes.</span>
             <a href="#top">Back to top ↑</a>
           </div>
-          <img
-            className="footer-wordmark"
-            src="/brand/wordmark-dark.svg"
-            alt="ShelfReady"
-            width="1332"
-            height="336"
-          />
         </footer>
       </div>
     </>

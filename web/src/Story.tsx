@@ -1,17 +1,19 @@
 import { ReactNode, useEffect, useRef } from "react";
 
 /** Reveal when a block enters the frame; hide again when it leaves, so reversing replays cleanly. */
-export function useReveal<T extends HTMLElement>() {
+export function useReveal<T extends HTMLElement>(
+  rootMargin = "-14% 0px -14% 0px",
+) {
   const ref = useRef<T>(null);
   useEffect(() => {
     const el = ref.current!;
     const observer = new IntersectionObserver(
       ([entry]) => el.classList.toggle("in-frame", entry.isIntersecting),
-      { rootMargin: "-14% 0px -14% 0px" },
+      { rootMargin },
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [rootMargin]);
   return ref;
 }
 
