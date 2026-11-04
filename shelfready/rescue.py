@@ -215,7 +215,11 @@ def main():
     parser.add_argument('input', type=Path, help='JSON with baseline/supplier CSV strings and explicit intent')
     parser.add_argument('directory', type=Path, help='New review directory, or existing reviewed directory')
     parser.add_argument('--decisions', type=Path)
-    parser.add_argument('--baseline-review', action='store_true', help='Deterministic review/manual fallback')
+    review_mode = parser.add_mutually_exclusive_group()
+    review_mode.add_argument('--baseline-review', action='store_true',
+                             help='Compatibility alias for the default verified deterministic reviewer')
+    review_mode.add_argument('--experimental-agent-review', action='store_true',
+                             help='Opt into experimental model advice; no demonstrated superiority')
     parser.add_argument('--local-docker', action='store_true')
     args = parser.parse_args()
     document = json.loads(args.input.read_text())
@@ -223,10 +227,14 @@ def main():
     if args.action == 'review':
         args.directory.mkdir(parents=True, exist_ok=False)
         try:
-            if args.baseline_review:
-                proposal, evidence = baseline_review(data, document['intent']), {'model_calls': 0}
-            else:
+            if args.experimental_agent_review:
+                label = 'EXPERIMENTAL agent review — no demonstrated superiority'
+                print(label)
                 proposal, evidence = agent_review(data, document['intent'])
+            else:
+                label = 'Verified deterministic reviewer / manual fallback'
+                print(label)
+                proposal, evidence = baseline_review(data, document['intent']), {'model_calls': 0}
         except ValueError as error:
             (args.directory/'failed-review.json').write_text(json.dumps({
                 'error': str(error)[:300], 'inference': getattr(error, 'inference', {})}, indent=2))
@@ -236,7 +244,7 @@ def main():
         (args.directory/'input.json').write_text(json.dumps(document))
         draft = {'confirm': False, 'mapping': proposal['mapping'], 'approve': [], 'acknowledge': {}}
         (args.directory/'decisions.example.json').write_text(json.dumps(draft, indent=2))
-        lines = ['CATALOG RESCUE — OPERATOR REVIEW',
+        lines = ['CATALOG RESCUE — OPERATOR REVIEW', label,
                  'Confirm source columns, then approve exact data-row IDs. Nothing runs on review.',
                  'Duplicate/unknown/invalid rows cannot be approved. No inferred quantities.',
                  json.dumps(proposal['mapping']), *proposal['questions']]

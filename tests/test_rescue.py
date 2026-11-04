@@ -59,13 +59,46 @@ def test_ambiguous_business_basis_cannot_enter_rescue():
         rescue.tables(case)
 
 
-def test_operator_review_creates_non_authorizing_draft(tmp_path, monkeypatch):
+@pytest.mark.parametrize('flags', [[], ['--baseline-review']])
+def test_operator_review_creates_non_authorizing_draft(tmp_path, monkeypatch, flags):
     directory = tmp_path/'review'
+    def forbidden(*args):
+        pytest.fail('Deterministic review must never call the model')
+    monkeypatch.setattr(rescue, 'agent_review', forbidden)
     monkeypatch.setattr('sys.argv', ['rescue', 'review', 'evaluation/rescue/case.json',
-                                  str(directory), '--baseline-review'])
+                                  str(directory), *flags])
     rescue.main()
     draft = json.loads((directory/'decisions.example.json').read_text())
     assert draft['confirm'] is False and draft['approve'] == []
     assert draft['mapping']['price'] is None
     assert 'ROW 8' in (directory/'review.txt').read_text(encoding='utf-8')
+    assert 'Verified deterministic' in (directory/'review.txt').read_text(encoding='utf-8')
+    assert json.loads((directory/'inference.json').read_text())['model_calls'] == 0
     assert not (directory/'verified.csv').exists()
+
+
+def test_model_review_requires_explicit_experimental_opt_in(tmp_path, monkeypatch, capsys):
+    _, _, advice = setup()
+    calls = []
+    def synthetic_review(*args):
+        calls.append(args)
+        return advice, {'synthetic_test': True}
+    monkeypatch.setattr(rescue, 'agent_review', synthetic_review)
+    directory = tmp_path/'experimental'
+    monkeypatch.setattr('sys.argv', ['rescue', 'review', 'evaluation/rescue/case.json',
+                                  str(directory), '--experimental-agent-review'])
+    rescue.main()
+    assert len(calls) == 1
+    assert 'EXPERIMENTAL' in capsys.readouterr().out
+    assert 'EXPERIMENTAL' in (directory/'review.txt').read_text(encoding='utf-8')
+    assert not (directory/'verified.csv').exists()
+
+
+def test_conflicting_review_flags_fail_before_work(tmp_path, monkeypatch):
+    directory = tmp_path/'conflict'
+    monkeypatch.setattr('sys.argv', ['rescue', 'review', 'evaluation/rescue/case.json',
+                                  str(directory), '--baseline-review', '--experimental-agent-review'])
+    with pytest.raises(SystemExit) as caught:
+        rescue.main()
+    assert caught.value.code == 2
+    assert not directory.exists()
