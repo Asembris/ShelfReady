@@ -1335,6 +1335,7 @@ export async function createWorld(
     renderer.clear();
     camera.updateMatrixWorld();
     renderer.render(scene, camera);
+    await breathe(); // A cold driver cache makes these first draws long: keep them apart.
     renderer.setRenderTarget(sink);
     post.uScene.value = warm.texture;
     post.uBloom.value = warm.texture;
@@ -1342,6 +1343,7 @@ export async function createWorld(
       if (m !== compositeMaterial) m.uniforms.uSource.value = warm.texture;
       postMesh.material = m;
       renderer.render(postScene, screen);
+      await breathe();
     }
     renderer.setRenderTarget(null);
     warm.dispose();
