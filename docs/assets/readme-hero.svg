@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="sr-title sr-description">
+  <title id="sr-title">ShelfReady — Rehearse. Verify. Release.</title>
+  <desc id="sr-description">An illustrated workflow, not live job status. Supplier CSV passes explicit human approval, Vultr inference and isolated Python execution, native WooCommerce import, and independent SQL verification. Only verified rows reach the CSV and change report. All six steps are visible without animation.</desc>
+  <!-- Proofline: an original 12-second storyboard. The poster is complete at zero.
+       0–18% file → decision; 18–28% hold for human authority; 28–50% execute;
+       50–63% import; 63–80% compare persisted SQL; 80–92% verified; 92–100% seam.
+       Only decorative overlays animate. No scripts, SMIL, images or font loads. -->
+  <defs>
+    <linearGradient id="sr-ground" x2="1" y2="1">
+      <stop stop-color="#0A1530"/><stop offset="1" stop-color="#102044"/>
+    </linearGradient>
+    <radialGradient id="sr-light">
+      <stop stop-color="#164BFF" stop-opacity=".21"/><stop offset="1" stop-color="#164BFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sr-rail">
+      <stop stop-color="#6C8CFF" stop-opacity=".25"/><stop offset=".72" stop-color="#6C8CFF" stop-opacity=".65"/><stop offset="1" stop-color="#8DE3BF" stop-opacity=".65"/>
+    </linearGradient>
+    <clipPath id="sr-plate"><path d="M0 0H1256L1280 48V360H0Z"/></clipPath>
+    <style>
+      text { font-family: Inter, 'Segoe UI', Arial, sans-serif; }
+      .mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace; }
+      .ink { fill: #F1F5FF; } .muted { fill: #B4C2E2; }
+      .index { fill: #9AAED8; font-size: 12px; letter-spacing: 2px; }
+      .label { fill: #F1F5FF; font-size: 16px; font-weight: 600; }
+      .verified { fill: #8DE3BF; }
+      .detail { fill: #B4C2E2; font-size: 13px; }
+      .line { fill: none; stroke: #9AAED8; stroke-width: 1.5; }
+      .motion { opacity: 0; }
+      @media (prefers-reduced-motion: no-preference) {
+        .motion { animation-duration: 12s; animation-iteration-count: infinite; animation-timing-function: linear; }
+        .carrier { animation-name: sr-travel; }
+        .approval { animation-name: sr-approval; }
+        .execution { animation-name: sr-execution; }
+        .import { animation-name: sr-import; }
+        .scan { animation-name: sr-scan; }
+        .proof { animation-name: sr-proof; }
+      }
+      @keyframes sr-travel {
+        0%, 4% { opacity: 0; transform: translateX(0); }
+        7% { opacity: 1; transform: translateX(0); }
+        18%, 26% { opacity: 1; transform: translateX(200px); }
+        38%, 48% { opacity: 1; transform: translateX(420px); }
+        60%, 63% { opacity: 1; transform: translateX(630px); }
+        73%, 79% { opacity: 1; transform: translateX(840px); }
+        88%, 91% { opacity: 1; transform: translateX(1050px); }
+        96%, 100% { opacity: 0; transform: translateX(1050px); }
+      }
+      @keyframes sr-approval { 0%, 18%, 32%, 100% { opacity: 0; } 22%, 27% { opacity: 1; } }
+      @keyframes sr-execution { 0%, 34%, 53%, 100% { opacity: 0; } 39%, 48% { opacity: 1; } }
+      @keyframes sr-import { 0%, 53%, 67%, 100% { opacity: 0; transform: translateY(-5px); } 60%, 63% { opacity: 1; transform: translateY(0); } }
+      @keyframes sr-scan { 0%, 64% { opacity: 0; transform: translateX(0); } 68% { opacity: 1; transform: translateX(0); } 78% { opacity: 1; transform: translateX(100px); } 82%, 100% { opacity: 0; transform: translateX(100px); } }
+      @keyframes sr-proof { 0%, 78%, 98%, 100% { opacity: 0; } 85%, 92% { opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) { .motion { animation: none !important; opacity: 0 !important; } }
+    </style>
+  </defs>
+  <g clip-path="url(#sr-plate)">
+    <path d="M0 0H1280V360H0Z" fill="url(#sr-ground)"/>
+    <ellipse cx="940" cy="206" rx="460" ry="240" fill="url(#sr-light)"/>
+    <path d="M464 0 284 360M624 0 444 360M784 0 604 360M944 0 764 360M1104 0 924 360M1264 0 1084 360" fill="none" stroke="#6C8CFF" stroke-opacity=".035"/>
+    <path d="M.5.5H1255.7L1279.5 48.2V359.5H.5Z" fill="none" stroke="#91A7D4" stroke-opacity=".2"/>
+
+    <g id="sr-approved-lockup" transform="translate(48 24) scale(.5)" aria-hidden="true">
+      <path fill="#6C8CFF" d="M32 12H88L80 28H24Z"/>
+      <path fill="#F1F5FF" d="M24 40H80L72 56H54V48H42V56H16ZM16 68H72L64 84H8Z"/>
+      <path fill="#F1F5FF" transform="translate(110 65) scale(0.03125 -0.03125)" d="M667.648 -24Q480.96 -24 347.616 36.852Q214.272 97.704 143.112 212.216Q71.952 326.728 71.952 486.912H346.241Q347.537 400.784 386.421 338.757Q425.305 276.729 497.561 243.789Q569.817 210.849 669.808 210.849Q760.232 210.849 827.124 236.153Q894.016 261.457 931.456 307.713Q968.896 353.969 968.896 416.256Q968.896 467.024 941.192 504.816Q913.488 542.608 853.524 570.844Q793.56 599.08 695.928 620.76L537.136 656.143Q314.32 705.663 207.704 807.007Q101.088 908.352 101.088 1066.4Q101.088 1201.016 170.42 1301.484Q239.752 1401.952 364.824 1457.976Q489.896 1514 656.129 1514Q824.521 1514 947.445 1456.42Q1070.369 1398.84 1138.689 1291.816Q1207.009 1184.792 1211.441 1036.176H945.312Q937.744 1149.391 860.216 1213.987Q782.688 1278.583 656.177 1278.583Q576.593 1278.583 514.837 1253.279Q453.081 1227.975 417.925 1183.287Q382.77 1138.599 382.77 1080.152Q382.77 1031.656 409.745 996.432Q436.721 961.208 495.309 934.472Q553.897 907.736 648.505 886.352L796.337 852.993Q913.545 827.289 998.945 789.721Q1084.345 752.153 1139.653 700.857Q1194.961 649.561 1221.825 583.253Q1248.689 516.944 1248.689 434.192Q1248.689 293.528 1178.165 190.56Q1107.641 87.592 977.285 31.796Q846.929 -24 667.648 -24ZM1679.081 592.944V0H1409.72V1490H1679.081V784.88H1624.921Q1675.625 925.72 1768.341 1001.724Q1861.057 1077.728 2001.177 1077.728Q2112.93 1077.728 2197.042 1029.5Q2281.153 981.272 2328.253 888.272Q2375.353 795.272 2375.353 660.32V0H2105.992V614.624Q2105.992 726.999 2052.372 785.051Q1998.752 843.103 1900.488 843.103Q1836.449 843.103 1786.409 816.855Q1736.369 790.607 1707.725 735.339Q1679.081 680.071 1679.081 592.944ZM3038.44 -24Q2879.552 -24 2762.492 46.784Q2645.432 117.568 2581.6 242.284Q2517.768 367 2517.768 526.864Q2517.768 688.296 2583.088 813.08Q2648.408 937.864 2763.536 1008.932Q2878.664 1080 3028.168 1080Q3143.352 1080 3237.253 1040.216Q3331.153 1000.432 3398.905 927.08Q3466.657 853.728 3503.181 753.308Q3539.705 652.888 3539.705 531.616V458.696H2619.864V638.392H3407.12L3286.167 592.576Q3286.167 678.112 3255.228 740.332Q3224.288 802.551 3167.68 836.331Q3111.072 870.111 3032.92 870.111Q2955.769 870.111 2899.229 836.331Q2842.689 802.551 2811.749 740.332Q2780.809 678.112 2780.809 592.576V475.216Q2780.809 388.248 2811.829 322.392Q2842.849 256.536 2902.105 220.053Q2961.361 183.569 3045.352 183.569Q3106.528 183.569 3153.808 201.669Q3201.088 219.769 3232.756 252.481Q3264.424 285.192 3278.264 328.528H3527.753Q3508.185 224.504 3439.569 145.196Q3370.953 65.888 3267.381 20.944Q3163.808 -24 3038.44 -24ZM3942.081 1490V0H3672.72V1490ZM4711.842 1056V841.743H4036.16V1056ZM4226.752 0V1203.391Q4226.752 1297.536 4264.208 1361.176Q4301.664 1424.816 4375.18 1457.408Q4448.697 1490 4556.593 1490Q4605.849 1490 4650.457 1490Q4695.066 1490 4711.842 1490V1275.743Q4699.818 1275.743 4667.454 1275.743Q4635.09 1275.743 4613.202 1275.743Q4549.658 1275.743 4522.886 1248.903Q4496.114 1222.063 4496.114 1158.383V0ZM4878.624 0V1490H5466.184Q5631.688 1490 5752.316 1431.328Q5872.944 1372.656 5938.333 1264.676Q6003.721 1156.696 6003.721 1008.624Q6003.721 862.711 5934.765 755.959Q5865.808 649.207 5741.248 591.399Q5616.688 533.591 5448.728 533.591H5046.017V763.576H5450.52Q5536.24 763.576 5598.211 793.676Q5660.183 823.776 5693.703 878.976Q5727.223 934.176 5727.223 1008.624Q5727.223 1084.071 5693.419 1138.487Q5659.615 1192.903 5597.643 1223.003Q5535.672 1253.103 5449.384 1253.103H5160.577V0ZM5727.479 0 5383.031 672.592H5682.505L6033.817 0ZM6617.44 -24Q6458.552 -24 6341.492 46.784Q6224.432 117.568 6160.6 242.284Q6096.768 367 6096.768 526.864Q6096.768 688.296 6162.088 813.08Q6227.408 937.864 6342.536 1008.932Q6457.664 1080 6607.168 1080Q6722.352 1080 6816.253 1040.216Q6910.153 1000.432 6977.905 927.08Q7045.657 853.728 7082.181 753.308Q7118.705 652.888 7118.705 531.616V458.696H6198.864V638.392H6986.12L6865.167 592.576Q6865.167 678.112 6834.228 740.332Q6803.288 802.551 6746.68 836.331Q6690.072 870.111 6611.92 870.111Q6534.769 870.111 6478.229 836.331Q6421.689 802.551 6390.749 740.332Q6359.809 678.112 6359.809 592.576V475.216Q6359.809 388.248 6390.829 322.392Q6421.849 256.536 6481.105 220.053Q6540.361 183.569 6624.352 183.569Q6685.528 183.569 6732.808 201.669Q6780.088 219.769 6811.756 252.481Q6843.424 285.192 6857.264 328.528H7106.753Q7087.185 224.504 7018.569 145.196Q6949.953 65.888 6846.381 20.944Q6742.808 -24 6617.44 -24ZM7578.584 -17.296Q7473.152 -17.296 7391.016 17.84Q7308.88 52.976 7261.46 123.396Q7214.04 193.816 7214.04 298.816Q7214.04 388.952 7247.596 447.896Q7281.152 506.84 7338.924 542.364Q7396.696 577.888 7471.548 596.4Q7546.4 614.912 7627.992 623.184Q7725.536 633.728 7782.888 642.24Q7840.24 650.752 7864.956 667.616Q7889.672 684.48 7889.672 719.728V727.136Q7889.672 770.016 7867.572 802.636Q7845.472 835.255 7804.204 853.843Q7762.936 872.431 7704.92 872.431Q7646.609 872.431 7602.205 853.763Q7557.801 835.095 7531.861 801.951Q7505.921 768.808 7501.921 725.312H7245.544Q7252.272 832.248 7309.432 911.204Q7366.592 990.16 7468.72 1033.944Q7570.848 1077.728 7711.833 1077.728Q7816.793 1077.728 7899.501 1052.944Q7982.209 1028.16 8039.461 981.296Q8096.713 934.432 8126.441 868.056Q8156.169 801.68 8156.169 718.496V0H7892.264V149.136H7888.264Q7862.352 100.336 7821.896 62.7Q7781.439 25.064 7721.964 3.884Q7662.488 -17.296 7578.584 -17.296ZM7648.376 176.609Q7726.024 176.609 7780.44 205.036Q7834.856 233.464 7863.128 281.368Q7891.4 329.272 7891.4 388.768V500.031Q7879.24 492.76 7857.06 486.056Q7834.88 479.352 7804.804 473.148Q7774.728 466.944 7739.516 461.024Q7704.304 455.104 7666.648 449.536Q7614.289 441.968 7570.589 424.844Q7526.889 407.72 7500.665 378.484Q7474.441 349.248 7474.441 303.504Q7474.441 264.008 7495.973 235.42Q7517.505 206.833 7556.569 191.721Q7595.633 176.609 7648.376 176.609ZM8752.904 -21.728Q8615.472 -21.728 8512.404 47.34Q8409.336 116.408 8352.552 240.34Q8295.768 364.272 8295.768 528.864Q8295.768 691.432 8353.2 815.148Q8410.632 938.864 8513.484 1008.296Q8616.336 1077.728 8751.176 1077.728Q8820.176 1077.728 8879.004 1059.092Q8937.832 1040.456 8985.16 1002.968Q9032.488 965.48 9066.056 907.776H9067.624V1490H9336.985V0H9071.624V161.728H9070.056Q9038.104 100.296 8990.208 59.432Q8942.312 18.568 8882.324 -1.58Q8822.336 -21.728 8752.904 -21.728ZM8819.08 200.825Q8898.504 200.825 8957.544 241.401Q9016.584 281.977 9049.104 355.857Q9081.624 429.736 9081.624 528.864Q9081.624 628.56 9049.104 702.007Q9016.584 775.455 8957.544 816.031Q8898.504 856.607 8819.08 856.607Q8744.065 856.607 8687.389 818.303Q8630.713 779.999 8599.353 707.119Q8567.993 634.24 8567.993 528.864Q8567.993 424.056 8599.353 350.745Q8630.713 277.433 8687.389 239.129Q8744.065 200.825 8819.08 200.825ZM9540.976 -418V-201.471H9669.168Q9703.896 -201.471 9726.804 -189.915Q9749.712 -178.359 9766.392 -153.167Q9783.072 -127.975 9797.48 -86.999L9832.584 5.112L9425.312 1056H9709.537L9896.497 517.121Q9926.793 427.729 9954.441 337.689Q9982.089 247.648 10008.385 157.824H9933.144Q9958.576 247.648 9986.292 337.905Q10014.008 428.161 10044.168 517.121L10231.016 1056H10511.809L10042.522 -169.216Q10010.202 -254.04 9964.609 -309.156Q9919.017 -364.272 9857.833 -391.136Q9796.649 -418 9717.553 -418Q9674.273 -418 9629.265 -418Q9584.256 -418 9540.976 -418Z"/>
+    </g>
+    <text x="1232" y="54" text-anchor="end" font-size="18" class="ink" letter-spacing=".1">Rehearse. Verify. Release.</text>
+    <text x="48" y="114" font-size="38" font-weight="350" letter-spacing="-1.2" class="ink">From supplier file to <tspan fill="#8DA5FF">verified change.</tspan></text>
+    <text x="48" y="144" font-size="16" class="muted">Your approval opens the gate. Independent evidence earns the release.</text>
+
+    <!-- A quiet, continuous rail. The signal waits at approval and SQL. -->
+    <path d="M114 252H1164" fill="none" stroke="url(#sr-rail)"/>
+    <path d="M114 245V252M324 245V252M534 245V252M744 245V252M954 245V252M1164 245V252" stroke="#6C8CFF" stroke-opacity=".45"/>
+    <g fill="#0A1530" stroke="#8DA5FF"><circle cx="114" cy="252" r="2.5"/><circle cx="324" cy="252" r="2.5"/><circle cx="534" cy="252" r="2.5"/><circle cx="744" cy="252" r="2.5"/><circle cx="954" cy="252" r="2.5"/><circle cx="1164" cy="252" r="2.5"/></g>
+    <g class="motion carrier"><path d="M107 250H119L121 252 119 254H107Z" fill="#F1F5FF"/></g>
+
+    <g text-anchor="middle">
+      <g>
+        <text x="114" y="169" class="mono index">01</text>
+        <path d="M86 180H128L142 208V242H86Z" fill="#14264B" stroke="#A7B9DF" stroke-width="1.5"/>
+        <path d="M128 180V208H142" class="line"/>
+        <text x="105" y="202" class="mono ink" font-size="11">CSV</text>
+        <path d="M96 215H132M96 222H132" class="line" stroke-opacity=".45"/>
+        <text x="114" y="235" class="mono ink" font-size="10">00017</text>
+        <text x="114" y="282" class="label">Supplier CSV</text>
+        <text x="114" y="302" class="detail">Identifiers stay strings</text>
+      </g>
+      <g>
+        <text x="324" y="169" class="mono index">02</text>
+        <path d="M300 181H292V242H300M348 181H356V242H348" class="line" stroke-opacity=".6"/>
+        <path d="M304 191H344V231H304Z" fill="#14264B" stroke="#9AAED8" stroke-width="1.5"/>
+        <path d="m314 210 7 7 14-16" fill="none" stroke="#F1F5FF" stroke-width="2.5"/>
+        <g class="motion approval" stroke="#8DA5FF" fill="none"><path d="M300 187H348V235H300Z" stroke-width="1.5"/><path d="m314 210 7 7 14-16" stroke-width="3"/></g>
+        <text x="324" y="282" class="label">Explicit approval</text>
+        <text x="324" y="302" class="detail">Your columns. Your intent.</text>
+      </g>
+      <g>
+        <text x="534" y="169" class="mono index">03</text>
+        <path d="M490 182H578V241H490Z" fill="none" stroke="#6C8CFF" stroke-opacity=".5" stroke-dasharray="2 5"/>
+        <path d="M506 186H552L562 206V236H506Z" fill="#14264B" stroke="#9AAED8" stroke-width="1.5"/>
+        <text x="532" y="200" class="mono" font-size="9" fill="#B7C9FF" letter-spacing="1">VULTR</text>
+        <text x="534" y="224" class="mono ink" font-size="21">{ }</text>
+        <g class="motion execution" fill="none" stroke="#8DA5FF" stroke-width="1.5"><path d="M490 190V182H500M568 182H578V190M490 233V241H500M568 241H578V233"/><path d="M512 231H556"/></g>
+        <text x="534" y="282" class="label">Isolated execution</text>
+        <text x="534" y="302" class="detail">Vultr inference → runner</text>
+      </g>
+      <g>
+        <text x="744" y="169" class="mono index">04</text>
+        <path d="m708 227 36 16 36-16-36-16Z" fill="#14264B" stroke="#9AAED8" stroke-width="1.5"/>
+        <path d="m708 209 36 16 36-16-36-16Z" fill="#172E5C" stroke="#9AAED8" stroke-width="1.5"/>
+        <path d="m708 191 36 16 36-16-36-16Z" fill="#264B98" stroke="#8DA5FF" stroke-width="1.5"/>
+        <path d="m730 191 10 4 18-8" fill="none" stroke="#D0DCFF" stroke-width="1.5"/>
+        <path class="motion import" d="m708 191 36 16 36-16-36-16Z" fill="#6C8CFF" stroke="#D0DCFF" stroke-width="1.5"/>
+        <text x="744" y="282" class="label">WooCommerce import</text>
+        <text x="744" y="302" class="detail">A disposable store</text>
+      </g>
+      <g>
+        <text x="954" y="169" class="mono index">05</text>
+        <path d="M896 184H1012V240H896Z" fill="#14264B" stroke="#9AAED8" stroke-width="1.5"/>
+        <path d="M896 212H1012M950 184V240" class="line" stroke-opacity=".35"/>
+        <text x="924" y="203" class="mono" font-size="9" fill="#B4C2E2">EXPECT</text><text x="924" y="230" class="mono" font-size="9" fill="#B4C2E2">SQL</text>
+        <path d="M960 198H990M960 225H990" stroke="#F1F5FF" stroke-width="2"/>
+        <path d="m997 195 3 3 5-6m-8 30 3 3 5-6" fill="none" stroke="#8DE3BF" stroke-width="1.5"/>
+        <g class="motion scan"><path d="M904 186V238" stroke="#A8BBFF" stroke-width="2"/></g>
+        <text x="954" y="282" class="label">Independent SQL</text>
+        <text x="954" y="302" class="detail">Expected = persisted</text>
+      </g>
+      <g>
+        <text x="1164" y="169" class="mono index">06</text>
+        <path d="M1128 181H1188L1200 205V241H1128Z" fill="#12323D" stroke="#8DE3BF" stroke-opacity=".65" stroke-width="1.5"/>
+        <path d="m1148 211 11 11 22-26" fill="none" stroke="#8DE3BF" stroke-width="3"/>
+        <g class="motion proof" fill="none" stroke="#A8F2D3"><path d="M1122 175H1192L1206 203V247H1122Z"/><path d="M1108 316H1220" stroke-width="2"/></g>
+        <text x="1164" y="282" class="label verified" letter-spacing="1.5">VERIFIED</text>
+        <text x="1164" y="302" class="detail">CSV + change report</text>
+      </g>
+    </g>
+    <path d="M48 320H1232" stroke="#91A7D4" stroke-opacity=".17"/>
+    <text x="48" y="343" font-size="11" letter-spacing="1.5" class="muted">ONLY CONFIRMED, INDEPENDENTLY VERIFIED ROWS LEAVE.</text>
+    <text x="1232" y="343" text-anchor="end" font-size="11" letter-spacing="1.5" class="muted">WORKFLOW ILLUSTRATION</text>
+  </g>
+</svg>
