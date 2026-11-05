@@ -104,9 +104,10 @@ resources. [Deployment proof and limitations](docs/live-deployment.md) ·
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
   Operator["Operator"] --> HTTPS
   subgraph Control["Vultr · control VM"]
+    direction TB
     HTTPS["Caddy · React build"] --> API["FastAPI · SQLite jobs"]
     API --> Worker["Separate worker"]
     Worker --> Validate["Trusted row validation"]
