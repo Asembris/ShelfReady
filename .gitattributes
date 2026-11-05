@@ -9,3 +9,7 @@ web/**/*.mjs text eol=lf
 web/**/*.json text eol=lf
 web/**/*.html text eol=lf
 .github/** text eol=lf
+README.md text eol=lf
+docs/readme-showcase.md text eol=lf
+docs/assets/*.svg text eol=lf
+scripts/validate_showcase.mjs text eol=lf

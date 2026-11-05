@@ -54,6 +54,11 @@ jobs:
       - run: npm exec -- playwright install --with-deps chromium
         working-directory: web
       - run: node scripts/validate_brand.mjs
+      - name: Validate README artwork and local links
+        run: node scripts/validate_showcase.mjs
+      - name: Check showcase documentation formatting
+        run: npm exec -- prettier --check ../README.md ../docs/readme-showcase.md ../scripts/validate_showcase.mjs
+        working-directory: web
       - run: npm run test:ci
         working-directory: web
       - name: Retain failed browser evidence
