@@ -32,6 +32,14 @@ def archive(entries):
     return buffer.getvalue()
 
 
+def validate_stopped(status):
+    services = status['services']
+    if (set(services) != {'caddy', 'shelfready-api', 'shelfready-worker'} or
+            any(value not in ('inactive', 'failed', 'unknown') for value in services.values()) or
+            status['containers']):
+        raise RuntimeError('Release requires stopped services and no containers')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--evidence', required=True)
@@ -67,9 +75,17 @@ def main():
             raise RuntimeError(f'{role} release stage failed, exit {result.returncode}')
         return result.stdout.decode()
 
-    stopped = 'set -eu; ! systemctl is-active --quiet caddy; ! systemctl is-active --quiet shelfready-api; ! systemctl is-active --quiet shelfready-worker; test -z "$(docker ps -aq)"'
+    stopped = b'''import json,subprocess
+states={}
+for name in ['caddy','shelfready-api','shelfready-worker']:
+    result=subprocess.run(['systemctl','is-active',name],capture_output=True,text=True,timeout=10)
+    if result.returncode not in (0,3,4):raise RuntimeError('Service inspection failed')
+    states[name]=result.stdout.strip()
+containers=subprocess.check_output(['docker','ps','-aq'],text=True,timeout=20).split()
+print(json.dumps({'services':states,'containers':containers}))
+'''
     for role in ('control', 'runner'):
-        remote(role, stopped)
+        validate_stopped(json.loads(remote(role, 'python3 -', stopped)))
     remote('control', "cd /opt/shelfready; .venv/bin/python - <<'PY'\n" + '''
 import hashlib,json,pathlib,sqlite3
 from dotenv import dotenv_values
