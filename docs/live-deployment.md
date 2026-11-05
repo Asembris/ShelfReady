@@ -1,4 +1,244 @@
-# Phase 8 deployment: blocked at admin access recovery
+# Phase 8 live deployment evidence
+
+**GO for the invite-only, synthetic, bounded judging demo.** The current cinematic
+frontend, API and separate worker are live on the original two Vultr VMs at
+**https://95.179.218.142.sslip.io**. HTTP redirects to HTTPS. Basic Auth protects
+the UI, fixtures, API and downloads. Retrieve the shared invite locally from
+ignored `.runtime/cloud/demo.json` and share it privately with judges; never put
+it in Git, screenshots, issues, traces or submission text.
+
+The source release was installed at `88a0e4e`; subsequent commits refine the
+operator's deployment/test tools, not application behavior. SHA-256 comparison
+confirmed 34 deployed source/config/static files match the final local build.
+No frozen evaluation, brand asset, UI design or application validator changed.
+This is deployment verification, **not a new competitive agent-value result**.
+
+## Verified public journey
+
+The fresh public Playwright suite passed **3 tests in 1.4 minutes**, without
+retries or mocked responses. Its first failure would close provider web access
+and stop demo services. One real rehearsal was submitted through the actual UI:
+upload allowlisted baseline and supplier files, review mappings, explicitly
+confirm intent, run Vultr-generated Python on the separate SSH runner, import
+natively into disposable WooCommerce, independently read SQL, and download CSV
+and report. Job `e5f5c0f068e644aeb5ef216ae60727ce` completed on attempt one.
+
+- Model `qwen3.8-27b`, request
+  `chatcmpl-ce74aa4f-da67-4d6a-8e2c-d4ab71ee2aa1`.
+- **298 prompt + 537 completion = 835 tokens**, one request. This is the only
+  real inference request in Phase 8, within the prepared six-request ceiling.
+  The provider response does not establish a dollar price; actual inference USD
+  cost remains unknown, not zero. No repair or corrective inference run occurred.
+- Runner container `cb401c11fdfe`: UID 65534, network none, read-only root,
+  128 MiB memory/swap, 0.5 CPU, 32 PIDs, all capabilities dropped,
+  no-new-privileges and no bind mounts, confirmed outside the generated code.
+- An independent host observer queried MariaDB during staging, outside the
+  worker. Complete before/after snapshots preserve IDs **10** and **11**, exact
+  SKU strings `00017` and `A-2`, and supported unchanged fields. Prices/stock
+  change from `12.30/4` to **13.55/7**, and `0.10/0` to **1.35/2**. The trusted
+  verifier was also run separately against those observer snapshots.
+- Two input rows resolved, zero unresolved. Export CSV SHA-256:
+  `d2271f7760fcce61b0cd927e877a9cd5b255bb5e232c834010e0bc35f5012e93`.
+  Report SHA-256:
+  `a52bd10a00d179660012293b5d02c5cd828176c2bf14b149b73c82620f2c1d0f`.
+- The native MariaDB/WordPress/WP-CLI stack had no published ports. Independent
+  observers found **zero remaining store containers, volumes or networks and
+  zero sandbox containers**. Final job storage has no `rehearsal-*` directories.
+
+The model-free negative control used the same approved files and deliberately
+confirmed a wrong SKU/stock mapping. Both rows were held with exact source-row
+numbers and `SKU absent from baseline`; zero resolved, no inference attempts,
+failed state, no CSV link, and HTTP **409** for both download endpoints. A false
+consent request was rejected with **422** before execution. It proves honest
+failure/held-row accounting, not a public partial-success or exhausted-model
+repair run. Those cases retain automated local coverage; no extra model call or
+allowlist expansion was made to demonstrate them live.
+
+## Security, containment and upgraded backend
+
+Owner-assisted console UFW recovery restored strict pinned-key SSH. Only after
+both connections succeeded were obsolete admin SSH rules removed at **both**
+provider and guest layers; fresh SSH succeeded again. UFW remains active.
+Control's provider firewall permits only the approved admin /32 on TCP 22 and
+public TCP 80/443. Runner permits TCP 22 only from admin and control /32s. No
+unrestricted SSH, replacement host trust, new VM or paid service was used. The
+API-key ACL readback contained only two /32 entries and no unrestricted IPv4/IPv6
+entry; the old API-key ACL entry was not changed by the SSH-rule cleanup.
+
+Credential hashes and existing usage **2/30** were verified unchanged across
+installation; the SQLite backup was retained root-only. Control now runs locked
+FastAPI **0.133.0**, Starlette **1.3.1**, python-dotenv **1.2.2**. Real loopback
+checks returned missing job 404, malformed upload 422, wrong origin 403 and
+untrusted host 400. The real public journey validates these dependencies beyond
+mock/test-client behavior. No runtime application patch was necessary.
+
+Private remote probes, never run as generated code on control, verified UID
+65534, absent credentials, denied root write/outbound network, infinite-loop
+timeout **5.518 seconds / exit 137**, and 256 MiB allocation termination under
+128 MiB. Independent runner inspection confirmed the isolation configuration
+and cleanup. Docker still shares the runner's kernel; no kernel-escape or PID
+exhaustion stress test is claimed.
+
+Two private test-harness failures are retained honestly. The first wrapper's
+incorrect `argv[0]` selected system Python, failing `import dotenv` before native
+staging. Correcting the interpreter exposed inherited root `HOME`, preventing
+the service user from discovering Docker Compose (`compose.up`, exit 125,
+no timeout, `/root/.docker/config.json: permission denied`). The application was
+not modified to accommodate either harness error. A transient systemd unit with
+the **same user, working directory, EnvironmentFile and umask as the worker**
+then passed private native import, SQL verification and cleanup. Earlier empty
+observer snapshots and failed diagnostics remain separate from this success.
+
+Fresh HTTPS checks verified TLS **1.3**, a trusted Let's Encrypt YE2 certificate
+for the exact hostname, expiring **February 2, 2027**, with certificate validation
+enabled. Anonymous root/API/fixture/download and wrong-password requests return
+401; docs/redoc/OpenAPI return 404; wrong origin 403, modified CSV 422 and >70 KB
+body 413. Both authenticated fixture downloads match source bytes. Security
+headers and HTTP-to-HTTPS redirect passed. A bounded live rate probe received
+**429 on request 121** using missing-job GETs only; a later normal API request
+returned 404 after window recovery. No counter or quota was reset.
+
+## Cinematic and accessible public frontend
+
+The public test exercised real hardware WebGL in Windows Chromium, one canvas,
+the once-per-tab intro, context-loss fallback, keyboard studio access, and a
+WebGL-unavailable control. Reduced-motion studio deep links passed at **320,
+390, 768 and 1440 px**, without intro/canvas or horizontal overflow. Axe WCAG
+2 A/AA and 2.1 AA scans found zero violations on mapping, verified result, held
+result and the four reduced-motion viewport surfaces.
+
+Screenshot inspection found that the first capture loop photographed chapter
+edges before the camera/text arrived. A capture-only correction anchors to the
+actual narrative copy and waits for reported scene time and completed line/body
+transitions. The separate visual-only rerun passed **1 test in 28.5 seconds**,
+with no upload/inference. Settled desktop hero, Verify/Release compositions,
+verified studio and mobile fallback screenshots were inspected. No UI change
+or weakened original cinematic assertion was made.
+
+Observed opening duration: **3.140 s**, then **3.070 s** on the visual-only run.
+For 120 idle-hero animation-frame samples, median and p95 gaps were about
+**16.7 ms**. These are client rAF intervals on one Windows machine, not compositor
+FPS, scroll benchmarks, VM GPU performance or physical-phone measurements.
+In the 30-second host sample window, peak used memory (total minus available)
+was **887.8 MiB control / 388.0 MiB runner**. This window is not a guaranteed
+worst-case peak across every job. Safari, physical mobile GPUs and screen-reader
+usability remain unverified; axe cannot establish canvas contrast or usability.
+
+## Availability, bounds, costs and shutdown
+
+Caddy, API and worker are **active and enabled**, each with zero recorded
+restarts. API binds only `127.0.0.1:18765`; the runner has no public application
+port. Final authenticated readiness returned UI 200 and missing-job API 404;
+anonymous UI remained 401. The final queue had zero active jobs, zero failed
+jobs with a released CSV, and **4/30 lifetime uploads consumed**. The original
+two slots plus this positive and negative control account for that count.
+
+This is a shared-invite demo, not multi-tenant production access. Keep the exact
+two-file allowlist, downloadable `/demo/index.html` fixtures, 16 KiB/100-row CSV
+bounds, 70 KB requests, 120 API requests/minute, one active job, 30-upload lifetime
+quota, three transformation attempts and existing inference time/token limits.
+Do not reset the quota for judges. Each new upload can request at most one
+interpretation plus three transformations; remaining quota is not a dollar
+budget. Reports/downloads expire under the existing 24-hour retention policy.
+
+At **November 5 10:06:39 UTC / 11:06:39 Paris**, the existing VMs were both
+active/running/OK with unchanged plans and attached firewalls:
+
+| Role | Existing VM ID | IPv4 | Rate | Provider pending |
+| --- | --- | --- | --- | --- |
+| Control | `85d80015-3128-46bd-9188-50a5a9e092b0` | `95.179.218.142` | $0.027/hour | $0.66 |
+| Runner | `ad67b797-3d07-492c-9e5d-5dde7f0ea5ff` | `217.69.13.189` | $0.014/hour | $0.33 |
+
+Combined **$0.041/hour**, approximately **$0.984/day**, $2.952/original 72 hours,
+$30/month listed. Pending charges total **$0.99**, not a final invoice. Inference
+USD, taxes and transfer overage are not established by these figures. No paid
+add-on or replacement infrastructure was provisioned. The review deadline stays
+**November 7, 2026, 12:42 UTC / 13:42 Europe/Paris**. There is no automatic
+extension or resource deletion; the owner must review continued allocation.
+
+Monitor without submitting model jobs: run `deploy.inspect_existing` to a new
+ignored evidence filename; inspect systemd states/restart counts, private bounded
+journals, disk/memory, remaining SQLite usage and provider pending charges.
+One authenticated missing-job GET can check API readiness without consuming an
+upload. Check certificate/DNS through normal trusted HTTPS. Restrict access or
+stop on unhealthy cleanup, unexplained usage, authentication failure or runaway
+restarts. Redact any logs before sharing. There is no paid monitoring service.
+
+For a non-billing shutdown, remove only control provider web rules (TCP 80/443),
+then `systemctl disable --now caddy shelfready-api shelfready-worker` on control.
+After active work has ended, inspect both hosts for labelled sandboxes and the
+`shelfready-rehearsal` Compose containers/volumes/networks; use trusted cleanup
+only for those exact resources. Preserve SSH restrictions, evidence, credentials
+and quota. **Stopping services or powering off does not end VM billing.** Only
+owner-directed deletion of the two IDs above ends their allocation; verify absence
+and remove dedicated unused firewall/key resources after checking attachments.
+See [teardown context](deployment.md#previous-checks-and-teardown).
+
+The hostname remains a temporary third-party `sslip.io` dependency tied to the
+retained IPv4, with no owned-domain/SLA guarantee. Shared-kernel Docker, a shared
+Basic Auth invite, single-worker capacity and finite quota are explicit limits.
+No concurrency/quota-exhaustion cloud stress test or public model-repair failure
+injection was performed. Their passing local tests are not live cloud proof.
+
+## Reproduction and final checks
+
+Use the existing private inventory/key/known_hosts and approved API ACL. Never
+run `deploy.provision` for this release. The guarded installer rejects unknown
+hosts, active/transitional services, existing containers and a prior Phase 8
+backup; do not erase evidence to force a rerun. For an approved stopped-host
+maintenance checkpoint, build and export before installing:
+
+```powershell
+npm --prefix web run build
+uv export --frozen --no-dev --no-emit-project --format requirements-txt --output-file .runtime/live-deployment/requirements.txt
+.venv/Scripts/python.exe -m deploy.update_existing --evidence artifacts/live-deployment/NEW-release.log
+```
+
+The installer selects tracked application files plus the explicit built frontend,
+locked requirements and pinned WooCommerce archive. It never copies `.env`,
+architecture, evidence, jobs or credentials to the runner. The runner receives
+only its three root-owned dispatcher modules. No credential/quota regeneration,
+public opening or automatic service start is part of the installer.
+
+For private native reproduction use a fresh transient systemd unit with the
+worker's `User=shelfready`, working directory `/opt/shelfready`,
+`EnvironmentFile=/etc/shelfready/control.env`, and `UMask=0077`, executing the
+**absolute venv Python path** with `-m deploy.private_native` and a new private
+artifact directory. For containment execute `-m deploy.verify_remote` in the
+same service context with remote runner configuration; never execute its probe
+strings on control. Preserve every failed run and inspect cleanup independently.
+
+For public browser reproduction load only the private demo environment into the
+process, set `SHELFREADY_PUBLIC_EVIDENCE` to a **new absolute directory under
+`artifacts/`**, and run `npm run test:public` from `web/`. This consumes two upload
+slots and at most three transformation requests; review remaining quota and
+authorization first. `--grep "serve cinematic"` runs only visual/fallback checks
+without jobs/inference. Raw Playwright traces/videos are deliberately off because
+network traces can retain Basic Auth; `response-trace.json` retains only time,
+method, sanitized path and status. Screenshots, response diagnostics, SQL/runner
+observers, fixture/output hashes and resource samples stay ignored/private.
+
+Final local checks: **128 Python tests passed in 89.50 seconds**, including local
+Docker/native tests; **17 portable browser tests passed in 33.1 seconds**;
+strict application TypeScript/production build, formatting (including manually
+checked public test files), all 17 brand checks, Ruff, whitespace and tracked-file
+credential scan passed. npm audit and hashed frozen runtime/dev Python audit found
+**zero known vulnerabilities**. Full-history redacted Gitleaks is run before push.
+An additional out-of-project attempt to type-check Node-based Playwright files
+cannot resolve Node declarations in the existing dependency set; it is not the
+application TS configuration and is not claimed green. Actual public test
+collection and browser execution pass. No dependency was added just for that
+ad-hoc check. Existing upstream deprecation and lazy-world size warnings remain.
+
+Primary evidence: `artifacts/live-deployment/https-auth-gates.json`,
+`remote-containment.json`, `native-systemd-{result,readback,observation}.json`,
+`release-manifest.json`, `public-live/`, `public-visual-settled/`,
+`public-rate-limit.json`, `judge-service-state.log`, `final-public-health.json`
+and private provider/firewall snapshots. Raw credentials, console capabilities,
+personal admin addresses and generated artifacts are excluded from Git. All
+earlier Phase 5/competitive evidence remains historical and unchanged.
+
+## Historical blocked checkpoints
 
 ## November 5 access-recovery checkpoint
 
