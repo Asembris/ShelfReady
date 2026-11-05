@@ -1,271 +1,230 @@
 # ShelfReady
-Rehearse supplier catalog updates in a disposable WooCommerce store before they touch production.
 
-Phase 6 adds a local operator-reviewed Catalog Rescue CLI with explicit row holds
-and a verified deterministic reviewer/manual fallback by default. Model advice
-requires `--experimental-agent-review`; `--baseline-review` remains supported.
-Its frozen evaluation did **not** demonstrate
-incremental agent value: see [measured results and reproduction](docs/catalog-rescue.md).
-It does not add public inputs or change the deployed demo.
+**Rehearse supplier catalog changes. Release a file backed by evidence.**
 
-Phase 5 deployment preparation is on `feat/vultr-deployment`. See the
-[VM plan](deploy/PLAN.md). The two approved VMs are provisioned; deployment
-resumed on `fix/vultr-cloud-verification`. Caddy, public HTTPS/authentication and
-remote containment passed. The native CSV ownership failure was diagnosed and
-fixed privately; one fresh public upload-to-download journey passed with real
-Vultr inference, remote execution and independent SQL. Services and web access
-are closed again between tests. GO applies to the tested bounded synthetic demo.
-See [live evidence, limitations and billing deadline](docs/deployment.md).
-Public launch requires verified service-account SSH access, authentication and
-downloadable synthetic fixtures. The demo accepts only the supplied baseline and
-supplier pair; after deployment invitees obtain them at `/demo/index.html`.
+For WooCommerce operators who need to update prices and stock without gambling
+on a supplier spreadsheet. Confirm the meaning, rehearse in a disposable store,
+and download only independently verified changes.
 
-## Approved Phase 4 agent-value spike
+![ShelfReady: supplier CSV → explicit human approval → Vultr inference and isolated execution → WooCommerce import → independent SQL verification → verified CSV and change report. Workflow illustration.](docs/assets/readme-hero.svg)
 
-An optional interpretation step now accepts explicit currency, numeric-format,
-inventory-unit and SKU-padding intent. After upload, choose these deliberately,
-describe the intended selling-price/available-stock meaning, and select
-**Propose supplier interpretation**. Review source-cell evidence, explanations,
-uncertainties, columns and normalization rules before confirming execution.
-Only the first five supplier rows, headers and baseline SKU references are sent
-for interpretation. Unknown/ambiguous business basis blocks execution.
+**[Open the demo](https://95.179.218.142.sslip.io)** ·
+[CI](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml) ·
+[Security](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml) ·
+[Live evidence](docs/live-deployment.md) · [Run locally](#run-locally)
 
-The generated transformation receives raw columns plus the confirmed rules;
-trusted independent normalization, row accounting and native readback remain
-outside generated code. The original manual mapping flow still works. There is
-no product creation, variants, production-store access or paid cloud provisioning.
-See [bounded spike evidence and limitations](docs/agent-value-spike.md).
+The hosted demo requires a private invite from the owner and accepts only its two
+provided synthetic CSVs. It is a bounded judging deployment, last verified on
+**November 5, 2026**, with an operating review on **November 7**. Availability is
+temporary; the local setup below remains reproducible.
 
-This branch implements the Phase 2 local upload-to-download rehearsal slice.
-It uses real Vultr inference, restricted Python containers, native WooCommerce
-import and independent database readback. No cloud resources have been provisioned.
-See [Phase 2 evidence and limitations](docs/rehearsal.md).
+## The 30-second version
 
-## Phase 3 verification and competitive evaluation
+A supplier file is a proposal, not permission to change your catalog.
 
-Measured verdict: **NARROW**. Both arms verified 7/7 eligible operations with zero
-incorrect accepted changes; the generated path added model calls/tokens without
-improving completion. This is not evidence of agent necessity or market superiority.
+ShelfReady pairs your current WooCommerce CSV with a supplier update. You approve
+the columns and same-currency price/stock replacement. Vultr generates a Python
+transformation; a separate runner executes it in isolation. Trusted code checks
+every row before a native WooCommerce import, then reads MariaDB independently
+to verify what actually persisted. Only then do downloads unlock.
 
-The rehearsal now reads complete JSON product snapshots directly from MariaDB,
-including records with missing metadata. It checks exact SKU identity, decimal
-regular/active prices, integer stock and derived stock status. After baseline
-seeding, every update must preserve staged product IDs, parent IDs, names, slugs,
-publication status, descriptions, short descriptions, simple-product type,
-sale-price metadata and stock-management mode. Unupdated products must retain
-their price/stock as well. IDs are preserved within the disposable store; source
-or production WooCommerce IDs are not copied or claimed to be equivalent.
-Only the supported mapped input fields are seeded; other CSV columns remain
-outside the rehearsal's unchanged-field guarantee.
+**The model writes the transformation. It cannot authorize a change or certify
+its own result.** Nothing is published to your production store.
 
-The eight synthetic evaluation holdouts and gold results were frozen before
-tuning in `evaluation/cases.json`, with an LF-normalized SHA-256 manifest and
-predeclared [paired protocol](evaluation/PROTOCOL.md). They are developer-authored
-realistic examples, not independent customer evidence. Both arms receive the same
-confirmed mappings and use the same native staging/verification. The deterministic
-comparator performs a full exact-SKU join with duplicate detection, validation
-and unresolved accounting; it does not deliberately guess unfamiliar headers.
+## Walk through a real rehearsal
 
-Run only with no application worker or other evaluation already running. Complete
-the Phase 1 plugin/image/credential setup first. From the repository root:
+1. **Bring two files.** In the invited demo, download the
+   [approved synthetic pair](https://95.179.218.142.sslip.io/demo/index.html).
+   Upload them as **Baseline WooCommerce CSV** and **Supplier CSV**.
+2. **Make the meaning explicit.** Select **Upload and review mappings**, inspect
+   source values, and confirm every required column. Changing a mapping clears
+   consent. Optional model interpretation is a proposal you must review.
+3. **Give permission.** Check the mapping/intent confirmation and select
+   **Confirm and rehearse**. Execution cannot begin before this step.
+4. **Wait for evidence.** A separate worker runs the bounded transformation,
+   imports resolved rows into disposable WooCommerce, checks independent SQL
+   readback, and cleans up. The interface never invents percentage progress.
+5. **Take the verified file.** Use **Download verified CSV** and
+   **Download change report**. Partial results list held rows and their reasons;
+   zero resolved rows or a verification/cleanup failure releases no CSV.
 
-```powershell
-uv run --locked pytest -q --basetemp=.runtime/pytest-verification
-uv run --locked ruff check .
-git diff --check
-# Real Vultr tokens + local disposable Docker stores, no cloud provisioning:
-uv run --locked python -m shelfready.evaluate --live-local
-# Use the exact results.json path printed by that run:
-uv run --locked python -m shelfready.evaluate_summary artifacts/evaluation/RUN/results.json
+The November 5 public run persisted these synthetic updates and downloaded them
+through the real interface:
+
+| Exact SKU | Baseline price / stock | Verified price / stock |
+| --------- | ---------------------- | ---------------------- |
+| `00017`   | `12.30` / `4`          | `13.55` / `7`          |
+| `A-2`     | `0.10` / `0`           | `1.35` / `2`           |
+
+Leading zeros stayed intact. Disposable product IDs and supported unchanged
+fields were preserved. A separate negative control held both unknown identifiers
+and denied downloads, without calling the model.
+
+## What has actually been verified
+
+| Evidence lane                            | Recorded result                                                                   | What it establishes                                                                                 |
+| ---------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Live Vultr deployment**                | 3 public Playwright tests passed; one model request, 835 tokens                   | HTTPS/auth, actual upload-to-download, remote execution, native import, independent SQL and cleanup |
+| **Live negative / containment controls** | Held rows; download denial; network/write denial; enforced timeout and memory cap | Tested fail-closed behavior and the separate runner boundary                                        |
+| **Public frontend**                      | Desktop WebGL; 320–1440px reduced-motion layouts; keyboard and fallback checks    | The deployed cinematic UI and usable fallback surfaces on tested Chromium                           |
+| **Local Python**                         | 128 tests, including 10 Docker/native tests                                       | Host regressions and real local containers; separate from cloud proof                               |
+| **Offline-safe CI**                      | Python offline lane; 17 portable browser tests                                    | No live inference; portable UI tests use explicitly synthetic API responses                         |
+
+These are dated observations, not an uptime promise or universal security claim.
+Hosted CI is offline-safe and never spends inference tokens or provisions cloud
+resources. [Deployment proof and limitations](docs/live-deployment.md) ·
+[CI boundaries and reproduction](docs/ci-hardening.md)
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Operator["Operator"] --> HTTPS
+  subgraph Control["Vultr · control VM"]
+    HTTPS["Caddy · React build"] --> API["FastAPI · SQLite jobs"]
+    API --> Worker["Separate worker"]
+    Worker --> Validate["Trusted row validation"]
+    Validate --> Store["Disposable WooCommerce"]
+    Store --> SQL["Independent MariaDB readback"]
+    SQL --> Export["Verified CSV + report"]
+  end
+  Worker <--> Inference["Vultr Serverless Inference"]
+  Worker <-->|"Restricted SSH · bounded JSON"| Runner["Separate Vultr runner · isolated Python"]
 ```
 
-Every run has a new ignored directory. Raw API request IDs/usage, generated
-programs, candidate stdout, wall times and independent before/after snapshots
-remain there. The summary refuses incomplete or selected-case runs and audits
-accepted final states against the frozen oracle. Never select the best run.
-Malformed inputs, unknown/duplicate SKUs, unsupported numeric formats, ambiguous
-intent, hostile ignored text and all-unresolved cases are represented. Two
-pre-import corruptions and a deliberately incorrect **real native import** serve
-as negative controls; synthetic provider/cleanup failures are separate unit tests.
-The tests do not establish arbitrary prompt-injection resistance: ignored supplier
-notes are not sent to the model, and mapping confirmation precedes generation.
-See [measured competitive evidence](docs/verification.md) for the verdict and limits.
+Model and SSH credentials stay on control. Generated code executes only on the
+runner. The native importer is trusted code, separate from generated Python.
+Both frontend and backend are hosted on Vultr.
 
-## Run the local rehearsal
+| Layer        | Implementation                                                                         |
+| ------------ | -------------------------------------------------------------------------------------- |
+| Experience   | React 19, strict TypeScript, Vite, Tailwind CSS, Three.js; locked Proof Shelf identity |
+| Control      | Python 3.12, FastAPI, one separate worker, SQLite, Caddy HTTPS                         |
+| Inference    | Vultr's OpenAI-compatible API; pinned `qwen3.8-27b`, explicit bounded loop             |
+| Execution    | Restricted SSH dispatcher and digest-pinned Python Docker image                        |
+| Rehearsal    | WooCommerce 10.3.5 native CSV importer; pinned WordPress, WP-CLI and MariaDB           |
+| Verification | Independent deterministic expectations, direct SQL, pytest, Playwright, Ruff           |
 
-First complete the Phase 1 setup below, including `python -m shelfready.store`
-to cache the checksum-pinned plugin and generate disposable local credentials.
-Use Node 22.12+ (tested with Node 24) and Python 3.12. From the repository root:
+## Safety is part of the workflow
 
-```powershell
-uv sync --locked
-# Terminal 1: loopback API
-uv run --locked uvicorn shelfready.api:app --host 127.0.0.1 --port 18765
-# Terminal 2: separate worker; explicit local Docker development mode
-$env:SHELFREADY_LOCAL_RUNNER='1'
-uv run --locked python -m shelfready.worker
-# Terminal 3
-cd web
-npm ci
-npm run dev
-```
+- **You retain authority.** Exact SKU matching, explicit column/intent confirmation,
+  no guessed currency conversion, taxes or inventory quantities.
+- **Generated output is untrusted.** Independent validators reject altered,
+  missing, extra or incorrectly accounted rows. Every supplier row is resolved
+  or held exactly once; SKU strings and decimal precision are preserved.
+- **Execution is contained.** Non-root, no network/credentials/host mounts/Docker
+  socket, read-only root, 0.5 CPU, 128 MiB memory, 32 PIDs, bounded output and time.
+  Docker shares the runner kernel; this is not absolute isolation.
+- **An importer success message is insufficient.** SQL verifies persisted values
+  and supported unchanged fields. Baseline IDs are preserved within the disposable
+  store, not copied from production. Unmapped CSV fields are outside this guarantee.
+- **Failure does not become success.** At most three transformation attempts;
+  cleanup runs on success and failure. Failed verification or cleanup blocks export.
 
-Open `http://127.0.0.1:18766`. Upload UTF-8 baseline and supplier CSV files,
-review candidate mappings and previews, choose every required column, and
-explicitly confirm same-currency replacement of both price and stock. Execution
-cannot begin before confirmation. The worker gets at most three code-generation/
-validation attempts. Only independently validated rows enter the disposable store;
-CSV and JSON change-report downloads unlock after independent persisted readback
-and successful cleanup. Partial success labels every unresolved supplier row.
-Zero resolved rows or verification/cleanup failure releases no CSV.
+Inputs are bounded to 16 KiB and 100 rows per CSV. The hosted demo adds shared
+Basic Auth, exact fixture allowlisting, request limits, one active job and a
+persistent 30-upload quota. Downloads expire after 24 hours; expiry does not
+reset the quota. [Detailed operating boundaries](docs/live-deployment.md)
 
-Bounds: 16 KiB, 100 rows, 20 columns, 256 characters/cell; unique headers,
-single-line cells, explicit simple-product baseline, nonnegative decimal prices
-up to six places and whole nonnegative stock. Matching is exact and preserves
-SKU strings. Unknown SKUs, duplicate supplier SKUs and invalid price/stock rows
-remain unresolved. Unsupported baseline data fails validation. The trusted
-validator computes expectations separately from generated code and rejects
-omitted, extra, altered or incorrectly accounted output rows.
+## Run locally
 
-SQLite stores local jobs/downloads for 24 hours; expiry is reaped on requests
-and worker polls. Original input data is cleared on completion/failure. A persistent
-30-upload lifetime quota bounds inference usage; expiry does not reset it. One
-queued/running rehearsal and one OS-locked worker are allowed. A worker restart
-reaps its disposable store, labelled sandbox containers and temporary catalog
-directories, and marks interrupted work failed. Do not run Phase 1 tests and the
-worker concurrently, since containment cleanup tests assume no other sandboxes.
+Use **Python 3.12**, **uv**, **Node 24**, and Docker Compose v2 with a running Linux
+Docker engine/cgroup v2. Docker Desktop's Linux backend is supported. Use a
+dedicated development environment; stop any worker before setup or Docker tests.
 
-The local API has host/origin checks and is intended for loopback use. Job UUIDs
-act as download capabilities; keep them private. Public deployment, authentication
-and independent runner verification remain deployment work. The default execution
-path requires `RUNNER_HOST` and `RUNNER_SSH_KEY_PATH`: it sends JSON over stdin
-to a fixed `python3 -m shelfready.runner` SSH command, with batch mode and strict
-host-key checking. Install this pinned checkout and Python 3.12 on the runner,
-pre-pull the pinned image, restrict SSH/network access and keep model credentials
-off that VM. That remote boundary has **not** been deployed or live-verified.
-Local mode must be explicitly opted into; generated code is never a shell argument.
+<details>
+<summary><strong>Setup and three-terminal launch</strong></summary>
 
-For a built-UI local preview, run `npm run build` in `web`, keep the API on
-18765, and run `caddy run --config infra/Caddyfile` from the root instead of Vite.
-Caddy serves the static build and proxies the API on localhost:18766.
-
-Verification from the root, with no worker already running:
-
-```powershell
-uv run --locked pytest -q --basetemp=.runtime/pytest-check
-uv run --locked ruff check .
-git diff --check
-cd web
-npm run build
-npx playwright install chromium
-npm run test:e2e
-```
-
-The browser test starts its own API and separate worker, uses the real Vultr key
-from ignored `.env`, and rehearses synthetic fixture products through real native
-import/readback before downloading partial verified output. It spends inference
-tokens and writes ignored evidence under `artifacts/rehearsal/`. Unit failure
-injections are explicitly synthetic and do not substitute for this live test.
-If system CAs are required, use `uv --native-tls` and
-`$env:NODE_OPTIONS='--use-system-ca'`; never disable certificate verification.
-
-## Phase 1 probes
-
-The local, ignored `architecture.md` is the owner's binding scope contract.
-`AGENTS.md` and `CLAUDE.md` require coding agents to read it. Obtain it from the
-owner before development. Never put credentials in source control.
-
-## Setup
-
-Use Python 3.12, uv, Docker Compose v2 and a running Linux Docker engine
-(Docker Desktop's Linux backend works on Windows). Run from the repository root.
-Use a cgroup v2 engine with Docker's default seccomp profile available.
-The Docker daemon is privileged; use a dedicated development machine/runner.
-No cloud provisioning is required for these probes.
-
-```powershell
-uv sync --locked
-# If your network uses a trusted enterprise CA: uv --native-tls sync --locked
-Copy-Item .env.example .env  # Only when .env does not already exist
-```
-
-Set only `VULTR_INFERENCE_API_KEY` in `.env` for these gates. Empty URL/model
-fields use `config/inference.json`: Vultr's `/v1` endpoint and the verified
-`qwen3.8-27b` model. An explicit model override is for a new feasibility probe;
-revalidate and update the pin before changing the application model. Inference
-uses the OpenAI-compatible SDK, OS certificate trust, certificate verification,
-no automatic retries, and a 90-second request timeout. It does not use OpenAI or
-NVIDIA credentials. Runner SSH fields are reserved for later deployment and are
-never sent to generated code.
-
-## Run the three gates
-
-```powershell
+```sh
+uv sync --frozen
+npm --prefix web ci
 docker pull python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
-uv run --locked python -m shelfready.inference
-uv run --locked python -m shelfready.sandbox
-uv run --locked python -m pytest -q
-uv run --locked python -m shelfready.store
-uv run --locked ruff check .
 ```
 
-The inference probe discovers the actual model inventory, checks availability and
-makes one paid, bounded coding call. The second executes that response in Docker
-and independently checks exact JSON values, leading-zero SKUs and decimal prices.
-Model output is never run on the control host. Raw model inventory, code and API
-response metadata stay in ignored `artifacts/inference/`. A failed new probe
-removes stale generated code and metadata before attempting the call.
+Create an ignored `.env` from [.env.example](.env.example) **only if one does not
+already exist**, and configure `VULTR_INFERENCE_API_KEY` locally. Empty endpoint
+and model fields use [the pinned configuration](config/inference.json). No
+management API key or cloud provisioning is needed for local rehearsal.
 
-The store probe downloads WooCommerce **10.3.5**, checks its pinned SHA-256,
-generates local disposable credentials in `.runtime/store.env`, and starts
-digest-pinned WordPress **6.8.3**, WP-CLI **2.12.0**, and MariaDB **11.4.8**.
-It publishes no ports. The runtime network is internal, so the trusted importer
-cannot access external stores or the internet. The download happens on the host
-before import. These are reproducibility pins, not a production security claim.
+Prepare the checksum-pinned plugin, disposable credentials and native store:
 
-The trusted PHP adapter invokes `WC_Product_CSV_Importer`, the native importer,
-to create two baseline simple products and update them by SKU. A fresh MariaDB
-client independently reads persisted SKU, regular price, stock and product name
-after each import. Exact comparisons detect extra products and unchanged-name
-regressions. The probe resets the database, checks it contains no tables, then
-removes its containers, network and both volumes even on failure. Only a complete
-pass writes `artifacts/store/result.json`. Re-running starts a fresh store.
-Do not run simultaneous copies; project `shelfready-feasibility` is disposable.
+```sh
+uv run --frozen python -m shelfready.store
+```
 
-If interrupted outside Python's cleanup (power loss/forced termination), reap only
-this project's resources:
+This downloads the pinned WooCommerce package, imports/reads/resets a local test
+store, then removes its disposable resources. It makes no inference request.
+Start these in **three separate terminals**, from the repository root:
+
+```sh
+# 1 · loopback API
+uv run --frozen uvicorn shelfready.api:app --host 127.0.0.1 --port 18765
+```
 
 ```powershell
-docker compose --project-name shelfready-feasibility --env-file .runtime/store.env -f infra/compose.yaml down --volumes --remove-orphans
-docker ps -a --filter name=shelfready-sandbox-
-# Remove any abandoned container by its exact reported name: docker rm -f NAME
+# 2 · worker, explicit local development mode (PowerShell)
+$env:SHELFREADY_LOCAL_RUNNER = '1'
+uv run --frozen python -m shelfready.worker
 ```
 
-## Sandbox boundary
+For a POSIX shell, use
+`SHELFREADY_LOCAL_RUNNER=1 uv run --frozen python -m shelfready.worker` instead.
+Local mode runs generated code in Docker on your development machine; the
+deployed application requires the separate SSH runner.
 
-Generated Python enters over stdin without shell interpolation or host mounts.
-The container has no network, credentials or Docker socket; its image environment
-is cleared before execution. It runs as UID/GID 65534 with capabilities dropped,
-no-new-privileges and Docker's default seccomp profile. Root is read-only;
-scratch space is an 8 MiB tmpfs and output space is a 1 MiB tmpfs. Limits are
-0.5 CPU, 128 MiB memory with no extra swap, 32 PIDs, 64 descriptors, 1 MiB/file,
-no core dumps, 64 KiB input code and 64 KiB combined stdout/stderr. Container
-logging is disabled. Default execution timeout is five seconds, capped at thirty;
-cleanup has separate bounded Docker-command timeouts and reports failures.
+```sh
+# 3 · frontend
+npm --prefix web run dev
+```
 
-Only bounded stdout is released; no generated files are exported. Rehearsal
-inputs arrive as a serialized JSON string over stdin, without input-file mounts;
-generated code cannot modify the trusted host's validation expectations. The
-fixed SSH dispatcher is implemented, but its separate Vultr VM boundary still
-requires deployment and live verification. Docker shares the host kernel and
-does not provide absolute isolation. The observed execution evidence is local.
+Open **http://127.0.0.1:18766** and use [baseline.csv](fixtures/baseline.csv) and
+[update.csv](fixtures/update.csv). Confirming a rehearsal spends real Vultr
+inference tokens. Never disable TLS verification to work around certificate errors.
 
-`pytest` includes live Docker containment tests and requires the pinned Python
-image. `pytest -m "not live"` runs only host validation tests; that is insufficient
-for a GO verdict. No test replaces an external integration with simulated success.
+</details>
 
-References: [Vultr API](https://api.vultrinference.com/docs/reference),
-[WooCommerce native CSV importer](https://woocommerce.com/document/product-csv-importer-exporter/).
+## Verify without paid integrations
 
-See [recorded Phase 1 evidence](docs/feasibility.md) for actual measured results
-and the GO/NO-GO decision.
+After installing dependencies and `npx playwright install chromium` from `web/`:
+
+```sh
+uv run --frozen pytest -q -m "not live" --offline --strict-markers
+uv run --frozen ruff check .
+npm --prefix web run build
+npm --prefix web run format:check
+node scripts/validate_brand.mjs
+node scripts/validate_showcase.mjs
+npm --prefix web run test:ci
+git diff --check
+```
+
+The offline lane deliberately excludes Docker/native tests. For the complete
+Python suite, finish store setup, stop the worker and run `uv run --frozen pytest`.
+GPU cinematic and real Vultr/browser journeys are separate manual lanes;
+[their prerequisites and costs](docs/ci-hardening.md#explicit-manual-lanes) are
+explicit. Offline passes never substitute for live integration proof.
+
+## Scope and honest limits
+
+CSV input, existing simple products, exact SKUs, price/stock replacement and a
+downloadable release file. No variants, product creation, production publishing,
+XLSX/PDF import, fuzzy product matching, currency conversion or tax decisions.
+
+**Incremental agent value remains unproven.** Frozen comparisons did not establish
+superiority over competent deterministic processing. Catalog Rescue defaults to
+its verified deterministic/manual reviewer; model advice is explicitly experimental.
+Those results remain unchanged. [Competitive evaluation](docs/verification.md) ·
+[Schema-interpretation spike](docs/agent-value-spike.md) ·
+[Catalog Rescue](docs/catalog-rescue.md)
+
+The judging deployment has finite quota, shared access and a temporary hostname.
+It is not a multi-tenant service. Physical mobile devices, Safari and screen-reader
+usability have not been certified. Automated accessibility checks cannot establish
+canvas contrast or complete usability.
+
+## Further reading
+
+[Deployment evidence and operations](docs/live-deployment.md) ·
+[Cinematic frontend](docs/cinematic-world.md) ·
+[Brand](docs/BRAND.md) · [CI and security](docs/ci-hardening.md) ·
+[Showcase artwork and validation](docs/readme-showcase.md)
