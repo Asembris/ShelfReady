@@ -1,17 +1,43 @@
-# ShelfReady
+<div align="center">
+
+<img src="docs/assets/readme-hero.svg" width="100%" alt="ShelfReady: Rehearse, Verify, Release. An illustrated workflow on three shelves. Rehearse: synthetic SKU 00017 changes price from 12.30 to 13.55 and stock from 4 to 7 in a disposable store. Verify: expected values equal the persisted values read independently with SQL. Release: only then do the verified CSV and change report unlock." />
+
+<br />
 
 **Rehearse supplier catalog changes. Release a file backed by evidence.**
 
-For WooCommerce operators who need to update prices and stock without gambling
-on a supplier spreadsheet. Confirm the meaning, rehearse in a disposable store,
-and download only independently verified changes.
+For WooCommerce operators who need to update prices and stock without gambling on
+a supplier spreadsheet. Confirm the meaning, rehearse in a disposable store, and
+download only independently verified changes.
 
-![ShelfReady: supplier CSV → explicit human approval → Vultr inference and isolated execution → WooCommerce import → independent SQL verification → verified CSV and change report. Workflow illustration.](docs/assets/readme-hero.svg)
+<a href="https://95.179.218.142.sslip.io"><img src="docs/assets/readme-cta-demo.svg" height="48" alt="Open the invited demo" /></a>
+<a href="docs/live-deployment.md"><img src="docs/assets/readme-cta-evidence.svg" height="48" alt="See the live evidence" /></a>
+<a href="#run-locally"><img src="docs/assets/readme-cta-local.svg" height="48" alt="Run it locally" /></a>
 
-**[Open the demo](https://95.179.218.142.sslip.io)** ·
-[CI](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml) ·
-[Security](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml) ·
-[Live evidence](docs/live-deployment.md) · [Run locally](#run-locally)
+<br />
+
+[![CI](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml)
+[![Security](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml)
+[![Live journey: 3 passed, Nov 5 2026](https://img.shields.io/badge/live_journey-3_passed_%C2%B7_Nov_5_2026-8DE3BF?labelColor=102044)](docs/live-deployment.md)
+[![Python tests: 128 passed](https://img.shields.io/badge/python_tests-128_passed-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
+[![Browser tests: 17 passed](https://img.shields.io/badge/browser_tests-17_passed-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
+[![License: MIT](https://img.shields.io/badge/license-MIT-6C8CFF?labelColor=102044)](LICENSE)
+[![Built for the Vultr Agent Rush Hackathon](https://img.shields.io/badge/built_for-Vultr_Agent_Rush-6C8CFF?labelColor=102044)](https://lablab.ai/ai-hackathons/vultr-hackathon)
+
+![Vultr](https://img.shields.io/badge/Vultr-102044?logo=vultr&logoColor=F1F5FF)
+![Python 3.12](https://img.shields.io/badge/Python_3.12-102044?logo=python&logoColor=F1F5FF)
+![FastAPI](https://img.shields.io/badge/FastAPI-102044?logo=fastapi&logoColor=F1F5FF)
+![React 19](https://img.shields.io/badge/React_19-102044?logo=react&logoColor=F1F5FF)
+![TypeScript](https://img.shields.io/badge/TypeScript-102044?logo=typescript&logoColor=F1F5FF)
+![Vite](https://img.shields.io/badge/Vite-102044?logo=vite&logoColor=F1F5FF)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-102044?logo=tailwindcss&logoColor=F1F5FF)
+![Three.js](https://img.shields.io/badge/Three.js-102044?logo=threedotjs&logoColor=F1F5FF)
+![WooCommerce 10.3.5](https://img.shields.io/badge/WooCommerce_10.3.5-102044?logo=woocommerce&logoColor=F1F5FF)
+![Docker](https://img.shields.io/badge/Docker-102044?logo=docker&logoColor=F1F5FF)
+![MariaDB](https://img.shields.io/badge/MariaDB-102044?logo=mariadb&logoColor=F1F5FF)
+![SQLite](https://img.shields.io/badge/SQLite-102044?logo=sqlite&logoColor=F1F5FF)
+
+</div>
 
 The hosted demo requires a private invite from the owner and accepts only its two
 provided synthetic CSVs. It is a bounded judging deployment, last verified on
