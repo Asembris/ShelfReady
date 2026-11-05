@@ -33,7 +33,7 @@ for (const match of readme.matchAll(/\]\(([^)]+)\)/g)) {
     assert.ok(slugs.includes(fragment), `Broken heading link: ${target}`);
   }
 }
-const preview = `<!doctype html><html lang="en"><meta charset="utf-8"><title>ShelfReady banner image-mode proof</title><style>body{margin:0;background:#fff}img{display:block;max-width:100%;height:auto}</style><img src="/hero.svg" width="1280" height="360" alt="ShelfReady's illustrated supplier-to-verified-release workflow">`;
+const preview = `<!doctype html><html lang="en"><meta charset="utf-8"><title>ShelfReady banner image-mode proof</title><style>body{margin:0;background:#fff}img{display:block;max-width:100%;height:auto}</style><img src="/hero.svg" width="1280" height="640" alt="ShelfReady's illustrated supplier-to-verified-release workflow">`;
 const server = http.createServer((req, res) => {
   const pathname = new URL(req.url, "http://localhost").pathname;
   if (pathname === "/hero.svg") {
@@ -93,7 +93,7 @@ try {
     }
   };
   const page = await browser.newPage({
-    viewport: { width: 1280, height: 360 },
+    viewport: { width: 1280, height: 640 },
     deviceScaleFactor: 1,
   });
   const errors = [];
@@ -110,7 +110,7 @@ try {
       if (doc.querySelector("parsererror")) throw Error("Invalid SVG XML");
       const root = doc.documentElement;
       if (
-        root.getAttribute("viewBox") !== "0 0 1280 360" ||
+        root.getAttribute("viewBox") !== "0 0 1280 640" ||
         root.getAttribute("role") !== "img"
       )
         throw Error("Wrong banner dimensions/role");
@@ -180,7 +180,7 @@ try {
       if (
         bounds.some(
           (b) =>
-            b.x < 0 || b.y < 0 || b.x + b.width > 1280 || b.y + b.height > 360,
+            b.x < 0 || b.y < 0 || b.x + b.width > 1280 || b.y + b.height > 640,
         )
       )
         throw Error("Text clipped outside banner");
@@ -196,10 +196,10 @@ try {
   const animations = await page.evaluate(() =>
     document.getAnimations().map((a) => a.effect.getTiming().duration),
   );
-  assert.equal(animations.length, 6);
-  assert.ok(animations.every((d) => d === 12000));
+  assert.equal(animations.length, 22);
+  assert.ok(animations.every((d) => d === 14000));
   const frames = [];
-  for (const time of [0, 2640, 5280, 7200, 8880, 10680, 12000]) {
+  for (const time of [0, 2800, 6400, 7000, 7700, 10000, 14000]) {
     await page.evaluate((time) => {
       for (const a of document.getAnimations()) {
         a.pause();
@@ -244,7 +244,7 @@ try {
   });
   const reduced = await reducedBrowser.newContext({
     reducedMotion: "reduce",
-    viewport: { width: 1280, height: 360 },
+    viewport: { width: 1280, height: 640 },
     deviceScaleFactor: 1,
   });
   const still = await reduced.newPage();
@@ -297,7 +297,7 @@ try {
     "Image-mode animation did not run",
   );
   for (const width of [896, 390]) {
-    await page.setViewportSize({ width, height: 360 });
+    await page.setViewportSize({ width, height: 640 });
     await page.screenshot({ path: path.join(out, `image-width-${width}.png`) });
     assert.ok(
       await page.evaluate(
