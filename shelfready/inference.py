@@ -17,14 +17,21 @@ Print JSON list of objects with sku, price (two decimal string), stock (string).
 Use only Python standard library. No input(), files, network, or commentary.'''
 
 
+class MissingInferenceKey(Exception):
+    """Inference cannot start until the local key is configured."""
+
+
 def client():
     load_dotenv()
+    key = os.getenv("VULTR_INFERENCE_API_KEY")
+    if not key or not key.strip():
+        raise MissingInferenceKey("Set VULTR_INFERENCE_API_KEY before running a rehearsal.")
     base = os.getenv("VULTR_INFERENCE_BASE_URL") or BASE_URL
     if base.rstrip("/") != BASE_URL:
         raise ValueError("Only the contracted Vultr endpoint is permitted")
     tls = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     tls.load_default_certs()  # Include the OS trust store; keep certificate verification on.
-    return OpenAI(api_key=os.environ["VULTR_INFERENCE_API_KEY"],
+    return OpenAI(api_key=key,
                   base_url=base, timeout=90, max_retries=0,
                   http_client=httpx.Client(verify=tls, timeout=90, trust_env=False))
 
