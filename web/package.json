@@ -10,9 +10,10 @@
     "test:public": "playwright test --config playwright.public.config.ts",
     "predev": "node scripts/brand-assets.mjs",
     "prebuild": "node scripts/brand-assets.mjs",
-    "format:check": "prettier --check src scripts/brand-assets.mjs e2e/{ui,scroll,motion,cinema,rehearsal,deep-link}.spec.ts playwright{,.ci,.cinematic}.config.ts package.json index.html",
+    "format:check": "prettier --check src scripts/brand-assets.mjs e2e/{ui,scroll,motion,cinema,rehearsal,deep-link,judge}.spec.ts playwright{,.ci,.cinematic,.judge}.config.ts package.json index.html",
     "typecheck": "tsc --noEmit",
     "test:ci": "playwright test --config playwright.ci.config.ts",
+    "test:judge": "playwright test --config playwright.judge.config.ts",
     "test:cinematic": "playwright test --config playwright.cinematic.config.ts",
     "test:live": "playwright test --config playwright.config.ts rehearsal.spec.ts"
   },

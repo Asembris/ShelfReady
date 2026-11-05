@@ -1761,3 +1761,23 @@ tbody th {
     padding: 0 var(--gutter);
   }
 }
+.verified-replay {
+  margin-bottom: 1rem;
+}
+
+.verified-replay table {
+  width: 100%;
+  table-layout: fixed;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.verified-replay caption {
+  padding-block: 0.5rem;
+  text-align: left;
+}
+
+.verified-replay :is(th, td) {
+  padding: 0.35rem 0.25rem;
+  overflow-wrap: anywhere;
+}
