@@ -114,7 +114,9 @@ def process(row):
         jobs.finish(row["id"], "partial" if unresolved else "complete", report,
                     catalog.csv_text(expected))
     except Exception as error:
-        jobs.finish(row["id"], "failed", {"reason": "Rehearsal failed; no verified CSV released",
+        reason = (str(error) if isinstance(error, inference.MissingInferenceKey)
+                  else "Rehearsal failed; no verified CSV released")
+        jobs.finish(row["id"], "failed", {"reason": reason,
                                           "error_type": type(error).__name__, "attempts": attempts,
                                           "native_diagnostics": getattr(error, "native_diagnostics", [])})
 

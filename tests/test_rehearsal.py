@@ -43,6 +43,28 @@ def test_confirmation_required_and_download_gated(api):
     assert jobs.claim() is None
 
 
+@pytest.mark.parametrize("credential", [None, "", "  "])
+def test_missing_inference_key_fails_before_client_creation(api, monkeypatch, credential):
+    monkeypatch.setattr(worker.inference, "load_dotenv", lambda: False)
+    if credential is None:
+        monkeypatch.delenv("VULTR_INFERENCE_API_KEY", raising=False)
+    else:
+        monkeypatch.setenv("VULTR_INFERENCE_API_KEY", credential)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Missing configuration must fail before creating an inference client")
+
+    monkeypatch.setattr(worker.inference, "OpenAI", forbidden)
+    key = upload(api)
+    jobs.confirm(key, MAPPING)
+    worker.process(jobs.claim())
+    status = api.get(f"/api/jobs/{key}").json()
+    assert status["state"] == "failed"
+    assert "Set VULTR_INFERENCE_API_KEY" in status["report"]["reason"]
+    assert status["report"]["attempts"] == [{"attempt": 1}]
+    assert api.get(f"/api/jobs/{key}/download/csv").status_code == 409
+
+
 def test_upload_bounds_and_quota(api, monkeypatch):
     assert api.post("/api/jobs", content=b"x"*70001).status_code == 413
     assert api.post("/api/jobs", json={"baseline": BASE*1000, "supplier": SUPPLIER}).status_code == 422
