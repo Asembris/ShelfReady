@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import {
   useCallback,
   useEffect,
@@ -8,6 +10,9 @@ import {
 import { WorldStage } from "./Cinema";
 import { BrandIntro } from "./Intro";
 import Story, { FILM_INDEX, useReveal } from "./Story";
+import VerifiedReplay from "./VerifiedReplay";
+
+const JUDGE_DEMO = import.meta.env.VITE_SHELFREADY_JUDGE_DEMO === "1";
 
 type Table = { headers: string[]; rows: string[][] };
 type Intent = {
@@ -705,6 +710,7 @@ export default function App() {
                 Disposable WooCommerce
               </span>
             </div>
+            {JUDGE_DEMO && <VerifiedReplay />}
             <div
               className="workspace-grid"
               {...(phase ? {} : { "data-scene": 6.02, "data-align": "end" })}
@@ -840,7 +846,11 @@ export default function App() {
                           </button>
                         </div>
                         <details className="demo-help">
-                          <summary>Using the invite-only public demo?</summary>
+                          <summary>
+                            {JUDGE_DEMO
+                              ? "Live rehearsal · get the approved files"
+                              : "Using the invite-only public demo?"}
+                          </summary>
                           <p>
                             That deployment accepts only its two supplied
                             synthetic files.{" "}
@@ -919,7 +929,7 @@ export default function App() {
                             <SourcePreview table={table} kind={kind} />
                           </fieldset>
                         ))}
-                        <details className="interpretation">
+                        <details className="interpretation" hidden={JUDGE_DEMO}>
                           <summary>
                             <span>
                               Need help interpreting supplier columns?
@@ -1390,7 +1400,9 @@ export default function App() {
                           <p key={a.attempt}>
                             Attempt {a.attempt}:{" "}
                             {a.validation_error ||
-                              "No transformation validation error reported."}
+                              (JUDGE_DEMO
+                                ? "Detailed diagnostics are private."
+                                : "No transformation validation error reported.")}
                           </p>
                         ))}
                         {status.report.error_type && (
