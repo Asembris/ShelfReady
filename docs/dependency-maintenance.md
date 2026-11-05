@@ -11,8 +11,8 @@ brand artwork, frozen evidence and deployed services are unchanged.
 | PR | Decision | Evidence and reason |
 | --- | --- | --- |
 | [#11](https://github.com/Asembris/ShelfReady/pull/11), Actions | Accept all four | Official release tags resolve to the exact proposed SHAs. All use Node 24, supported by the hosted Ubuntu runners; the Actions-only commit passed CI and Security. |
-| [#12](https://github.com/Asembris/ShelfReady/pull/12), compatible frontend | Accept | The exact proposed package/lock files pass build, formatting, audit, all 17 portable browser tests and two static-preview hardware cinematic tests on current main. |
-| [#13](https://github.com/Asembris/ShelfReady/pull/13), Vite 8.3.5 | Defer | Its old CI fails npm peer resolution: Tailwind's Vite plugin 4.1.17 permits Vite 5/6/7 only. The accepted plugin 4.3.3 permits Vite 8, removing that specific prerequisite, but not validating the major bundler migration. |
+| [#12](https://github.com/Asembris/ShelfReady/pull/12), compatible frontend | Defer after Linux failure | Candidate passes local checks but repeats the unchanged mapping-panel viewport failure in combined Linux CI. Restore original package/lock files; do not weaken the assertion or change UI behavior. |
+| [#13](https://github.com/Asembris/ShelfReady/pull/13), Vite 8.3.5 | Defer | Its old CI fails npm peer resolution: Tailwind's Vite plugin 4.1.17 permits Vite 5/6/7 only. Plugin 4.3.3 permits Vite 8, but that frontend group is also deferred; the peer conflict therefore remains on the accepted branch. |
 | [#14](https://github.com/Asembris/ShelfReady/pull/14), compatible Python | Accept only python-dotenv 1.2.4 | Its grouped CI stops at 40 Ruff findings, including I001 and UP017, before pytest. Defer Ruff 0.17.3, pytest 9.2.0, FastAPI 0.162.0, Starlette 1.10.0 and uvicorn 0.54.0; avoid a combined source/lint/server migration in this bounded pass. |
 | [#15](https://github.com/Asembris/ShelfReady/pull/15), OpenAI SDK 3.42.1 | Defer | Seven test modules fail collection because `httpx` is no longer transitively installed. The application explicitly supplies an `httpx.Client` with verified OS TLS, a 90-second timeout, disabled environment proxy trust and zero retries. This needs an intentional HTTPX2 transport migration, not an extra dependency to conceal the failure. |
 
@@ -24,7 +24,7 @@ registry-token behavior change does not apply: these jobs do not configure a
 registry token. setup-uv's new manifest mirror retains checksum verification.
 Hosted validation confirms these releases run with our actual inputs.
 
-Frontend versions accepted: React/react-dom **19.3.1**, their types **19.3.0**,
+Frontend versions trialed, then reverted: React/react-dom **19.3.1**, their types **19.3.0**,
 Playwright **1.64.1**, Tailwind and its Vite plugin **4.3.3**. React-dom's peer
 requires React ^19.3.1; Playwright requires Node >=20, satisfied by Node 24.
 Vite remains **7.3.7**, TypeScript **5.9.3**, Three.js **0.187.0**.
@@ -62,12 +62,13 @@ suppressed import error or paid provider probe was used here.
 ## Actual failures and validation
 
 The old frontend PR's failing job was a mapping-panel `toBeInViewport` assertion
-with viewport ratio zero. On current main the same assertion passes under the
-proposed versions; this does not establish a unique historical root cause or
-justify changing the test. Vite's security job also failed at npm peer resolution,
+with viewport ratio zero. Locally on current main the same assertion passes under the
+proposed versions; the combined Linux CI repeats the same failure on current main. This does not
+establish a unique root cause or justify changing the test. The frontend group
+is therefore deferred, despite local passes; original dependencies are restored. Vite's security job also failed at npm peer resolution,
 not a reported vulnerability; its Python audit still ran successfully.
 
-Current local results:
+Local candidate results (not final frontend acceptance):
 
 - **118 offline Python tests passed**, 10 marked Docker/native tests explicitly
   deselected; two known upstream deprecation warnings. No assertion changed.
@@ -93,7 +94,22 @@ passed without changing the original tests. Harness logs remain private.
 The Actions-only commit `0eb8203` passed hosted
 [CI](https://github.com/Asembris/ShelfReady/actions/runs/42027547245) and
 [Security](https://github.com/Asembris/ShelfReady/actions/runs/42027547404).
-The final combined branch is checked again after pushing. Existing live evidence
+The first combined branch failed Linux CI at the unchanged mapping-panel
+assertion ([run](https://github.com/Asembris/ShelfReady/actions/runs/42028427968));
+its Python job and Security passed. The frontend package/lock files were restored
+in a follow-up commit, preserving that failure in history. The final reduced
+branch is checked again after pushing. Existing live evidence
 describes its original deployed versions; **these new dependencies are not
 deployed or live-provider verified**. No production-version claim was updated.
 No paid inference, live integration test, VM operation or deployment occurred.
+
+Final accepted scope is the four Actions pins and python-dotenv 1.2.4 only.
+React/DOM remain 19.2.0, their types 19.2.2, Playwright 1.56.1, and
+Tailwind/plugin 4.1.17. Neither the candidate Linux failure nor its local successes
+are relabelled as a verified frontend upgrade.
+
+After restoration, all **17 portable tests passed in 32.8 seconds**, production
+TypeScript/build and formatting passed, and the original bundle sizes returned
+(main 229.29 kB / 72.26 kB gzip). Brand/artwork checks and the npm audit passed
+again. The 118-test offline Python pass and frozen Python audit apply to the
+accepted dotenv version; neither changed during frontend restoration.
