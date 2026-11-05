@@ -156,8 +156,11 @@ reset the quota. [Detailed operating boundaries](docs/live-deployment.md)
 ## Run locally
 
 Use **Python 3.12**, **uv**, **Node 24**, and Docker Compose v2 with a running Linux
-Docker engine/cgroup v2. Docker Desktop's Linux backend is supported. Use a
-dedicated development environment; stop any worker before setup or Docker tests.
+Docker engine/cgroup v2 for native setup. Install curl for the WooCommerce
+download (`curl.exe` on Windows). Docker Desktop's Linux backend is supported.
+Use a dedicated development environment and stop any worker before Docker setup
+or tests. For a clean setup, clone outside any directory tree containing an
+existing `.env`. Dotenv can discover a parent file.
 
 <details>
 <summary><strong>Setup and three-terminal launch</strong></summary>
@@ -168,8 +171,13 @@ npm --prefix web ci
 docker pull python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
 ```
 
+If package or browser downloads fail because your network uses a CA already
+trusted by the operating system, run uv with `UV_NATIVE_TLS=true` and Node with
+`NODE_USE_SYSTEM_CA=1` in your terminal environment. In PowerShell, use
+`$env:UV_NATIVE_TLS = 'true'` and `$env:NODE_USE_SYSTEM_CA = '1'`.
+
 Create an ignored `.env` from [.env.example](.env.example) **only if one does not
-already exist**, and configure `VULTR_INFERENCE_API_KEY` locally. Empty endpoint
+already exist**. Configure `VULTR_INFERENCE_API_KEY` locally for inference. Empty endpoint
 and model fields use [the pinned configuration](config/inference.json). No
 management API key or cloud provisioning is needed for local rehearsal.
 
@@ -205,8 +213,10 @@ npm --prefix web run dev
 ```
 
 Open **http://127.0.0.1:18766** and use [baseline.csv](fixtures/baseline.csv) and
-[update.csv](fixtures/update.csv). Confirming a rehearsal spends real Vultr
-inference tokens. Never disable TLS verification to work around certificate errors.
+[update.csv](fixtures/update.csv). Startup, upload and manual mapping work with
+an empty key. A confirmed job that needs inference fails with a configuration
+message before creating the inference client. With a valid key, confirming a
+rehearsal can spend real Vultr inference tokens.
 
 </details>
 
@@ -225,7 +235,13 @@ npm --prefix web run test:ci
 git diff --check
 ```
 
-The offline lane deliberately excludes Docker/native tests. For the complete
+If pytest reports a permission error in its default temporary directory, append
+`--basetemp=.runtime/pytest-fresh` to the pytest command. Choose a fresh scratch
+path for each run, since pytest clears the specified directory.
+
+The offline lane runs without Docker or a Vultr key. Three failure-injection
+cases skip on a clean checkout until the checksum-pinned WooCommerce archive
+has been downloaded by the store setup above. For the complete
 Python suite, finish store setup, stop the worker and run `uv run --frozen pytest`.
 GPU cinematic and real Vultr/browser journeys are separate manual lanes;
 [their prerequisites and costs](docs/ci-hardening.md#explicit-manual-lanes) are
@@ -254,4 +270,5 @@ canvas contrast or complete usability.
 [Deployment evidence and operations](docs/live-deployment.md) ·
 [Cinematic frontend](docs/cinematic-world.md) ·
 [Brand](docs/BRAND.md) · [CI and security](docs/ci-hardening.md) ·
-[Showcase artwork and validation](docs/readme-showcase.md)
+[Showcase artwork and validation](docs/readme-showcase.md) ·
+[Fresh-clone verification](docs/fresh-clone-verification.md)
