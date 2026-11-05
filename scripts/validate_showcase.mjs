@@ -33,6 +33,47 @@ for (const match of readme.matchAll(/\]\(([^)]+)\)/g)) {
     assert.ok(slugs.includes(fragment), `Broken heading link: ${target}`);
   }
 }
+// The header is raw HTML, which the Markdown link pass above cannot see.
+const htmlTargets = [...readme.matchAll(/\b(?:src|href)="([^"]+)"/g)].map(
+  (m) => m[1],
+);
+assert.ok(htmlTargets.length >= 7, "README header targets were not found");
+for (const target of htmlTargets) {
+  if (/^https?:/.test(target)) continue;
+  const [file, fragment] = target.split("#");
+  if (file) await fs.access(file);
+  if (fragment) {
+    const slugs = [...readme.matchAll(/^#{1,6}\s+(.+)$/gm)].map((m) =>
+      m[1]
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s/g, "-"),
+    );
+    assert.ok(slugs.includes(fragment), `Broken heading link: ${target}`);
+  }
+}
+// Buttons render inside GitHub's image sandbox, so they stay inert and small.
+for (const name of [
+  "readme-cta-demo.svg",
+  "readme-cta-evidence.svg",
+  "readme-cta-local.svg",
+]) {
+  const button = await fs.readFile(`docs/assets/${name}`, "utf8");
+  assert.ok(Buffer.byteLength(button) < 16384, `${name} is too large`);
+  assert.match(button, /role="img"/, `${name} needs an image role`);
+  assert.match(
+    button,
+    /<title id="title">[^<]+<\/title>/,
+    `${name} needs a title`,
+  );
+  assert.ok(
+    !/<script|<image|<foreignObject|<style|\bhref\b|\son\w+=|url\(/i.test(
+      button,
+    ),
+    `${name} must stay inert and self-contained`,
+  );
+  assert.ok(readme.includes(`docs/assets/${name}`), `${name} is not used`);
+}
 const preview = `<!doctype html><html lang="en"><meta charset="utf-8"><title>ShelfReady banner image-mode proof</title><style>body{margin:0;background:#fff}img{display:block;max-width:100%;height:auto}</style><img src="/hero.svg" width="1280" height="640" alt="ShelfReady's illustrated supplier-to-verified-release workflow">`;
 const server = http.createServer((req, res) => {
   const pathname = new URL(req.url, "http://localhost").pathname;
