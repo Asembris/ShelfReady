@@ -294,17 +294,49 @@ test("serve cinematic desktop and accessible responsive fallbacks over HTTPS", a
         requestAnimationFrame(frame);
       }),
   );
-  for (const id of [
+  const reached: Record<string, number> = {};
+  for (const [index, id] of [
     "the-file",
     "your-decision",
     "rehearse",
     "verify",
     "release",
-    "studio",
-  ]) {
-    await page.locator("#" + id).scrollIntoViewIfNeeded();
+  ].entries()) {
+    const copy = page.locator(`#${id}-copy`);
+    await copy.evaluate((el) => {
+      const box = el.getBoundingClientRect();
+      const focus = Number((el as HTMLElement).dataset.focus ?? 0.5);
+      scrollTo({
+        top: box.top + scrollY + box.height / 2 - innerHeight * focus,
+        behavior: "instant",
+      });
+    });
+    await expect
+      .poll(() =>
+        page
+          .getByTestId("world")
+          .evaluate((el) => Number((el as HTMLElement).dataset.sceneTime)),
+      )
+      .toBeCloseTo(index + 1, 1);
+    await expect(copy).toHaveClass(/in-frame/);
+    await expect(copy.locator(".ln > span").last()).toHaveCSS(
+      "transform",
+      "none",
+    );
+    await expect(copy.locator(".chapter-body")).toHaveCSS("opacity", "1");
+    reached[id] = await page
+      .getByTestId("world")
+      .evaluate((el) => Number((el as HTMLElement).dataset.sceneTime));
     await page.screenshot({ path: path.join(evidence(), id + "-desktop.png") });
   }
+  await fs.writeFile(
+    path.join(evidence(), "chapter-positions.json"),
+    JSON.stringify(reached, null, 2),
+  );
+  await page
+    .getByRole("heading", { name: "Two files. One controlled rehearsal." })
+    .scrollIntoViewIfNeeded();
+  await page.screenshot({ path: path.join(evidence(), "studio-desktop.png") });
   await page.reload();
   await expect(page.getByTestId("brand-intro")).toHaveCount(0);
   await page
