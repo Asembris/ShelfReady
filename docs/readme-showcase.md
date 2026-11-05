@@ -73,3 +73,37 @@ ephemeral loopback port and closes the server/browser afterward. Proof captures
 remain ignored. The existing offline-safe web CI job also runs this validator
 and formatting checks, with no new dependencies or permissions. GitHub rendering and final check results are recorded
 after inspection; compilation alone does not establish visual quality.
+
+## Observed verification — November 5, 2026
+
+- **SVG:** 17,413 bytes; valid XML and internal references; the three embedded
+  approved lockup paths match exactly. Six decorative CSS timelines share one
+  12-second cycle. Seven sampled frames demonstrate the story and an exact
+  first/last pixel match. Static/reduced-motion posters retain the full story;
+  two-second stillness checks pass in standalone and embedded-image modes.
+- **GitHub:** its rendered-README endpoint returned HTTP 200, retaining the image,
+  setup disclosure and Mermaid block. The branch's raw image returned HTTP 200
+  with `image/svg+xml`; downloaded bytes match the authored SVG exactly. Private
+  raw-download capabilities were not published or logged.
+- **Visual inspection:** storyboard frames and 896/390px image embedding were
+  inspected. GitHub-rendered HTML was inspected at desktop light/dark and 390px
+  mobile widths in a **local styled preview**, using the exact GitHub-served
+  image. This is not a claim to have inspected GitHub's logged-in page chrome or
+  client-side Mermaid rendering. At phone size, the banner is an overview; the
+  equivalent workflow remains readable in the README text and image description.
+- **Repository:** 128 Python tests passed in 114.90 seconds, including the 10
+  local Docker/native tests; 17 portable browser tests passed in 36.5 seconds.
+  Production TypeScript/Vite build, frontend/showcase formatting, all 17 locked
+  brand-asset checks, Ruff and whitespace checks passed. Existing upstream
+  deprecation and lazy-world chunk-size warnings remain.
+- **Hosted:** [CI](https://github.com/Asembris/ShelfReady/actions/runs/42018646366)
+  and [Security](https://github.com/Asembris/ShelfReady/actions/runs/42018646436)
+  succeeded on the initial README integration revision. The Linux CI run includes
+  the new image-mode/reduced-motion validator and documentation formatting;
+  Security includes dependency audits and full-history redacted Gitleaks.
+
+No real inference request, cloud deployment or evaluation rerun was performed for
+this documentation change. The README's live evidence remains the dated merged
+deployment record. Application, approved brand sources, private operational
+artifacts and frozen evaluations were not changed. Final publication is a branch
+push for owner review, with no PR or merge.

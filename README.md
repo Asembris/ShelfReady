@@ -211,7 +211,7 @@ downloadable release file. No variants, product creation, production publishing,
 XLSX/PDF import, fuzzy product matching, currency conversion or tax decisions.
 
 **Incremental agent value remains unproven.** Frozen comparisons did not establish
-superiority over competent deterministic processing. Catalog Rescue defaults to
+superiority over competent deterministic processing. The Catalog Rescue CLI defaults to
 its verified deterministic/manual reviewer; model advice is explicitly experimental.
 Those results remain unchanged. [Competitive evaluation](docs/verification.md) ·
 [Schema-interpretation spike](docs/agent-value-spike.md) ·
