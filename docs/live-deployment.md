@@ -1,4 +1,49 @@
-# Phase 8 deployment: blocked at existing-runner reachability
+# Phase 8 deployment: blocked at admin access recovery
+
+## November 5 access-recovery checkpoint
+
+On resumption after the owner's PC restart, `feat/live-deployment` was clean and
+Docker Desktop responded with client/server 29.1.3, Linux containers and cgroup
+v2. No local ShelfReady API/frontend listener or running container was found.
+Unrelated stopped containers were left untouched. The complete local Python
+suite subsequently passed **121 tests in 88.60 seconds**, including the existing
+Docker/native tests, with two upstream deprecation warnings and no real model
+requests. Production TypeScript/Vite build, formatting, all 17 brand checks,
+Ruff and whitespace checks passed. The existing lazy-world size warning remains.
+
+Two public-IP lookups agreed that the owner's address had changed. The first
+management request returned HTTP 401, explicitly rejecting the new source. After
+the owner manually authorized its new /32, API access returned HTTP 200. Readback
+of the current user's IP whitelist contained exactly two /32 entries, with no
+unrestricted IPv4 or IPv6 entry. No API key was regenerated or disclosed.
+
+With explicit owner approval, the new admin /32 was added to **both existing
+provider firewall groups**, and read back against the attached existing VMs.
+The old admin /32 was deliberately retained pending successful SSH. Runner's
+control-VM /32 was preserved. All provider rules remain IPv4 TCP 22 /32 rules;
+no web allowance, public SSH, new firewall group or new VM was created.
+
+Strict pinned-key SSH still returned exit 255 with a TCP timeout to both hosts.
+The previously verified guest UFW rules allow the old admin source, so a guest
+allowance for the new source is a plausible remaining cause, **not yet a fresh
+guest-state observation**. Both management records report active/running; actual
+service state cannot be established through unreachable SSH. Automated noVNC
+inspection again stopped at human verification without bypassing it. The owner
+was asked to add only the approved new SSH /32 through each console, preserving
+UFW and all existing rules. No reboot or service restart was requested here.
+
+Evidence is retained privately under `artifacts/live-deployment/` in
+`hosts-resume-20261105.json`, `hosts-new-admin-source.json`,
+`admin-source-added-private.json` and the two `*-console-resume.png` files.
+API ACL and console capabilities remain ignored under `.runtime/`; never publish
+these private records. The provider's pending charges at this checkpoint were
+**$0.63 control + $0.32 runner = $0.95**, not an invoice. Rates and the November 7
+13:42 Paris review deadline below are unchanged. No inference request, release
+installation or new public test occurred. Once guest access is restored, verify
+both SSH connections before removing either old admin rule at either layer.
+
+The earlier checkpoint below is retained as history; its host service snapshot
+and pending charges must not be treated as fresh observations after the restart.
 
 **NO-GO for a judge-ready deployment.** On November 5, 2026 (Europe/Paris), work
 started from a clean tree, fetched origin and fast-forwarded `main` to `4337d2a`,
