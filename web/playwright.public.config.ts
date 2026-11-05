@@ -28,6 +28,7 @@ export default defineConfig({
   testMatch: "public.spec.ts",
   workers: 1,
   retries: 0,
+  maxFailures: 1,
   timeout: 240000,
   reporter: "line",
   outputDir: path.join(evidence, "playwright"),
