@@ -1,0 +1,32 @@
+{
+	admin 127.0.0.1:2019
+}
+
+{$DEMO_DOMAIN} {
+	request_body {
+		max_size 70KB
+	}
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		Cache-Control no-store
+	}
+	@rehearsals path_regexp ^/api/jobs(/[0-9a-f]{32}(/confirm|/download/(csv|report))?)?$
+	handle @rehearsals {
+		reverse_proxy 127.0.0.1:18765 {
+			header_up X-ShelfReady-Visitor {remote_host}
+			header_up -X-Forwarded-For
+		}
+	}
+	@frontend {
+		method GET HEAD
+		path / /assets/* /brand/* /demo/index.html /demo/baseline.csv /demo/update.csv
+	}
+	handle @frontend {
+		root * /opt/shelfready/web/dist
+		file_server
+	}
+	handle {
+		respond 404
+	}
+}
