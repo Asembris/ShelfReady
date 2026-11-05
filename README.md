@@ -44,6 +44,10 @@ provided synthetic CSVs. It is a bounded judging deployment, last verified on
 **November 5, 2026**, with an operating review on **November 7**. Availability is
 temporary; the local setup below remains reproducible.
 
+Optional model interpretation sends the entered intent text to Vultr Serverless
+Inference. Use synthetic examples and leave credentials and personal data out of
+that field.
+
 ## The 30-second version
 
 A supplier file is a proposal, not permission to change your catalog.
