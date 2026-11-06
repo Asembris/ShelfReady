@@ -10,17 +10,19 @@ For WooCommerce operators who need to update prices and stock without gambling o
 a supplier spreadsheet. Confirm the meaning, rehearse in a disposable store, and
 download only independently verified changes.
 
-<a href="https://95.179.218.142.sslip.io"><img src="docs/assets/readme-cta-demo.svg" height="48" alt="Open the invited demo" /></a>
+<a href="https://95.179.218.142.sslip.io/"><img src="docs/assets/readme-cta-demo.svg" height="48" alt="Open the public demo" /></a>
 <a href="docs/live-deployment.md"><img src="docs/assets/readme-cta-evidence.svg" height="48" alt="See the live evidence" /></a>
 <a href="#run-locally"><img src="docs/assets/readme-cta-local.svg" height="48" alt="Run it locally" /></a>
+
+**[Watch the submission video](https://youtu.be/UmIIVeOZky4) · [30-second judge guide](docs/JUDGE.md)**
 
 <br />
 
 [![CI](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Asembris/ShelfReady/actions/workflows/ci.yml)
 [![Security](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/Asembris/ShelfReady/actions/workflows/security.yml)
-[![Live journey: 3 passed, Nov 5 2026](https://img.shields.io/badge/live_journey-3_passed_%C2%B7_Nov_5_2026-8DE3BF?labelColor=102044)](docs/live-deployment.md)
-[![Python tests: 128 passed](https://img.shields.io/badge/python_tests-128_passed-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
-[![Browser tests: 17 passed](https://img.shields.io/badge/browser_tests-17_passed-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
+[![Anonymous live rehearsal: verified November 5, 2026](https://img.shields.io/badge/anonymous_live_rehearsal-verified_%C2%B7_Nov_5_2026-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
+[![Python tests: 132 offline and 10 Docker](https://img.shields.io/badge/Python_tests-132_offline_%2B_10_Docker-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
+[![Browser tests: 17 portable and 2 judge](https://img.shields.io/badge/browser_tests-17_portable_%2B_2_judge-8DE3BF?labelColor=102044)](#what-has-actually-been-verified)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6C8CFF?labelColor=102044)](LICENSE)
 [![Built for the Vultr Agent Rush Hackathon](https://img.shields.io/badge/built_for-Vultr_Agent_Rush-6C8CFF?labelColor=102044)](https://lablab.ai/ai-hackathons/vultr-hackathon)
 
@@ -39,14 +41,10 @@ download only independently verified changes.
 
 </div>
 
-The hosted demo requires a private invite from the owner and accepts only its two
-provided synthetic CSVs. It is a bounded judging deployment, last verified on
-**November 5, 2026**, with an operating review on **November 7**. Availability is
-temporary; the local setup below remains reproducible.
-
-Optional model interpretation sends the entered intent text to Vultr Serverless
-Inference. Use synthetic examples and leave credentials and personal data out of
-that field.
+The public judge demo opens without an account and accepts only its two supplied
+synthetic CSVs. For a quick look, open **Verified replay · read-only evidence** in
+the rehearsal studio. The replay shows recorded SQL results without starting a
+job, calling inference, or consuming upload allowance.
 
 ## The 30-second version
 
@@ -63,12 +61,12 @@ its own result.** Nothing is published to your production store.
 
 ## Walk through a real rehearsal
 
-1. **Bring two files.** In the invited demo, download the
+1. **Bring two files.** In the public demo, download the
    [approved synthetic pair](https://95.179.218.142.sslip.io/demo/index.html).
    Upload them as **Baseline WooCommerce CSV** and **Supplier CSV**.
 2. **Make the meaning explicit.** Select **Upload and review mappings**, inspect
    source values, and confirm every required column. Changing a mapping clears
-   consent. Optional model interpretation is a proposal you must review.
+   consent. The public demo uses direct column review.
 3. **Give permission.** Check the mapping/intent confirmation and select
    **Confirm and rehearse**. Execution cannot begin before this step.
 4. **Wait for evidence.** A separate worker runs the bounded transformation,
@@ -78,8 +76,8 @@ its own result.** Nothing is published to your production store.
    **Download change report**. Partial results list held rows and their reasons;
    zero resolved rows or a verification/cleanup failure releases no CSV.
 
-The November 5 public run persisted these synthetic updates and downloaded them
-through the real interface:
+The November 5 anonymous public run persisted these synthetic updates and
+downloaded them through the real interface.
 
 | Exact SKU | Baseline price / stock | Verified price / stock |
 | --------- | ---------------------- | ---------------------- |
@@ -87,22 +85,23 @@ through the real interface:
 | `A-2`     | `0.10` / `0`           | `1.35` / `2`           |
 
 Leading zeros stayed intact. Disposable product IDs and supported unchanged
-fields were preserved. A separate negative control held both unknown identifiers
-and denied downloads, without calling the model.
+fields were preserved. An earlier deployment's negative control held both unknown
+identifiers and denied downloads without calling the model.
 
 ## What has actually been verified
 
-| Evidence lane                            | Recorded result                                                                   | What it establishes                                                                                 |
-| ---------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| **Live Vultr deployment**                | 3 public Playwright tests passed; one model request, 835 tokens                   | HTTPS/auth, actual upload-to-download, remote execution, native import, independent SQL and cleanup |
-| **Live negative / containment controls** | Held rows; download denial; network/write denial; enforced timeout and memory cap | Tested fail-closed behavior and the separate runner boundary                                        |
-| **Public frontend**                      | Desktop WebGL; 320–1440px reduced-motion layouts; keyboard and fallback checks    | The deployed cinematic UI and usable fallback surfaces on tested Chromium                           |
-| **Local Python**                         | 128 tests, including 10 Docker/native tests                                       | Host regressions and real local containers; separate from cloud proof                               |
-| **Offline-safe CI**                      | Python offline lane; 17 portable browser tests                                    | No live inference; portable UI tests use explicitly synthetic API responses                         |
+| Evidence lane                      | Recorded result                                                                             | What it establishes                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Live anonymous rehearsal**       | One Playwright journey, one Vultr request, 822 tokens, two verified rows and both downloads | Public HTTPS, remote sandbox, native import, independent SQL and cleanup on release `dcb1b73` |
+| **Earlier live controls**          | Held rows, download denial, network/write denial, enforced timeout and memory cap           | Fail-closed behavior and runner containment in the earlier deployment                         |
+| **Earlier public frontend checks** | Desktop WebGL, 320–1440 px reduced-motion layouts, keyboard and fallback checks             | Cinematic UI and fallback coverage on tested Chromium                                         |
+| **Local Python**                   | 132 offline tests and 10 Docker-only tests passed                                           | Regression coverage and real local containers                                                 |
+| **Local browser**                  | 17 portable and 2 judge-specific Playwright tests passed                                    | Offline UI coverage, including replay and quota feedback                                      |
 
 These are dated observations, not an uptime promise or universal security claim.
 Hosted CI is offline-safe and never spends inference tokens or provisions cloud
-resources. [Deployment proof and limitations](docs/live-deployment.md) ·
+resources. [Judge-mode verification steps](docs/judge-facing-demo.md#local-verification) ·
+[Earlier deployment evidence](docs/live-deployment.md#verified-public-journey) ·
 [CI boundaries and reproduction](docs/ci-hardening.md)
 
 ## Architecture
@@ -152,10 +151,11 @@ Both frontend and backend are hosted on Vultr.
 - **Failure does not become success.** At most three transformation attempts;
   cleanup runs on success and failure. Failed verification or cleanup blocks export.
 
-Inputs are bounded to 16 KiB and 100 rows per CSV. The hosted demo adds shared
-Basic Auth, exact fixture allowlisting, request limits, one active job and a
-persistent 30-upload quota. Downloads expire after 24 hours; expiry does not
-reset the quota. [Detailed operating boundaries](docs/live-deployment.md)
+Inputs are bounded to 16 KiB and 100 rows per CSV. The anonymous demo enforces
+exact fixture allowlisting, request limits, one active job, and a persistent
+lifetime upload cap. The deployed `SHELFREADY_UPLOAD_QUOTA` is **150**.
+Downloads expire after 24 hours. Expiry does not reset the upload count.
+[Judge-mode operating boundaries](docs/judge-facing-demo.md#modes-and-limits)
 
 ## Run locally
 
@@ -264,14 +264,16 @@ Those results remain unchanged. [Competitive evaluation](docs/verification.md) �
 [Schema-interpretation spike](docs/agent-value-spike.md) ·
 [Catalog Rescue](docs/catalog-rescue.md)
 
-The judging deployment has finite quota, shared access and a temporary hostname.
-It is not a multi-tenant service. Physical mobile devices, Safari and screen-reader
-usability have not been certified. Automated accessibility checks cannot establish
-canvas contrast or complete usability.
+The judging deployment has finite quota, shared network limits, and a temporary
+hostname. Its VM operating review is **November 7, 2026 at 13:42 Europe/Paris**.
+Physical mobile devices, Safari and screen-reader usability have not been
+certified. Automated accessibility checks cannot establish canvas contrast or
+complete usability.
 
 ## Further reading
 
-[Deployment evidence and operations](docs/live-deployment.md) ·
+[Judge guide](docs/JUDGE.md) ·
+[Earlier deployment evidence and operations](docs/live-deployment.md) ·
 [Cinematic frontend](docs/cinematic-world.md) ·
 [Brand](docs/BRAND.md) · [CI and security](docs/ci-hardening.md) ·
 [Showcase artwork and validation](docs/readme-showcase.md) ·
