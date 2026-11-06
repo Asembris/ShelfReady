@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("judge replay identifies the recorded evidence and never uses the API", async ({
@@ -9,7 +10,12 @@ test("judge replay identifies the recorded evidence and never uses the API", asy
     await route.abort();
   });
   await page.goto("/#studio");
-  await page.getByText("Verified replay · read-only evidence").click();
+  const replay = page.getByText("Verified replay · read-only evidence");
+  const darkSurfaceInk = await page
+    .locator("body")
+    .evaluate((body) => getComputedStyle(body).color);
+  await expect(replay).toHaveCSS("color", darkSurfaceInk);
+  await replay.click();
   await expect(
     page.getByText("Recorded on November 5, 2026", { exact: false }),
   ).toBeVisible();
@@ -28,6 +34,11 @@ test("judge replay identifies the recorded evidence and never uses the API", asy
     "href",
     /docs\/live-deployment\.md#verified-public-journey$/,
   );
+  const contrast = await new AxeBuilder({ page })
+    .include(".verified-replay")
+    .withRules(["color-contrast"])
+    .analyze();
+  expect(contrast.violations).toEqual([]);
   expect(calls).toEqual([]);
 });
 

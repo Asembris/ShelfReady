@@ -1763,6 +1763,20 @@ tbody th {
 }
 .verified-replay {
   margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.verified-replay summary {
+  color: var(--ink);
+}
+
+.verified-replay p,
+.verified-replay thead th {
+  color: var(--mist);
+}
+
+.verified-replay a {
+  color: var(--cobalt-inverse);
 }
 
 .verified-replay table {

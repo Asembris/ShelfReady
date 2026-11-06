@@ -14,7 +14,9 @@ download only independently verified changes.
 <a href="docs/live-deployment.md"><img src="docs/assets/readme-cta-evidence.svg" height="48" alt="See the live evidence" /></a>
 <a href="#run-locally"><img src="docs/assets/readme-cta-local.svg" height="48" alt="Run it locally" /></a>
 
-**[Watch the submission video](https://youtu.be/UmIIVeOZky4) · [30-second judge guide](docs/JUDGE.md)**
+[![Watch the ShelfReady demo on YouTube](https://img.shields.io/badge/Watch%20the%20demo-164BFF?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/UmIIVeOZky4)
+
+**[30-second judge guide](docs/JUDGE.md)**
 
 <br />
 
