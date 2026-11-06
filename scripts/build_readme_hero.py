@@ -423,7 +423,7 @@ def build_button(title: str, primary: bool) -> str:
 def main() -> None:
     outputs = {
         "readme-hero.svg": build_hero(),
-        "readme-cta-demo.svg": build_button("Open the invited demo", True),
+        "readme-cta-demo.svg": build_button("Open the public demo", True),
         "readme-cta-evidence.svg": build_button("See the live evidence", False),
         "readme-cta-local.svg": build_button("Run it locally", False),
     }
